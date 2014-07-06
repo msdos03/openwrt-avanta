@@ -14,7 +14,7 @@ Index: linux-3.10.44/arch/arm/boot/dts/kirkwood-ea4500.dts
 ===================================================================
 --- /dev/null
 +++ linux-3.10.44/arch/arm/boot/dts/kirkwood-ea4500.dts
-@@ -0,0 +1,165 @@
+@@ -0,0 +1,164 @@
 +/*
 + * kirkwood-ea4500.dts - Device Tree file for Linksys EA4500
 + *
@@ -47,8 +47,7 @@ Index: linux-3.10.44/arch/arm/boot/dts/kirkwood-ea4500.dts
 +
 +	ocp@f1000000 {
 +		pinctrl: pinctrl@10000 {
-+			pinctrl-0 = <	&pmx_nand
-+					&pmx_led_white_health
++			pinctrl-0 = <	&pmx_led_white_health
 +					&pmx_led_white_pulse
 +					&pmx_btn_wps
 +					&pmx_btn_reset >;
