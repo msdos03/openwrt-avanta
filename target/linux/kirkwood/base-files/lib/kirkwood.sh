@@ -29,6 +29,10 @@ kirkwood_board_detect() {
 		name="pogo_e02"
 		;;
 
+	"D-Link DIR-665")
+		name="dir665"
+		;;
+
 	"Linksys EA4500")
 		name="ea4500"
 		;;

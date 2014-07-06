@@ -9,6 +9,9 @@
 board=$(kirkwood_board_name)
 
 case "$board" in
+"dir665")
+	ucidef_set_led_default "wan" "WAN (blue)" "dir665:blue:internet" "eth1"
+	ucidef_set_led_default "usb" "USB" "dir665:blue:usb" "1-1"
 "dockstar")
 	ucidef_set_led_default "health" "status:green:health" "1"
 	ucidef_set_led_default "fault" "status:orange:fault" "1"

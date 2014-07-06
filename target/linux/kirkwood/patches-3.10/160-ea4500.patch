@@ -1,8 +1,8 @@
-Index: linux-3.14.9/arch/arm/boot/dts/Makefile
+Index: linux-3.10.44/arch/arm/boot/dts/Makefile
 ===================================================================
---- linux-3.14.9.orig/arch/arm/boot/dts/Makefile
-+++ linux-3.14.9/arch/arm/boot/dts/Makefile
-@@ -90,6 +90,7 @@ dtb-$(CONFIG_ARCH_KIRKWOOD) += kirkwood-
+--- linux-3.10.44.orig/arch/arm/boot/dts/Makefile
++++ linux-3.10.44/arch/arm/boot/dts/Makefile
+@@ -71,6 +71,7 @@ dtb-$(CONFIG_ARCH_KIRKWOOD) += kirkwood-
  	kirkwood-dns325.dtb \
  	kirkwood-dockstar.dtb \
  	kirkwood-dreamplug.dtb \
@@ -10,11 +10,11 @@ Index: linux-3.14.9/arch/arm/boot/dts/Makefile
  	kirkwood-goflexnet.dtb \
  	kirkwood-guruplug-server-plus.dtb \
  	kirkwood-ib62x0.dtb \
-Index: linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
+Index: linux-3.10.44/arch/arm/boot/dts/kirkwood-ea4500.dts
 ===================================================================
 --- /dev/null
-+++ linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
-@@ -0,0 +1,160 @@
++++ linux-3.10.44/arch/arm/boot/dts/kirkwood-ea4500.dts
+@@ -0,0 +1,165 @@
 +/*
 + * kirkwood-ea4500.dts - Device Tree file for Linksys EA4500
 + *
@@ -29,8 +29,8 @@ Index: linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
 +
 +/dts-v1/;
 +
-+#include "kirkwood.dtsi"
-+#include "kirkwood-6282.dtsi"
++/include/ "kirkwood.dtsi"
++/include/ "kirkwood-6282.dtsi"
 +
 +/ {
 +	model = "Linksys EA4500";
@@ -45,22 +45,16 @@ Index: linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
 +		bootargs = "console=ttyS0,115200n8 earlyprintk";
 +	};
 +
-+	mbus {
-+		pcie-controller {
-+			status = "okay";
-+
-+			pcie@1,0 {
-+				status = "okay";
-+			};
-+
-+			pcie@2,0 {
-+				status = "okay";
-+			};
-+		};
-+	};
-+
 +	ocp@f1000000 {
 +		pinctrl: pinctrl@10000 {
++			pinctrl-0 = <	&pmx_nand
++					&pmx_led_white_health
++					&pmx_led_white_pulse
++					&pmx_btn_wps
++					&pmx_btn_reset >;
++
++			pinctrl-names = "default";
++
 +			pmx_led_white_health: pmx-led-white-health {
 +				marvell,pins = "mpp7";
 +				marvell,function = "gpo";
@@ -87,68 +81,79 @@ Index: linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
 +			status = "okay";
 +		};
 +
++		ehci@50000 {
++			status = "okay";
++		};
++
++		nand@3000000 {
++			status = "okay";
++			pinctrl-0 = <&pmx_nand>;
++			pinctrl-names = "default";
++
++			partition@0 {
++				label = "u-boot";
++				reg = <0x0000000 0x80000>;
++			};
++
++			partition@80000 {
++				label = "u-boot environment";
++				reg = <0x80000 0x20000>;
++			};
++
++			partition@200000 {
++				label = "kernel";
++				reg = <0x200000 0x200000>;
++			};
++
++			partition@400000 {
++				label = "root";
++				reg = <0x400000 0x1c00000>;
++			};
++		};
++
++		pcie-controller {
++			status = "okay";
++
++			pcie@1,0 {
++				status = "okay";
++			};
++
++			pcie@2,0 {
++				status = "okay";
++			};
++		};
 +	};
 +
 +	gpio_keys {
 +		compatible = "gpio-keys";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
-+		pinctrl-0 = < &pmx_btn_wps &pmx_btn_reset >;
-+		pinctrl-names = "default";
 +
 +		button@15 {
 +			label = "WPS Button";
-+			linux,code = <KEY_WPS_BUTTON>;
-+			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
++			linux,code = <0x211>;
++			gpios = <&gpio1 15 1>;
 +		};
 +
 +		button@16 {
 +			label = "Reset Button";
-+			linux,code = <KEY_RESTART>;
-+			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
++			linux,code = <0x198>;
++			gpios = <&gpio1 16 0>;
 +		};
 +	};
 +
 +	gpio-leds {
 +		compatible = "gpio-leds";
-+		pinctrl-0 = < &pmx_led_white_health &pmx_led_white_pulse >;
-+		pinctrl-names = "default";
 +
 +		white-health {
 +			label = "ea4500:white:health";
-+			gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
++			gpios = <&gpio0 7 0>;
 +		};
 +
 +		white-pulse {
 +			label = "ea4500:white:pulse";
-+			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
++			gpios = <&gpio0 14 1>;
 +		};
-+	};
-+};
-+
-+&nand {
-+	status = "okay";
-+	pinctrl-0 = <&pmx_nand>;
-+	pinctrl-names = "default";
-+
-+	partition@0 {
-+		label = "u-boot";
-+		reg = <0x0000000 0x80000>;
-+	};
-+
-+	partition@80000 {
-+		label = "u-boot environment";
-+		reg = <0x80000 0x20000>;
-+	};
-+
-+	partition@200000 {
-+		label = "kernel";
-+		reg = <0x200000 0x200000>;
-+	};
-+
-+	partition@400000 {
-+		label = "root";
-+		reg = <0x400000 0x1c00000>;
 +	};
 +};
 +

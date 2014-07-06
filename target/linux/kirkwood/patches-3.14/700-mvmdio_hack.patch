@@ -1,0 +1,18 @@
+Index: linux-3.14.9/drivers/net/ethernet/marvell/mvmdio.c
+===================================================================
+--- linux-3.14.9.orig/drivers/net/ethernet/marvell/mvmdio.c
++++ linux-3.14.9/drivers/net/ethernet/marvell/mvmdio.c
+@@ -138,7 +138,12 @@ static int orion_mdio_read(struct mii_bu
+ 		goto out;
+ 	}
+ 
+-	ret = val & 0xFFFF;
++	if(mii_id == 0x10 && (regnum == 0x02 || regnum == 0x03)) {
++		pr_info("mvmdio: faking ID register value\n");
++		ret = 0x1234;
++	} else {
++		ret = val & 0xFFFF;
++	}
+ out:
+ 	mutex_unlock(&dev->lock);
+ 	return ret;

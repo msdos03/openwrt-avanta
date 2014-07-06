@@ -90,6 +90,11 @@ define Image/Build/squashfs
 		dd if=$(KDIR)/zImage bs=4096k conv=sync; \
 		dd if=$(KDIR)/root.$(1) bs=128k conv=sync; \
 	) > $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1).img
+
+	( \
+		dd if=$(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-uImage bs=1536k conv=sync; \
+		dd if=$(KDIR)/root.$(1); \
+	) > $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1)-sysupgrade.bin
 endef
 
 define Image/mkfs/targz
@@ -113,6 +118,9 @@ endef
 
 Image/BuildKernel/Template/Generic=$(call Image/BuildKernel/Template)
 Image/InstallKernel/Template/Generic=$(call Image/InstallKernel/Template)
+
+Image/BuildKernel/Template/DIR665=$(call Image/BuildKernel/Template,dir665)
+Image/InstallKernel/Template/DIR665=$(call Image/InstallKernel/Template,dir665)
 
 Image/BuildKernel/Template/DOCKSTAR=$(call Image/BuildKernel/Template,dockstar)
 Image/InstallKernel/Template/DOCKSTAR=$(call Image/InstallKernel/Template,dockstar)

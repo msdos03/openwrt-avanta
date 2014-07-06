@@ -1,0 +1,246 @@
+Index: linux-3.10.44/arch/arm/boot/dts/kirkwood-dir665.dts
+===================================================================
+--- /dev/null
++++ linux-3.10.44/arch/arm/boot/dts/kirkwood-dir665.dts
+@@ -0,0 +1,229 @@
++/*
++ * Copyright (C) 2014 Claudio Leite <leitec@staticky.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++/dts-v1/;
++
++/include/ "kirkwood.dtsi"
++/include/ "kirkwood-6281.dtsi"
++
++/ {
++	model = "D-Link DIR-665";
++	compatible = "dlink,dir-665", "marvell,kirkwood-88f6281", "marvell,kirkwood";
++
++	memory {
++		device_type = "memory";
++		reg = <0x00000000 0x8000000>; /* 128 MB */
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200n8 earlyprintk";
++	};
++
++	ocp@f1000000 {
++		pinctrl: pinctrl@10000 {
++			pinctrl-0 =< 	&pmx_gpio_12 &pmx_gpio_28
++					&pmx_gpio_42 &pmx_gpio_43
++					&pmx_gpio_44 &pmx_gpio_45
++					&pmx_gpio_46 &pmx_gpio_47
++					&pmx_gpio_48 &pmx_gpio_49 >;
++			pinctrl-names = "default";
++
++			pmx_gpio_12: pmx-gpio-12 {
++				marvell,pins = "mpp12";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_28: pmx-gpio-28 {
++				marvell,pins = "mpp28";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_42: pmx-gpio-42 {
++				marvell,pins = "mpp42";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_43: pmx-gpio-43 {
++				marvell,pins = "mpp43";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_44: pmx-gpio-44 {
++				marvell,pins = "mpp44";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_45: pmx-gpio-45 {
++				marvell,pins = "mpp45";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_46: pmx-gpio-46 {
++				marvell,pins = "mpp46";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_47: pmx-gpio-47 {
++				marvell,pins = "mpp47";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_48: pmx-gpio-48 {
++				marvell,pins = "mpp48";
++				marvell,function = "gpio";
++			};
++			pmx_gpio_49: pmx-gpio-49 {
++				marvell,pins = "mpp49";
++				marvell,function = "gpio";
++			};
++		};
++
++		spi@10600 {
++			status = "okay";
++			m25p80@0 {
++				#address-cells = <1>;
++				#size-cells = <1>;
++				compatible = "mx25l12805d";
++				spi-max-frequency = <50000000>;
++				reg = <0>;
++
++				partition@0 {
++					label = "uboot";
++					reg = <0x0 0x30000>;
++					read-only;
++				};
++
++				partition@30000 {
++					label = "nvram";
++					reg = <0x30000 0x10000>;
++					read-only;
++				};
++
++				partition@40000 {
++					label = "kernel";
++					reg = <0x40000 0x180000>;
++				};
++
++				partition@1c0000 {
++					label = "rootfs";
++					reg = <0x1c0000 0xe00000>;
++				};
++
++				cal_data: partition@fc0000 {
++					label = "cal_data";
++					reg = <0xfc0000 0x10000>;
++					read-only;
++				};
++
++				partition@fd0000 {
++					label = "lang_pack";
++					reg = <0xfd0000 0x30000>;
++					read-only;
++				};
++
++				firmware@40000 {
++					label = "firmware";
++					reg = <0x40000 0xf80000>;
++				};
++			};
++		};
++
++		serial@12000 {
++			status = "okay";
++		};
++
++		i2c@11000 {
++			status = "okay";
++		};
++
++		ehci@50000 {
++			status = "okay";
++		};
++
++		pcie-controller {
++			status = "okay";
++
++			pcie@1,0 {
++				status = "okay";
++			};
++		};
++	};
++
++	gpio-leds {
++		compatible = "gpio-leds";
++
++		blue-usb {
++			label = "dir665:blue:usb";
++			gpios = <&gpio0 12 0>;
++		};
++		blue-internet {
++			label = "dir665:blue:internet";
++			gpios = <&gpio1 10 1>;
++		};
++		amber-internet {
++			label = "dir665:amber:internet";
++			gpios = <&gpio1 11 0>;
++		};
++		blue-wifi5g {
++			label = "dir665:blue:5g";
++			gpios = <&gpio1 12 1>;
++		};
++		blue-status {
++			label = "dir665:blue:status";
++			gpios = <&gpio1 13 0>;
++		};
++		blue-wps {
++			label = "dir665:blue:wps";
++			gpios = <&gpio1 15 0>;
++		};
++		amber-status {
++			label = "dir665:amber:status";
++			gpios = <&gpio1 16 0>;
++		};
++		blue-24g {
++			label = "dir665:blue:24g";
++			gpios = <&gpio1 17 1>;
++		};
++	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reset {
++			label = "reset";
++			linux,code = <0x198>;
++			gpios = <&gpio0 28 1>;
++		};
++		wps {
++			label = "wps";
++			linux,code = <0x211>;
++			gpios = <&gpio1 14 1>;
++		};
++	};
++};
++
++&mdio {
++	status = "okay";
++
++	ethphy0: ethernet-phy {
++		device_type = "ethernet-phy";
++		reg = <0x10>;
++	};
++};
++
++&eth0 {
++	status = "okay";
++
++	eth0p0: ethernet0-port@0 {
++		mtd-mac-address-string = <&cal_data 0xffa0>;
++		phy-handle = <&ethphy0>;
++	};
++};
++
++&eth1 {
++	status = "okay";
++
++	ethernet1-port@0 {
++		mtd-mac-address-string = <&cal_data 0xffb4>;
++		speed = <1000>;
++		duplex = <1>;
++	};
++};
+Index: linux-3.10.44/arch/arm/boot/dts/Makefile
+===================================================================
+--- linux-3.10.44.orig/arch/arm/boot/dts/Makefile
++++ linux-3.10.44/arch/arm/boot/dts/Makefile
+@@ -66,6 +66,7 @@ dtb-$(CONFIG_ARCH_LPC32XX) += ea3250.dtb
+ dtb-$(CONFIG_ARCH_KIRKWOOD) += kirkwood-cloudbox.dtb \
+ 	kirkwood-db-88f6281.dtb \
+ 	kirkwood-db-88f6282.dtb \
++	kirkwood-dir665.dtb \
+ 	kirkwood-dns320.dtb \
+ 	kirkwood-dns325.dtb \
+ 	kirkwood-dockstar.dtb \

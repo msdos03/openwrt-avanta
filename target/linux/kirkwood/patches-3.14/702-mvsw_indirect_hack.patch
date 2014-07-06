@@ -1,0 +1,51 @@
+Index: linux-3.14.9/drivers/net/phy/mvsw6171.c
+===================================================================
+--- linux-3.14.9.orig/drivers/net/phy/mvsw6171.c
++++ linux-3.14.9/drivers/net/phy/mvsw6171.c
+@@ -761,8 +761,8 @@ static int mvsw6171_config_init(struct p
+ 		return err;
+ 
+ 	state->registered = true;
+-	state->cpu_port0 = state->dev.cpu_port;
+-	state->cpu_port1 = -1;
++	state->cpu_port0 = 5;
++	state->cpu_port1 = 6;
+ 	state->pdev = pdev;
+ 
+ 	pdev->irq = PHY_POLL;
+@@ -808,14 +808,14 @@ mvsw6171_probe(struct phy_device *pdev)
+ 	pdev->priv = state;
+ 
+ 	dev->vlans = MV_VLANS;
+-	dev->cpu_port = MV_CPUPORT;
++	dev->cpu_port = 5;
+ 	dev->ports = MV_PORTS;
+ 	dev->name = "MV88E6171";
+ 	dev->ops = &mvsw6171_ops;
+ 
+ 	pr_info("mvsw6171: Found %s at %s\n", dev->name, dev_name(&pdev->dev));
+ 
+-	if (pdev->phy_id == MVSW6171_MAGIC_INDIRECT)
++	if (pdev->phy_id == 0x12341234)
+ 		state->direct = false;
+ 	else
+ 		state->direct = true;
+@@ -860,8 +860,8 @@ mvsw6171_fixup(struct phy_device *pdev)
+ 
+ static struct phy_driver mvsw6171_driver = {
+ 	.name		= "Marvell 88E6171",
+-	.phy_id		= MVSW6171_MAGIC,
+-	.phy_id_mask	= 0x0fffffff,
++	.phy_id		= 0x12341234,
++	.phy_id_mask	= 0xffffffff,
+ 	.features	= PHY_BASIC_FEATURES,
+ 	.probe		= &mvsw6171_probe,
+ 	.remove		= &mvsw6171_remove,
+@@ -876,7 +876,6 @@ static struct phy_driver mvsw6171_driver
+ static int __init
+ mvsw6171_init(void)
+ {
+-	phy_register_fixup_for_id(PHY_ANY_ID, mvsw6171_fixup);
+ 	return phy_driver_register(&mvsw6171_driver);
+ }
+ 

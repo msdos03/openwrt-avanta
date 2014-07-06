@@ -1,0 +1,13 @@
+#!/bin/sh
+
+kirkwood_set_preinit_iface() {
+	. /lib/kirkwood.sh
+
+	case "$(kirkwood_board_name)" in
+	*)
+		ifname=eth0
+		;;
+	esac
+}
+
+boot_hook_add preinit_main kirkwood_set_preinit_iface
