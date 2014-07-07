@@ -765,6 +765,12 @@ static int mvsw6171_config_init(struct phy_device *pdev)
 	struct net_device *ndev = pdev->attached_dev;
 	int err;
 
+	/* avoid re-registering, since this function
+	 * ends up being called multiple times
+	 */
+	if(state->registered == true)
+		return 0;
+
 	err = register_switch(&state->dev, ndev);
 	if (err < 0)
 		return err;
@@ -840,7 +846,8 @@ mvsw6171_fixup(struct phy_device *pdev)
 {
 	u16 reg;
 
-	if (pdev->addr != MV_BASE)
+	/* ensure we only look for new switches at the right address */
+	if (pdev->addr != MV_BASE || pdev->priv != NULL)
 		return 0;
 
 	/* Try using direct mode first */
