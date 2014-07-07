@@ -178,6 +178,18 @@ enum {
 	MV_8021Q_VLAN_ONLY		= (1 << 15),
 };
 
+enum {
+	MV_INDIRECT_REG_CMD		= 0,
+	MV_INDIRECT_REG_DATA		= 1,
+};
+
+enum {
+	MV_INDIRECT_INPROGRESS		= 0x8000,
+	MV_INDIRECT_WRITE		= 0x9400,
+	MV_INDIRECT_READ		= 0x9800,
+};
+#define MV_INDIRECT_ADDR_S		5
+
 #define MV_IDENT_MASK			0xfff0
 #define MV_IDENT_VALUE			0x1710
 

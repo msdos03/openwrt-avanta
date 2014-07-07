@@ -57,23 +57,26 @@ mvsw6171_wait_mask_raw(struct phy_device *pdev, int addr,
 static u16
 r16(struct phy_device *pdev, bool direct, int addr, int reg)
 {
-	u16 ind_addr, ret;
+	u16 ind_addr;
 
 	if (direct)
 		return pdev->bus->read(pdev->bus, addr, reg);
 
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, 0, 0x8000, 0);
+	/* Indirect read: First, make sure switch is free */
+	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+			MV_INDIRECT_INPROGRESS, 0);
 
-	ind_addr = 0x9800 | (addr << 5) | reg;
-	pdev->bus->write(pdev->bus, pdev->addr, 0, ind_addr);
+	/* Load address and request read */
+	ind_addr = MV_INDIRECT_READ | (addr << MV_INDIRECT_ADDR_S) | reg;
+	pdev->bus->write(pdev->bus, pdev->addr, MV_INDIRECT_REG_CMD,
+			ind_addr);
 
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, 0, 0x8000, 0);
+	/* Wait until it's ready */
+	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+			MV_INDIRECT_INPROGRESS, 0);
 
-	ret = pdev->bus->read(pdev->bus, pdev->addr, 1);
-
-	pr_info("read_indirect: ind_addr=%04x val=%04x\n", ind_addr, ret);
-
-	return ret;
+	/* Read the requested data */
+	return pdev->bus->read(pdev->bus, pdev->addr, MV_INDIRECT_REG_DATA);
 }
 
 static void
@@ -87,15 +90,21 @@ w16(struct phy_device *pdev, bool direct, int addr,
 		return;
 	}
 
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, 0, 0x8000, 0);
+	/* Indirect write: First, make sure switch is free */
+	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+			MV_INDIRECT_INPROGRESS, 0);
 
-	pdev->bus->write(pdev->bus, pdev->addr, 1, val);
+	/* Load the data to be written */
+	pdev->bus->write(pdev->bus, pdev->addr, MV_INDIRECT_REG_DATA, val);
 
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, 0, 0x8000, 0);
+	/* Wait again for switch to be free */
+	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+			MV_INDIRECT_INPROGRESS, 0);
 
-	ind_addr = 0x9400 | (addr << 5) | reg;
-	pdev->bus->write(pdev->bus, pdev->addr, 0, ind_addr);
-	pr_info("write_indirect: ind_addr=%04x val=%04x\n", ind_addr, val);
+	/* Load address, and issue write command */
+	ind_addr = MV_INDIRECT_WRITE | (addr << MV_INDIRECT_ADDR_S) | reg;
+	pdev->bus->write(pdev->bus, pdev->addr, MV_INDIRECT_REG_CMD,
+			ind_addr);
 }
 
 /* swconfig support */
@@ -829,31 +838,25 @@ mvsw6171_probe(struct phy_device *pdev)
 static int
 mvsw6171_fixup(struct phy_device *pdev)
 {
-	int i;
 	u16 reg;
-
-	pr_info("phy_fixup: %d\n", pdev->addr);
 
 	if (pdev->addr != MV_BASE)
 		return 0;
 
-	pr_info("mvsw6171: MDIO register dump:\n");
-	for (i = 0; i < 32; i++) {
-		reg = r16(pdev, true, pdev->addr, i);
-		pr_info("mvsw6171:  %02x  %04x\n", i, reg);
-	}
-
 	/* Try using direct mode first */
 	reg = r16(pdev, true, MV_PORTREG(IDENT, 0)) & MV_IDENT_MASK;
 	if (reg == MV_IDENT_VALUE) {
+		pr_info("mvsw6171_fixup: looks like a switch in direct mode\n");
 		pdev->phy_id = MVSW6171_MAGIC;
 		return 0;
 	}
 
 	/* Try again with indirect mode */
 	reg = r16(pdev, false, MV_PORTREG(IDENT, 0)) & MV_IDENT_MASK;
-	if (reg == MV_IDENT_VALUE)
+	if (reg == MV_IDENT_VALUE) {
+		pr_info("mvsw6171_fixup: looks like a switch in indirect mode\n");
 		pdev->phy_id = MVSW6171_MAGIC_INDIRECT;
+	}
 
 	return 0;
 }
