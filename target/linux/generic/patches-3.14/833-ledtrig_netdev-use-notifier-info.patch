@@ -1,0 +1,13 @@
+Index: linux-3.14.10/drivers/leds/ledtrig-netdev.c
+===================================================================
+--- linux-3.14.10.orig/drivers/leds/ledtrig-netdev.c
++++ linux-3.14.10/drivers/leds/ledtrig-netdev.c
+@@ -253,7 +253,7 @@ static int netdev_trig_notify(struct not
+ 			      unsigned long evt,
+ 			      void *dv)
+ {
+-	struct net_device *dev = dv;
++	struct net_device *dev = netdev_notifier_info_to_dev((struct netdev_notifier_info *)dv);
+ 	struct led_netdev_data *trigger_data = container_of(nb, struct led_netdev_data, notifier);
+ 
+ 	if (evt != NETDEV_UP && evt != NETDEV_DOWN && evt != NETDEV_CHANGE && evt != NETDEV_REGISTER && evt != NETDEV_UNREGISTER)
