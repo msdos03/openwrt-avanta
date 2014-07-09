@@ -1,7 +1,5 @@
-Index: linux-3.14.9/arch/arm/boot/dts/Makefile
-===================================================================
---- linux-3.14.9.orig/arch/arm/boot/dts/Makefile
-+++ linux-3.14.9/arch/arm/boot/dts/Makefile
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
 @@ -90,6 +90,7 @@ dtb-$(CONFIG_ARCH_KIRKWOOD) += kirkwood-
  	kirkwood-dns325.dtb \
  	kirkwood-dockstar.dtb \
@@ -10,11 +8,9 @@ Index: linux-3.14.9/arch/arm/boot/dts/Makefile
  	kirkwood-goflexnet.dtb \
  	kirkwood-guruplug-server-plus.dtb \
  	kirkwood-ib62x0.dtb \
-Index: linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
-===================================================================
 --- /dev/null
-+++ linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
-@@ -0,0 +1,160 @@
++++ b/arch/arm/boot/dts/kirkwood-ea4500.dts
+@@ -0,0 +1,167 @@
 +/*
 + * kirkwood-ea4500.dts - Device Tree file for Linksys EA4500
 + *
@@ -124,6 +120,17 @@ Index: linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
 +			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
 +		};
 +	};
++
++	mvsw6171 {
++		compatible = "marvell,88e6171";
++		status = "okay";
++		reg = <0x10>;
++
++		mii-bus = <&mdio>;
++		cpu-port-0 = <5>;
++		cpu-port-1 = <6>;
++		is-indirect;
++	};
 +};
 +
 +&nand {
@@ -154,17 +161,13 @@ Index: linux-3.14.9/arch/arm/boot/dts/kirkwood-ea4500.dts
 +
 +&mdio {
 +	status = "okay";
-+
-+	ethphy0: ethernet-phy@10 {
-+		device_type = "ethernet-phy";
-+		reg = <0x10>;
-+	};
 +};
 +
 +&eth0 {
 +	status = "okay";
 +	ethernet0-port@0 {
-+		phy-handle = <&ethphy0>;
++		speed = <1000>;
++		duplex = <1>;
 +	};
 +};
 +
