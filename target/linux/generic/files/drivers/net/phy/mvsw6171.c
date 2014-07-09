@@ -738,68 +738,76 @@ static const struct switch_dev_ops mvsw6171_ops = {
 static int mvsw6171_probe(struct platform_device *pdev)
 {
 	struct mvsw6171_state *state;
-	struct switch_dev *dev;
 	struct device_node *np = pdev->dev.of_node;
 	struct device_node *mdio;
-	struct mii_bus *bus;
-	bool is_indirect;
-	u16 base_addr, reg;
+	u32 val;
+	u16 reg;
 	int err;
-
-	mdio = of_parse_phandle(np, "mv,mii-bus", 0);
-	if (!mdio) {
-		dev_err(&pdev->dev, "Couldn't get MII bus handle\n");
-		return -ENODEV;
-	}
-
-	bus = of_mdio_find_bus(mdio);
-	if (!bus) {
-		dev_err(&pdev->dev, "Couldn't find MII bus from handle\n");
-		return -ENODEV;
-	}
-
-#if 0
-	if (of_property_read_u16(np, "mv,base-addr", &base_addr)) {
-		dev_warn(&pdev->dev, "Switch address not specified\n");
-		base_addr = 16;
-	}
-#endif
-	base_addr = 16;
-
-	is_indirect = of_property_read_bool(np, "mv,is-indirect");
-
-	reg = r16(bus, is_indirect, base_addr,
-			MV_PORTREG(IDENT, 0)) & MV_IDENT_MASK;
-	if (reg != MV_IDENT_VALUE) {
-		dev_err(&pdev->dev, "No switch found at 0x%02x\n", base_addr);
-		return -ENODEV;
-	}
 
 	state = kzalloc(sizeof(*state), GFP_KERNEL);
 	if (!state)
 		return -ENOMEM;
 
+	mdio = of_parse_phandle(np, "mii-bus", 0);
+	if (!mdio) {
+		dev_err(&pdev->dev, "Couldn't get MII bus handle\n");
+		err = -ENODEV;
+		goto out_err;
+	}
+
+	state->bus = of_mdio_find_bus(mdio);
+	if (!state->bus) {
+		dev_err(&pdev->dev, "Couldn't find MII bus from handle\n");
+		err = -ENODEV;
+		goto out_err;
+	}
+
+	state->is_indirect = of_property_read_bool(np, "is-indirect");
+
+	if (state->is_indirect) {
+		if (of_property_read_u32(np, "reg", &val)) {
+			dev_err(&pdev->dev, "Switch address not specified\n");
+			return -ENODEV;
+		}
+
+		state->base_addr = (u16)val;
+	} else {
+		state->base_addr = MV_BASE;
+	}
+
+	reg = r16(state->bus, state->is_indirect, state->base_addr,
+			MV_PORTREG(IDENT, 0)) & MV_IDENT_MASK;
+	if (reg != MV_IDENT_VALUE) {
+		dev_err(&pdev->dev, "No switch found at 0x%02x\n",
+				state->base_addr);
+		return -ENODEV;
+	}
+
 	platform_set_drvdata(pdev, state);
-	dev = &state->dev;
-
-	dev->vlans = MV_VLANS;
-	dev->cpu_port = MV_CPUPORT;
-	dev->ports = MV_PORTS;
-	dev->name = "MV88E6171";
-	dev->ops = &mvsw6171_ops;
-	dev->alias = dev_name(&pdev->dev);
-
-	state->bus = bus;
-	state->base_addr = base_addr;
-	state->is_indirect = is_indirect;
-	state->cpu_port0 = dev->cpu_port;
-	state->cpu_port1 = -1;
-
-	dev_info(&pdev->dev, "Found %s at %s:%02x\n", dev->name,
-			bus->id, base_addr);
+	dev_info(&pdev->dev, "Found %s at %s:%02x\n", MV_IDENT_STR,
+			state->bus->id, state->base_addr);
 
 	dev_info(&pdev->dev, "Using %sdirect addressing\n",
-			(is_indirect ? "in" : ""));
+			(state->is_indirect ? "in" : ""));
+
+	if (of_property_read_u32(np, "cpu-port-0", &val)) {
+		dev_err(&pdev->dev, "CPU port not set\n");
+		return -EINVAL;
+	}
+
+	state->cpu_port0 = val;
+
+	if (!of_property_read_u32(np, "cpu-port-1", &val))
+		state->cpu_port1 = val;
+	else
+		state->cpu_port1 = -1;
+
+	state->dev.vlans = MV_VLANS;
+	state->dev.cpu_port = state->cpu_port0;
+	state->dev.ports = MV_PORTS;
+	state->dev.name = MV_IDENT_STR;
+	state->dev.ops = &mvsw6171_ops;
+	state->dev.alias = dev_name(&pdev->dev);
 
 	err = register_switch(&state->dev, NULL);
 	if (err < 0)
@@ -808,7 +816,6 @@ static int mvsw6171_probe(struct platform_device *pdev)
 	state->registered = true;
 
 	return 0;
-
 out_err:
 	kfree(state);
 	return err;

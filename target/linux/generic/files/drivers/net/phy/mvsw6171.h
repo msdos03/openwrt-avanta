@@ -192,9 +192,7 @@ enum {
 
 #define MV_IDENT_MASK			0xfff0
 #define MV_IDENT_VALUE			0x1710
-
-#define MVSW6171_MAGIC			0x088e6171
-#define MVSW6171_MAGIC_INDIRECT		0xf88e6171
+#define MV_IDENT_STR			"MV88E6171"
 
 #define MV_PVID_MASK			0x0fff
 
