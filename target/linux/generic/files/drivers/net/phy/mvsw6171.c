@@ -767,7 +767,8 @@ static int mvsw6171_probe(struct platform_device *pdev)
 	if (state->is_indirect) {
 		if (of_property_read_u32(np, "reg", &val)) {
 			dev_err(&pdev->dev, "Switch address not specified\n");
-			return -ENODEV;
+			err = -ENODEV;
+			goto out_err;
 		}
 
 		state->base_addr = (u16)val;
@@ -780,7 +781,8 @@ static int mvsw6171_probe(struct platform_device *pdev)
 	if (reg != MV_IDENT_VALUE) {
 		dev_err(&pdev->dev, "No switch found at 0x%02x\n",
 				state->base_addr);
-		return -ENODEV;
+		err = -ENODEV;
+		goto out_err;
 	}
 
 	platform_set_drvdata(pdev, state);
@@ -792,7 +794,8 @@ static int mvsw6171_probe(struct platform_device *pdev)
 
 	if (of_property_read_u32(np, "cpu-port-0", &val)) {
 		dev_err(&pdev->dev, "CPU port not set\n");
-		return -EINVAL;
+		err = -ENODEV;
+		goto out_err;
 	}
 
 	state->cpu_port0 = val;
