@@ -200,10 +200,11 @@ enum {
 
 struct mvsw6171_state {
 	struct switch_dev dev;
-	struct phy_device *pdev;
+	struct mii_bus *bus;
+	u16 base_addr;
 
 	bool registered;
-	bool direct;
+	bool is_indirect;
 
 	int cpu_port0;
 	int cpu_port1;

@@ -16,15 +16,19 @@
 #include <linux/list.h>
 #include <linux/mii.h>
 #include <linux/phy.h>
+#include <linux/of.h>
+#include <linux/of_mdio.h>
 #include <linux/delay.h>
 #include <linux/switch.h>
 #include <linux/device.h>
+#include <linux/platform_device.h>
 
 #include "mvsw6171.h"
 
 MODULE_DESCRIPTION("Marvell 88E6171 Switch driver");
 MODULE_AUTHOR("Claudio Leite <leitec@staticky.com>");
 MODULE_LICENSE("GPL v2");
+MODULE_ALIAS("platform:mvsw6171");
 
 /*
  * Register access is done through direct or indirect addressing,
@@ -39,14 +43,14 @@ MODULE_LICENSE("GPL v2");
  */
 
 static int
-mvsw6171_wait_mask_raw(struct phy_device *pdev, int addr,
+mvsw6171_wait_mask_raw(struct mii_bus *bus, int addr,
 		int reg, u16 mask, u16 val)
 {
 	int i = 100;
 	u16 r;
 
 	do {
-		r = pdev->bus->read(pdev->bus, addr, reg);
+		r = bus->read(bus, addr, reg);
 		if ((r & mask) == val)
 			return 0;
 	} while (--i > 0);
@@ -55,55 +59,55 @@ mvsw6171_wait_mask_raw(struct phy_device *pdev, int addr,
 }
 
 static u16
-r16(struct phy_device *pdev, bool direct, int addr, int reg)
+r16(struct mii_bus *bus, bool indirect, int base_addr, int addr, int reg)
 {
 	u16 ind_addr;
 
-	if (direct)
-		return pdev->bus->read(pdev->bus, addr, reg);
+	if (!indirect)
+		return bus->read(bus, addr, reg);
 
 	/* Indirect read: First, make sure switch is free */
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+	mvsw6171_wait_mask_raw(bus, base_addr, MV_INDIRECT_REG_CMD,
 			MV_INDIRECT_INPROGRESS, 0);
 
 	/* Load address and request read */
 	ind_addr = MV_INDIRECT_READ | (addr << MV_INDIRECT_ADDR_S) | reg;
-	pdev->bus->write(pdev->bus, pdev->addr, MV_INDIRECT_REG_CMD,
+	bus->write(bus, base_addr, MV_INDIRECT_REG_CMD,
 			ind_addr);
 
 	/* Wait until it's ready */
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+	mvsw6171_wait_mask_raw(bus, base_addr, MV_INDIRECT_REG_CMD,
 			MV_INDIRECT_INPROGRESS, 0);
 
 	/* Read the requested data */
-	return pdev->bus->read(pdev->bus, pdev->addr, MV_INDIRECT_REG_DATA);
+	return bus->read(bus, base_addr, MV_INDIRECT_REG_DATA);
 }
 
 static void
-w16(struct phy_device *pdev, bool direct, int addr,
+w16(struct mii_bus *bus, bool indirect, int base_addr, int addr,
 		int reg, u16 val)
 {
 	u16 ind_addr;
 
-	if (direct) {
-		pdev->bus->write(pdev->bus, addr, reg, val);
+	if (!indirect) {
+		bus->write(bus, addr, reg, val);
 		return;
 	}
 
 	/* Indirect write: First, make sure switch is free */
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+	mvsw6171_wait_mask_raw(bus, base_addr, MV_INDIRECT_REG_CMD,
 			MV_INDIRECT_INPROGRESS, 0);
 
 	/* Load the data to be written */
-	pdev->bus->write(pdev->bus, pdev->addr, MV_INDIRECT_REG_DATA, val);
+	bus->write(bus, base_addr, MV_INDIRECT_REG_DATA, val);
 
 	/* Wait again for switch to be free */
-	mvsw6171_wait_mask_raw(pdev, pdev->addr, MV_INDIRECT_REG_CMD,
+	mvsw6171_wait_mask_raw(bus, base_addr, MV_INDIRECT_REG_CMD,
 			MV_INDIRECT_INPROGRESS, 0);
 
 	/* Load address, and issue write command */
 	ind_addr = MV_INDIRECT_WRITE | (addr << MV_INDIRECT_ADDR_S) | reg;
-	pdev->bus->write(pdev->bus, pdev->addr, MV_INDIRECT_REG_CMD,
+	bus->write(bus, base_addr, MV_INDIRECT_REG_CMD,
 			ind_addr);
 }
 
@@ -114,7 +118,7 @@ sr16(struct switch_dev *dev, int addr, int reg)
 {
 	struct mvsw6171_state *state = get_state(dev);
 
-	return r16(state->pdev, state->direct, addr, reg);
+	return r16(state->bus, state->is_indirect, state->base_addr, addr, reg);
 }
 
 static inline void
@@ -122,7 +126,7 @@ sw16(struct switch_dev *dev, int addr, int reg, u16 val)
 {
 	struct mvsw6171_state *state = get_state(dev);
 
-	w16(state->pdev, state->direct, addr, reg, val);
+	w16(state->bus, state->is_indirect, state->base_addr, addr, reg, val);
 }
 
 static int
@@ -731,170 +735,122 @@ static const struct switch_dev_ops mvsw6171_ops = {
 
 /* end swconfig stuff */
 
-static int
-mvsw6171_read_status(struct phy_device *pdev)
-{
-	pdev->autoneg = AUTONEG_DISABLE;
-
-	pdev->speed = SPEED_1000;
-	pdev->duplex = DUPLEX_FULL;
-
-	pdev->pause = 0;
-	pdev->asym_pause = 0;
-
-	pdev->link = 1;
-
-	return 0;
-}
-
-static int
-mvsw6171_config_aneg(struct phy_device *pdev)
-{
-	return 0;
-}
-
-static int
-mvsw6171_aneg_done(struct phy_device *pdev)
-{
-	return BMSR_ANEGCOMPLETE;
-}
-
-static int mvsw6171_config_init(struct phy_device *pdev)
-{
-	struct mvsw6171_state *state = pdev->priv;
-	struct net_device *ndev = pdev->attached_dev;
-	int err;
-
-	/* avoid re-registering, since this function
-	 * ends up being called multiple times
-	 */
-	if(state->registered == true)
-		return 0;
-
-	err = register_switch(&state->dev, ndev);
-	if (err < 0)
-		return err;
-
-	state->registered = true;
-	state->cpu_port0 = state->dev.cpu_port;
-	state->cpu_port1 = -1;
-	state->pdev = pdev;
-
-	pdev->irq = PHY_POLL;
-	pdev->supported = SUPPORTED_1000baseT_Full;
-	pdev->advertising = SUPPORTED_1000baseT_Full;
-
-	return 0;
-}
-
-static int
-mvsw6171_update_link(struct phy_device *pdev)
-{
-	pdev->link = 1;
-
-	return 0;
-}
-
-static void
-mvsw6171_remove(struct phy_device *pdev)
-{
-	struct mvsw6171_state *state = pdev->priv;
-
-	if (state->registered)
-		unregister_switch(&state->dev);
-
-	kfree(state);
-}
-
-static int
-mvsw6171_probe(struct phy_device *pdev)
+static int mvsw6171_probe(struct platform_device *pdev)
 {
 	struct mvsw6171_state *state;
 	struct switch_dev *dev;
+	struct device_node *np = pdev->dev.of_node;
+	struct device_node *mdio;
+	struct mii_bus *bus;
+	bool is_indirect;
+	u16 base_addr, reg;
+	int err;
 
-	if (pdev->addr != MV_BASE)
+	mdio = of_parse_phandle(np, "mv,mii-bus", 0);
+	if (!mdio) {
+		dev_err(&pdev->dev, "Couldn't get MII bus handle\n");
 		return -ENODEV;
+	}
+
+	bus = of_mdio_find_bus(mdio);
+	if (!bus) {
+		dev_err(&pdev->dev, "Couldn't find MII bus from handle\n");
+		return -ENODEV;
+	}
+
+#if 0
+	if (of_property_read_u16(np, "mv,base-addr", &base_addr)) {
+		dev_warn(&pdev->dev, "Switch address not specified\n");
+		base_addr = 16;
+	}
+#endif
+	base_addr = 16;
+
+	is_indirect = of_property_read_bool(np, "mv,is-indirect");
+
+	reg = r16(bus, is_indirect, base_addr,
+			MV_PORTREG(IDENT, 0)) & MV_IDENT_MASK;
+	if (reg != MV_IDENT_VALUE) {
+		dev_err(&pdev->dev, "No switch found at 0x%02x\n", base_addr);
+		return -ENODEV;
+	}
 
 	state = kzalloc(sizeof(*state), GFP_KERNEL);
 	if (!state)
 		return -ENOMEM;
 
+	platform_set_drvdata(pdev, state);
 	dev = &state->dev;
-	pdev->priv = state;
 
 	dev->vlans = MV_VLANS;
 	dev->cpu_port = MV_CPUPORT;
 	dev->ports = MV_PORTS;
 	dev->name = "MV88E6171";
 	dev->ops = &mvsw6171_ops;
+	dev->alias = dev_name(&pdev->dev);
 
-	pr_info("mvsw6171: Found %s at %s\n", dev->name, dev_name(&pdev->dev));
+	state->bus = bus;
+	state->base_addr = base_addr;
+	state->is_indirect = is_indirect;
+	state->cpu_port0 = dev->cpu_port;
+	state->cpu_port1 = -1;
 
-	if (pdev->phy_id == MVSW6171_MAGIC_INDIRECT)
-		state->direct = false;
-	else
-		state->direct = true;
+	dev_info(&pdev->dev, "Found %s at %s:%02x\n", dev->name,
+			bus->id, base_addr);
 
-	pr_info("mvsw6171: Using %sdirect addressing\n",
-			(state->direct ? "" : "in"));
+	dev_info(&pdev->dev, "Using %sdirect addressing\n",
+			(is_indirect ? "in" : ""));
+
+	err = register_switch(&state->dev, NULL);
+	if (err < 0)
+		goto out_err;
+
+	state->registered = true;
 
 	return 0;
+
+out_err:
+	kfree(state);
+	return err;
 }
 
 static int
-mvsw6171_fixup(struct phy_device *pdev)
+mvsw6171_remove(struct platform_device *pdev)
 {
-	u16 reg;
+	struct mvsw6171_state *state = platform_get_drvdata(pdev);
 
-	/* ensure we only look for new switches at the right address */
-	if (pdev->addr != MV_BASE || pdev->priv != NULL)
-		return 0;
+	if (state->registered)
+		unregister_switch(&state->dev);
 
-	/* Try using direct mode first */
-	reg = r16(pdev, true, MV_PORTREG(IDENT, 0)) & MV_IDENT_MASK;
-	if (reg == MV_IDENT_VALUE) {
-		pr_info("mvsw6171_fixup: looks like a switch in direct mode\n");
-		pdev->phy_id = MVSW6171_MAGIC;
-		return 0;
-	}
-
-	/* Try again with indirect mode */
-	reg = r16(pdev, false, MV_PORTREG(IDENT, 0)) & MV_IDENT_MASK;
-	if (reg == MV_IDENT_VALUE) {
-		pr_info("mvsw6171_fixup: looks like a switch in indirect mode\n");
-		pdev->phy_id = MVSW6171_MAGIC_INDIRECT;
-	}
+	kfree(state);
 
 	return 0;
 }
 
-static struct phy_driver mvsw6171_driver = {
-	.name		= "Marvell 88E6171",
-	.phy_id		= MVSW6171_MAGIC,
-	.phy_id_mask	= 0x0fffffff,
-	.features	= PHY_BASIC_FEATURES,
-	.probe		= &mvsw6171_probe,
-	.remove		= &mvsw6171_remove,
-	.config_init	= &mvsw6171_config_init,
-	.config_aneg	= &mvsw6171_config_aneg,
-	.aneg_done      = &mvsw6171_aneg_done,
-	.update_link    = &mvsw6171_update_link,
-	.read_status	= &mvsw6171_read_status,
-	.driver		= { .owner = THIS_MODULE,},
+static const struct of_device_id mvsw6171_match[] = {
+	{ .compatible = "marvell,88e6171" },
+	{ }
+};
+MODULE_DEVICE_TABLE(of, mvsw6171_match);
+
+static struct platform_driver mvsw6171_driver = {
+	.probe = mvsw6171_probe,
+	.remove = mvsw6171_remove,
+	.driver = {
+		.name = "mvsw6171",
+		.of_match_table = of_match_ptr(mvsw6171_match),
+		.owner = THIS_MODULE,
+	},
 };
 
-static int __init
-mvsw6171_init(void)
+static int __init mvsw6171_module_init(void)
 {
-	phy_register_fixup_for_id(PHY_ANY_ID, mvsw6171_fixup);
-	return phy_driver_register(&mvsw6171_driver);
+	return platform_driver_register(&mvsw6171_driver);
 }
+late_initcall(mvsw6171_module_init);
 
-static void __exit
-mvsw6171_exit(void)
+static void __exit mvsw6171_module_exit(void)
 {
-	phy_driver_unregister(&mvsw6171_driver);
+	platform_driver_unregister(&mvsw6171_driver);
 }
-
-module_init(mvsw6171_init);
-module_exit(mvsw6171_exit);
+module_exit(mvsw6171_module_exit);
