@@ -771,7 +771,7 @@ static int mvsw6171_probe(struct platform_device *pdev)
 			goto out_err;
 		}
 
-		state->base_addr = (u16)val;
+		state->base_addr = val;
 	} else {
 		state->base_addr = MV_BASE;
 	}

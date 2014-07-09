@@ -199,7 +199,7 @@ enum {
 struct mvsw6171_state {
 	struct switch_dev dev;
 	struct mii_bus *bus;
-	u16 base_addr;
+	int base_addr;
 
 	bool registered;
 	bool is_indirect;
