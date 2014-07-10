@@ -8,10 +8,8 @@ Signed-off-by: Jonas Gorski <jogo@openwrt.org>
  drivers/of/of_net.c | 100 +++++++++++++++++++++++++++++++++++++++++++++++++++-
  1 file changed, 99 insertions(+), 1 deletion(-)
 
-Index: linux-3.14.11/drivers/of/of_net.c
-===================================================================
---- linux-3.14.11.orig/drivers/of/of_net.c
-+++ linux-3.14.11/drivers/of/of_net.c
+--- a/drivers/of/of_net.c
++++ b/drivers/of/of_net.c
 @@ -10,6 +10,7 @@
  #include <linux/of_net.h>
  #include <linux/phy.h>
