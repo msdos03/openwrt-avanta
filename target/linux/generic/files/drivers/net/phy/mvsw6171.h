@@ -190,8 +190,8 @@ enum {
 };
 #define MV_INDIRECT_ADDR_S		5
 
-#define MV_IDENT_MASK			0xfff0
-#define MV_IDENT_VALUE			0x1710
+#define MV_IDENT_MASK			0xffc0
+#define MV_IDENT_VALUE			0x1700
 #define MV_IDENT_STR			"MV88E6171"
 
 #define MV_PVID_MASK			0x0fff
