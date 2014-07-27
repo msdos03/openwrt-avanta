@@ -1,0 +1,393 @@
+From 29e707c4f6fc0080d3caed58497a8518d16a4e5d Mon Sep 17 00:00:00 2001
+From: Claudio Leite <leitec@staticky.com>
+Date: Sat, 26 Jul 2014 21:35:46 -0400
+Subject: [PATCH 4/4] Add fixed-link PHY and support for mvneta
+
+full-duplex still doesn't work right from DTS for some reason,
+so it's hardcoded
+---
+ .../devicetree/bindings/net/fixed-link.txt         | 30 ++++++++
+ drivers/net/ethernet/marvell/mvneta.c              | 24 +++++--
+ drivers/net/phy/fixed.c                            | 81 +++++++++++++++++++---
+ drivers/of/of_mdio.c                               | 69 ++++++++++++++++++
+ include/linux/of_mdio.h                            | 15 ++++
+ include/linux/phy_fixed.h                          | 11 +++
+ 6 files changed, 216 insertions(+), 14 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/net/fixed-link.txt
+
+diff --git a/Documentation/devicetree/bindings/net/fixed-link.txt b/Documentation/devicetree/bindings/net/fixed-link.txt
+new file mode 100644
+index 0000000..e956de1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/net/fixed-link.txt
+@@ -0,0 +1,30 @@
++Fixed link Device Tree binding
++------------------------------
++
++Some Ethernet MACs have a "fixed link", and are not connected to a
++normal MDIO-managed PHY device. For those situations, a Device Tree
++binding allows to describe a "fixed link".
++
++Such a fixed link situation is described by creating a 'fixed-link'
++sub-node of the Ethernet MAC device node, with the following
++properties:
++
++* 'speed' (integer, mandatory), to indicate the link speed. Accepted
++  values are 10, 100 and 1000
++* 'full-duplex' (boolean, optional), to indicate that full duplex is
++  used. When absent, half duplex is assumed.
++* 'pause' (boolean, optional), to indicate that pause should be
++  enabled.
++* 'asym-pause' (boolean, optional), to indicate that asym_pause should
++  be enabled.
++
++Example:
++
++ethernet@0 {
++	...
++	fixed-link {
++	      speed = <1000>;
++	      full-duplex;
++	};
++	...
++};
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index ca2dfbe..3baa1e8 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -2759,7 +2759,10 @@ static void mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
+ 	if (phy_mode == PHY_INTERFACE_MODE_SGMII)
+ 		mvneta_port_sgmii_config(pp);
+ 
+-	mvneta_gmac_rgmii_set(pp, 1);
++	if (phy_mode == PHY_INTERFACE_MODE_GMII)
++		mvneta_gmac_rgmii_set(pp, 0);
++	else
++		mvneta_gmac_rgmii_set(pp, 1);
+ 
+ 	/* Cancel Port Reset */
+ 	val = mvreg_read(pp, MVNETA_GMAC_CTRL_2);
+@@ -2808,9 +2811,22 @@ static int mvneta_probe(struct platform_device *pdev)
+ 
+ 	phy_node = of_parse_phandle(dn, "phy", 0);
+ 	if (!phy_node) {
+-		dev_err(&pdev->dev, "no associated PHY\n");
+-		err = -ENODEV;
+-		goto err_free_irq;
++		if (!of_phy_is_fixed_link(dn)) {
++			dev_err(&pdev->dev, "no PHY specified\n");
++			err = -ENODEV;
++			goto err_free_irq;
++		}
++
++		err = of_phy_register_fixed_link(dn);
++		if (err < 0) {
++			dev_err(&pdev->dev, "cannot register fixed PHY\n");
++			goto err_free_irq;
++		}
++
++		/* In the case of a fixed PHY, the DT node associated
++		 * to the PHY is the Ethernet MAC DT node.
++		 */
++		phy_node = dn;
+ 	}
+ 
+ 	phy_mode = of_get_phy_mode(dn);
+diff --git a/drivers/net/phy/fixed.c b/drivers/net/phy/fixed.c
+index ba55adf..d60d875 100644
+--- a/drivers/net/phy/fixed.c
++++ b/drivers/net/phy/fixed.c
+@@ -21,6 +21,7 @@
+ #include <linux/phy_fixed.h>
+ #include <linux/err.h>
+ #include <linux/slab.h>
++#include <linux/of.h>
+ 
+ #define MII_REGS_NUM 29
+ 
+@@ -31,7 +32,7 @@ struct fixed_mdio_bus {
+ };
+ 
+ struct fixed_phy {
+-	int id;
++	int addr;
+ 	u16 regs[MII_REGS_NUM];
+ 	struct phy_device *phydev;
+ 	struct fixed_phy_status status;
+@@ -104,8 +105,8 @@ static int fixed_phy_update_regs(struct fixed_phy *fp)
+ 	if (fp->status.asym_pause)
+ 		lpa |= LPA_PAUSE_ASYM;
+ 
+-	fp->regs[MII_PHYSID1] = fp->id >> 16;
+-	fp->regs[MII_PHYSID2] = fp->id;
++	fp->regs[MII_PHYSID1] = 0;
++	fp->regs[MII_PHYSID2] = 0;
+ 
+ 	fp->regs[MII_BMSR] = bmsr;
+ 	fp->regs[MII_BMCR] = bmcr;
+@@ -115,7 +116,7 @@ static int fixed_phy_update_regs(struct fixed_phy *fp)
+ 	return 0;
+ }
+ 
+-static int fixed_mdio_read(struct mii_bus *bus, int phy_id, int reg_num)
++static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
+ {
+ 	struct fixed_mdio_bus *fmb = bus->priv;
+ 	struct fixed_phy *fp;
+@@ -124,7 +125,7 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_id, int reg_num)
+ 		return -1;
+ 
+ 	list_for_each_entry(fp, &fmb->phys, node) {
+-		if (fp->id == phy_id) {
++		if (fp->addr == phy_addr) {
+ 			/* Issue callback if user registered it. */
+ 			if (fp->link_update) {
+ 				fp->link_update(fp->phydev->attached_dev,
+@@ -138,7 +139,7 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_id, int reg_num)
+ 	return 0xFFFF;
+ }
+ 
+-static int fixed_mdio_write(struct mii_bus *bus, int phy_id, int reg_num,
++static int fixed_mdio_write(struct mii_bus *bus, int phy_addr, int reg_num,
+ 			    u16 val)
+ {
+ 	return 0;
+@@ -160,7 +161,7 @@ int fixed_phy_set_link_update(struct phy_device *phydev,
+ 		return -EINVAL;
+ 
+ 	list_for_each_entry(fp, &fmb->phys, node) {
+-		if (fp->id == phydev->phy_id) {
++		if (fp->addr == phydev->addr) {
+ 			fp->link_update = link_update;
+ 			fp->phydev = phydev;
+ 			return 0;
+@@ -171,7 +172,7 @@ int fixed_phy_set_link_update(struct phy_device *phydev,
+ }
+ EXPORT_SYMBOL_GPL(fixed_phy_set_link_update);
+ 
+-int fixed_phy_add(unsigned int irq, int phy_id,
++int fixed_phy_add(unsigned int irq, int phy_addr,
+ 		  struct fixed_phy_status *status)
+ {
+ 	int ret;
+@@ -184,9 +185,9 @@ int fixed_phy_add(unsigned int irq, int phy_id,
+ 
+ 	memset(fp->regs, 0xFF,  sizeof(fp->regs[0]) * MII_REGS_NUM);
+ 
+-	fmb->irqs[phy_id] = irq;
++	fmb->irqs[phy_addr] = irq;
+ 
+-	fp->id = phy_id;
++	fp->addr = phy_addr;
+ 	fp->status = *status;
+ 
+ 	ret = fixed_phy_update_regs(fp);
+@@ -203,6 +204,66 @@ err_regs:
+ }
+ EXPORT_SYMBOL_GPL(fixed_phy_add);
+ 
++void fixed_phy_del(int phy_addr)
++{
++	struct fixed_mdio_bus *fmb = &platform_fmb;
++	struct fixed_phy *fp, *tmp;
++
++	list_for_each_entry_safe(fp, tmp, &fmb->phys, node) {
++		if (fp->addr == phy_addr) {
++			list_del(&fp->node);
++			kfree(fp);
++			return;
++		}
++	}
++}
++EXPORT_SYMBOL_GPL(fixed_phy_del);
++
++static int phy_fixed_addr;
++static DEFINE_SPINLOCK(phy_fixed_addr_lock);
++
++int fixed_phy_register(unsigned int irq,
++		       struct fixed_phy_status *status,
++		       struct device_node *np)
++{
++	struct fixed_mdio_bus *fmb = &platform_fmb;
++	struct phy_device *phy;
++	int phy_addr;
++	int ret;
++
++	/* Get the next available PHY address, up to PHY_MAX_ADDR */
++	spin_lock(&phy_fixed_addr_lock);
++	if (phy_fixed_addr == PHY_MAX_ADDR) {
++		spin_unlock(&phy_fixed_addr_lock);
++		return -ENOSPC;
++	}
++	phy_addr = phy_fixed_addr++;
++	spin_unlock(&phy_fixed_addr_lock);
++
++	ret = fixed_phy_add(PHY_POLL, phy_addr, status);
++	if (ret < 0)
++		return ret;
++
++	phy = get_phy_device(fmb->mii_bus, phy_addr, false);
++	if (!phy || IS_ERR(phy)) {
++		fixed_phy_del(phy_addr);
++		return -EINVAL;
++	}
++
++	of_node_get(np);
++	phy->dev.of_node = np;
++
++	ret = phy_device_register(phy);
++	if (ret) {
++		phy_device_free(phy);
++		of_node_put(np);
++		fixed_phy_del(phy_addr);
++		return ret;
++	}
++
++	return 0;
++}
++
+ static int __init fixed_mdio_bus_init(void)
+ {
+ 	struct fixed_mdio_bus *fmb = &platform_fmb;
+diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
+index 5b3c24f..1e66511 100644
+--- a/drivers/of/of_mdio.c
++++ b/drivers/of/of_mdio.c
+@@ -14,6 +14,7 @@
+ #include <linux/netdevice.h>
+ #include <linux/err.h>
+ #include <linux/phy.h>
++#include <linux/phy_fixed.h>
+ #include <linux/of.h>
+ #include <linux/of_irq.h>
+ #include <linux/of_mdio.h>
+@@ -280,3 +281,71 @@ struct phy_device *of_phy_attach(struct net_device *dev,
+ 	return phy_attach_direct(dev, phy, flags, iface) ? NULL : phy;
+ }
+ EXPORT_SYMBOL(of_phy_attach);
++
++#if defined(CONFIG_FIXED_PHY)
++/*
++ * of_phy_is_fixed_link() and of_phy_register_fixed_link() must
++ * support two DT bindings:
++ * - the old DT binding, where 'fixed-link' was a property with 5
++ *   cells encoding various informations about the fixed PHY
++ * - the new DT binding, where 'fixed-link' is a sub-node of the
++ *   Ethernet device.
++ */
++bool of_phy_is_fixed_link(struct device_node *np)
++{
++	struct device_node *dn;
++	int len;
++
++	/* New binding */
++	dn = of_get_child_by_name(np, "fixed-link");
++	if (dn) {
++		of_node_put(dn);
++		return true;
++	}
++
++	/* Old binding */
++	if (of_get_property(np, "fixed-link", &len) &&
++	    len == (5 * sizeof(__be32)))
++		return true;
++
++	return false;
++}
++EXPORT_SYMBOL(of_phy_is_fixed_link);
++
++int of_phy_register_fixed_link(struct device_node *np)
++{
++	struct fixed_phy_status status = {};
++	struct device_node *fixed_link_node;
++	const __be32 *fixed_link_prop;
++	int len;
++
++	/* New binding */
++	fixed_link_node = of_get_child_by_name(np, "fixed-link");
++	if (fixed_link_node) {
++		status.link = 1;
++		/*status.duplex = of_property_read_bool(np, "full-duplex");*/
++		status.duplex = 1;
++
++		if (of_property_read_u32(fixed_link_node, "speed", &status.speed))
++			return -EINVAL;
++		status.pause = of_property_read_bool(np, "pause");
++		status.asym_pause = of_property_read_bool(np, "asym-pause");
++		of_node_put(fixed_link_node);
++		return fixed_phy_register(PHY_POLL, &status, np);
++	}
++
++	/* Old binding */
++	fixed_link_prop = of_get_property(np, "fixed-link", &len);
++	if (fixed_link_prop && len == (5 * sizeof(__be32))) {
++		status.link = 1;
++		status.duplex = be32_to_cpu(fixed_link_prop[1]);
++		status.speed = be32_to_cpu(fixed_link_prop[2]);
++		status.pause = be32_to_cpu(fixed_link_prop[3]);
++		status.asym_pause = be32_to_cpu(fixed_link_prop[4]);
++		return fixed_phy_register(PHY_POLL, &status, np);
++	}
++
++	return -ENODEV;
++}
++EXPORT_SYMBOL(of_phy_register_fixed_link);
++#endif
+diff --git a/include/linux/of_mdio.h b/include/linux/of_mdio.h
+index 6fe8464..77a6e32 100644
+--- a/include/linux/of_mdio.h
++++ b/include/linux/of_mdio.h
+@@ -67,4 +67,19 @@ static inline struct mii_bus *of_mdio_find_bus(struct device_node *mdio_np)
+ }
+ #endif /* CONFIG_OF */
+ 
++#if defined(CONFIG_OF) && defined(CONFIG_FIXED_PHY)
++extern int of_phy_register_fixed_link(struct device_node *np);
++extern bool of_phy_is_fixed_link(struct device_node *np);
++#else
++static inline int of_phy_register_fixed_link(struct device_node *np)
++{
++	return -ENOSYS;
++}
++static inline bool of_phy_is_fixed_link(struct device_node *np)
++{
++	return false;
++}
++#endif
++
++
+ #endif /* __LINUX_OF_MDIO_H */
+diff --git a/include/linux/phy_fixed.h b/include/linux/phy_fixed.h
+index 509d8f5..4f2478b 100644
+--- a/include/linux/phy_fixed.h
++++ b/include/linux/phy_fixed.h
+@@ -9,15 +9,26 @@ struct fixed_phy_status {
+ 	int asym_pause;
+ };
+ 
++struct device_node;
++
+ #ifdef CONFIG_FIXED_PHY
+ extern int fixed_phy_add(unsigned int irq, int phy_id,
+ 			 struct fixed_phy_status *status);
++extern int fixed_phy_register(unsigned int irq,
++			      struct fixed_phy_status *status,
++			      struct device_node *np);
+ #else
+ static inline int fixed_phy_add(unsigned int irq, int phy_id,
+ 				struct fixed_phy_status *status)
+ {
+ 	return -ENODEV;
+ }
++static inline int fixed_phy_register(unsigned int irq,
++				     struct fixed_phy_status *status,
++				     struct device_node *np)
++{
++	return -ENODEV;
++}
+ #endif /* CONFIG_FIXED_PHY */
+ 
+ /*
+-- 
+2.0.3
+

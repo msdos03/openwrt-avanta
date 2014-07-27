@@ -1,0 +1,27 @@
+From 1e25bb71169803f4fe16cee1f551796fbf75d772 Mon Sep 17 00:00:00 2001
+From: Claudio Leite <leitec@staticky.com>
+Date: Sat, 26 Jul 2014 21:34:48 -0400
+Subject: [PATCH 3/4] mvsw6171: add support for built-in switch on Avanta
+
+---
+ drivers/net/phy/mvsw6171.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/phy/mvsw6171.h b/drivers/net/phy/mvsw6171.h
+index 2b9ef97..3e96f29 100644
+--- a/drivers/net/phy/mvsw6171.h
++++ b/drivers/net/phy/mvsw6171.h
+@@ -191,8 +191,8 @@ enum {
+ #define MV_INDIRECT_ADDR_S		5
+ 
+ #define MV_IDENT_MASK			0xffc0
+-#define MV_IDENT_VALUE			0x1700
+-#define MV_IDENT_STR			"MV88E6171"
++#define MV_IDENT_VALUE			0x440
++#define MV_IDENT_STR			"MV88F6560"
+ 
+ #define MV_PVID_MASK			0x0fff
+ 
+-- 
+2.0.3
+

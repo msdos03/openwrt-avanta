@@ -1,0 +1,97 @@
+From eeac68ae6fb7190562f2e72e85392d2518019c7c Mon Sep 17 00:00:00 2001
+From: Claudio Leite <leitec@staticky.com>
+Date: Sat, 26 Jul 2014 21:32:51 -0400
+Subject: [PATCH 2/4] avanta: add support in platform drivers
+
+---
+ drivers/cpufreq/Kconfig.arm | 4 +++-
+ drivers/cpuidle/Kconfig.arm | 2 +-
+ drivers/pci/host/Kconfig    | 2 +-
+ drivers/rtc/Kconfig         | 2 +-
+ drivers/thermal/Kconfig     | 2 +-
+ drivers/watchdog/Kconfig    | 2 +-
+ 6 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/cpufreq/Kconfig.arm b/drivers/cpufreq/Kconfig.arm
+index 3129749..b0858e7 100644
+--- a/drivers/cpufreq/Kconfig.arm
++++ b/drivers/cpufreq/Kconfig.arm
+@@ -113,7 +113,9 @@ config ARM_INTEGRATOR
+ 	  If in doubt, say Y.
+ 
+ config ARM_KIRKWOOD_CPUFREQ
+-	def_bool ARCH_KIRKWOOD && OF
++	bool "Kirkwood CPUFreq driver"
++	depends on ARCH_KIRKWOOD || ARCH_AVANTA
++	default y
+ 	help
+ 	  This adds the CPUFreq driver for Marvell Kirkwood
+ 	  SoCs.
+diff --git a/drivers/cpuidle/Kconfig.arm b/drivers/cpuidle/Kconfig.arm
+index d988948..641cfcf 100644
+--- a/drivers/cpuidle/Kconfig.arm
++++ b/drivers/cpuidle/Kconfig.arm
+@@ -22,7 +22,7 @@ config ARM_HIGHBANK_CPUIDLE
+ 
+ config ARM_KIRKWOOD_CPUIDLE
+ 	bool "CPU Idle Driver for Marvell Kirkwood SoCs"
+-	depends on ARCH_KIRKWOOD
++	depends on ARCH_KIRKWOOD || ARCH_AVANTA
+ 	help
+ 	  This adds the CPU Idle driver for Marvell Kirkwood SoCs.
+ 
+diff --git a/drivers/pci/host/Kconfig b/drivers/pci/host/Kconfig
+index 47d46c6..661a080 100644
+--- a/drivers/pci/host/Kconfig
++++ b/drivers/pci/host/Kconfig
+@@ -3,7 +3,7 @@ menu "PCI host controller drivers"
+ 
+ config PCI_MVEBU
+ 	bool "Marvell EBU PCIe controller"
+-	depends on ARCH_MVEBU || ARCH_DOVE || ARCH_KIRKWOOD
++	depends on ARCH_MVEBU || ARCH_DOVE || ARCH_KIRKWOOD || ARCH_AVANTA
+ 	depends on OF
+ 
+ config PCIE_DW
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index efbf4cf..2a0c6aa 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1167,7 +1167,7 @@ config RTC_DRV_TX4939
+ 
+ config RTC_DRV_MV
+ 	tristate "Marvell SoC RTC"
+-	depends on ARCH_KIRKWOOD || ARCH_DOVE || ARCH_MVEBU
++	depends on ARCH_KIRKWOOD || ARCH_DOVE || ARCH_MVEBU || ARCH_AVANTA
+ 	help
+ 	  If you say yes here you will get support for the in-chip RTC
+ 	  that can be found in some of Marvell's SoC devices, such as
+diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+index 5f88d76..f5bffdb 100644
+--- a/drivers/thermal/Kconfig
++++ b/drivers/thermal/Kconfig
+@@ -143,7 +143,7 @@ config RCAR_THERMAL
+ 
+ config KIRKWOOD_THERMAL
+ 	tristate "Temperature sensor on Marvell Kirkwood SoCs"
+-	depends on ARCH_KIRKWOOD
++	depends on ARCH_KIRKWOOD || ARCH_AVANTA
+ 	depends on OF
+ 	help
+ 	  Support for the Kirkwood thermal sensor driver into the Linux thermal
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 81baab0..9c79292 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -292,7 +292,7 @@ config DAVINCI_WATCHDOG
+ 
+ config ORION_WATCHDOG
+ 	tristate "Orion watchdog"
+-	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE
++	depends on ARCH_ORION5X || ARCH_KIRKWOOD || ARCH_DOVE || ARCH_AVANTA
+ 	select WATCHDOG_CORE
+ 	help
+ 	  Say Y here if to include support for the watchdog timer
+-- 
+2.0.3
+
