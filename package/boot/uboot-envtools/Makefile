@@ -70,6 +70,10 @@ ifneq ($(CONFIG_TARGET_ar71xx),)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_DATA) ./files/ar71xx $(1)/etc/uci-defaults/30_uboot-envtools
 endif
+ifneq ($(CONFIG_TARGET_avanta),)
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_DATA) ./files/avanta $(1)/etc/uci-defaults/30_uboot-envtools
+endif
 ifneq ($(CONFIG_TARGET_cns3xxx),)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_DATA) ./files/cns3xxx $(1)/etc/uci-defaults/30_uboot-envtools
