@@ -1,0 +1,75 @@
+From 7263ac34ff925147f61cddf34ecda22acee01d9e Mon Sep 17 00:00:00 2001
+From: Claudio Leite <leitec@staticky.com>
+Date: Thu, 31 Jul 2014 21:31:24 -0400
+Subject: [PATCH 3/3] kernel: mvneta: fix checksum on 802.1q frames
+
+---
+ drivers/net/ethernet/marvell/mvneta.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 14a8ab7..622d842 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -23,6 +23,7 @@
+ #include <net/ip.h>
+ #include <net/ipv6.h>
+ #include <linux/io.h>
++#include <linux/if_vlan.h>
+ #include <linux/of.h>
+ #include <linux/of_irq.h>
+ #include <linux/of_mdio.h>
+@@ -1217,7 +1218,7 @@ static u32 mvneta_txq_desc_csum(int l3_offs, int l3_proto,
+ 	command =  l3_offs    << MVNETA_TX_L3_OFF_SHIFT;
+ 	command |= ip_hdr_len << MVNETA_TX_IP_HLEN_SHIFT;
+ 
+-	if (l3_proto == htons(ETH_P_IP) || l3_proto == htons(ETH_P_8021Q))
++	if (l3_proto == htons(ETH_P_IP))
+ 		command |= MVNETA_TXD_IP_CSUM;
+ 	else
+ 		command |= MVNETA_TX_L3_IP6;
+@@ -1379,19 +1380,28 @@ static int mvneta_rx_refill(struct mvneta_port *pp,
+ static u32 mvneta_skb_tx_csum(struct mvneta_port *pp, struct sk_buff *skb)
+ {
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		__be16 l3_proto = skb->protocol;
+ 		int ip_hdr_len = 0;
+ 		u8 l4_proto;
+ 
+-		if (skb->protocol == htons(ETH_P_IP) ||
+-				skb->protocol == htons(ETH_P_8021Q)) {
++		if (skb->protocol == htons(ETH_P_8021Q)) {
++			struct vlan_ethhdr *veh =
++				(struct vlan_ethhdr *)skb->data;
++
++			l3_proto = veh->h_vlan_encapsulated_proto;
++		}
++
++		if (l3_proto == htons(ETH_P_IP)) {
+ 			struct iphdr *ip4h = ip_hdr(skb);
+ 
+ 			/* Calculate IPv4 checksum and L4 checksum */
+ 			ip_hdr_len = ip4h->ihl;
+ 			l4_proto = ip4h->protocol;
+-		} else if (skb->protocol == htons(ETH_P_IPV6)) {
++		} else if (l3_proto == htons(ETH_P_IPV6)) {
+ 			struct ipv6hdr *ip6h = ipv6_hdr(skb);
+ 
++			pr_info("csum: ipv6\n");
++
+ 			/* Read l4_protocol from one of IPv6 extra headers */
+ 			if (skb_network_header_len(skb) > 0)
+ 				ip_hdr_len = (skb_network_header_len(skb) >> 2);
+@@ -1400,7 +1410,8 @@ static u32 mvneta_skb_tx_csum(struct mvneta_port *pp, struct sk_buff *skb)
+ 			return MVNETA_TX_L4_CSUM_NOT;
+ 
+ 		return mvneta_txq_desc_csum(skb_network_offset(skb),
+-				skb->protocol, ip_hdr_len, l4_proto);
++				l3_proto, ip_hdr_len,
++				l4_proto);
+ 	}
+ 
+ 	return MVNETA_TX_L4_CSUM_NOT;
+-- 
+2.0.3
+

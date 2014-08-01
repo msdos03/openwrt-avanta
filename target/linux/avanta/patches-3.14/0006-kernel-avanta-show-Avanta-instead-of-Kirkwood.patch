@@ -1,0 +1,61 @@
+From 832dfb7e31a4f09dcf8041e36510ce4f82ca89ca Mon Sep 17 00:00:00 2001
+From: Claudio Leite <leitec@staticky.com>
+Date: Thu, 31 Jul 2014 21:30:34 -0400
+Subject: [PATCH 2/3] kernel: avanta: show Avanta instead of Kirkwood
+
+---
+ arch/arm/mach-avanta/board-dt.c |  2 +-
+ arch/arm/mach-avanta/common.c   | 10 ++++++++--
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-avanta/board-dt.c b/arch/arm/mach-avanta/board-dt.c
+index 37990e7..dd6a4d2 100644
+--- a/arch/arm/mach-avanta/board-dt.c
++++ b/arch/arm/mach-avanta/board-dt.c
+@@ -106,7 +106,7 @@ eth_fixup_skip:
+ 
+ static void __init kirkwood_dt_init(void)
+ {
+-	pr_info("Kirkwood: %s.\n", kirkwood_id());
++	pr_info("Avanta: %s.\n", kirkwood_id());
+ 
+ 	/*
+ 	 * Disable propagation of mbus errors to the CPU local bus,
+diff --git a/arch/arm/mach-avanta/common.c b/arch/arm/mach-avanta/common.c
+index f3407a5..bee46db 100644
+--- a/arch/arm/mach-avanta/common.c
++++ b/arch/arm/mach-avanta/common.c
+@@ -544,7 +544,8 @@ static int __init kirkwood_find_tclk(void)
+ 
+ 	kirkwood_pcie_id(&dev, &rev);
+ 
+-	if (dev == MV88F6281_DEV_ID || dev == MV88F6282_DEV_ID)
++	if (dev == MV88F6281_DEV_ID || dev == MV88F6282_DEV_ID ||
++			dev == 0x6560)
+ 		if (((readl(SAMPLE_AT_RESET) >> 21) & 1) == 0)
+ 			return 200000000;
+ 
+@@ -661,6 +662,11 @@ char * __init kirkwood_id(void)
+ 			return "MV88F6282-Rev-A1";
+ 		else
+ 			return "MV88F6282-Rev-Unsupported";
++	} else if (dev == 0x6560) {
++		if(rev == 0x02)
++			return "MV88F6560-Rev-2";
++		else
++			return "MV88F6560-Rev-Unknown";
+ 	} else {
+ 		return "Device-Unknown";
+ 	}
+@@ -693,7 +699,7 @@ void __init kirkwood_l2_init(void)
+ 
+ void __init kirkwood_init(void)
+ {
+-	pr_info("Kirkwood: %s, TCLK=%d.\n", kirkwood_id(), kirkwood_tclk);
++	pr_info("Avanta: %s, TCLK=%d.\n", kirkwood_id(), kirkwood_tclk);
+ 
+ 	/*
+ 	 * Disable propagation of mbus errors to the CPU local bus,
+-- 
+2.0.3
+
