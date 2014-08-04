@@ -121,6 +121,9 @@ ramips_board_detect() {
 	*"ESR-9753")
 		name="esr-9753"
 		;;
+	*"EASYACC WI-STOR WIZARD 8800")
+		name="wizard8800"
+		;;
 	*"Edimax BR-6475nD")
 		name="br-6475nd"
 		;;
@@ -235,6 +238,9 @@ ramips_board_detect() {
 	*"V22RW-2X2")
 		name="v22rw-2x2"
 		;;
+	*"VoCore")
+		name="vocore"
+		;;
 	*"W502U")
 		name="w502u"
 		;;
@@ -318,6 +324,12 @@ ramips_board_detect() {
 		;;
 	*"ZBT WR8305RT")
 		name="wr8305rt"
+		;;
+	*"Lenovo Y1")
+		name="y1"
+		;;
+	*"Lenovo Y1S")
+		name="y1s"
 		;;
 	*)
 		name="generic"

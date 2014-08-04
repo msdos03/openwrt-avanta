@@ -80,6 +80,7 @@ platform_check_image() {
 	w502u |\
 	wr6202 |\
 	v22rw-2x2 | \
+	vocore | \
 	wl341v3 | \
 	wl-330n | \
 	wl-330n3g | \
@@ -95,7 +96,9 @@ platform_check_image() {
 	wrtnode |\
 	x5 |\
 	x8 |\
-	zbt-wa05)
+	zbt-wa05 |\
+	y1 |\
+	y1s)
 		[ "$magic" != "27051956" ] && {
 			echo "Invalid image type."
 			return 1
