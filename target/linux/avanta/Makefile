@@ -12,7 +12,7 @@ BOARDNAME:=Marvell Avanta
 FEATURES:=targz usb jffs2_nand nand ubifs squashfs
 CPU_TYPE:=xscale
 
-LINUX_VERSION:=3.14.14
+LINUX_VERSION:=3.14.16
 
 include $(INCLUDE_DIR)/target.mk
 
