@@ -326,12 +326,16 @@ define KernelPackage/usb-ohci
 	CONFIG_USB_OHCI \
 	CONFIG_USB_OHCI_HCD \
 	CONFIG_USB_OHCI_ATH79=y \
+	CONFIG_USB_OHCI_HCD_AT91=y \
 	CONFIG_USB_OHCI_BCM63XX=y \
 	CONFIG_USB_OCTEON_OHCI=y \
 	CONFIG_USB_OHCI_HCD_OMAP3=y \
 	CONFIG_USB_OHCI_HCD_PLATFORM=y
   FILES:=$(LINUX_DIR)/drivers/usb/host/ohci-hcd.ko
-  AUTOLOAD:=$(call AutoLoad,50,ohci-hcd,1)
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.11.0)),1)
+  FILES+=$(LINUX_DIR)/drivers/usb/host/ohci-platform.ko
+endif
+  AUTOLOAD:=$(call AutoLoad,50,ohci-hcd ohci-platform,1)
   $(call AddDepends/usb)
 endef
 
@@ -1210,6 +1214,21 @@ define KernelPackage/usb-net-cdc-ncm/description
 endef
 
 $(eval $(call KernelPackage,usb-net-cdc-ncm))
+
+
+define KernelPackage/usb-net-huawei-cdc-ncm
+  TITLE:=Support for Huawei CDC NCM connections
+  KCONFIG:=CONFIG_USB_NET_HUAWEI_CDC_NCM
+  FILES:= $(LINUX_DIR)/drivers/$(USBNET_DIR)/huawei_cdc_ncm.ko
+  AUTOLOAD:=$(call AutoProbe,huawei_cdc_ncm)
+  $(call AddDepends/usb-net,+kmod-usb-wdm @(LINUX_3_13||LINUX_3_14))
+endef
+
+define KernelPackage/usb-net-huawei-cdc-ncm/description
+ Kernel support for Huawei CDC NCM connections
+endef
+
+$(eval $(call KernelPackage,usb-net-huawei-cdc-ncm))
 
 
 define KernelPackage/usb-net-sierrawireless

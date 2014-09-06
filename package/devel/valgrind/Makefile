@@ -77,12 +77,14 @@ define Package/valgrind/description
 	to speed up and reduce memory use of your programs.
 endef
 
-CPU := $(patsubst x86_64,amd64,$(patsubst x86,i386,$(LINUX_KARCH)))
+CPU := $(patsubst x86_64,amd64,$(patsubst x86,i386,$(patsubst um,$(ARCH),$(LINUX_KARCH))))
 
 CONFIGURE_VARS += \
 	UNAME_R=$(LINUX_VERSION)
 
 ifeq ($(ARCH),x86_64)
+	CONFIGURE_ARGS += \
+		--enable-only64bit
 	BITS := 64bit
 else
 	CONFIGURE_ARGS += \
@@ -93,6 +95,7 @@ endif
 CONFIGURE_ARGS += \
 	--enable-tls \
 	--without-x \
+	--without-mpicc \
 	--without-uiout \
 	--disable-valgrindmi \
 	--disable-tui \
