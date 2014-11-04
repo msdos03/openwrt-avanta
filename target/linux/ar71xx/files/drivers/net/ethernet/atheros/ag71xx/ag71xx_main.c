@@ -704,7 +704,12 @@ static int ag71xx_fill_dma_desc(struct ag71xx_ring *ring, u32 addr, int len)
 
 		if (cur_len > split) {
 			cur_len = split;
-			if (len < split + 4)
+
+			/*
+			 * TX will hang if DMA transfers <= 4 bytes,
+			 * make sure next segment is more than 4 bytes long.
+			 */
+			if (len <= split + 4)
 				cur_len -= 4;
 		}
 
@@ -896,11 +901,12 @@ static int ag71xx_tx_packets(struct ag71xx *ag)
 	struct ag71xx_platform_data *pdata = ag71xx_get_pdata(ag);
 	int sent = 0;
 	int bytes_compl = 0;
+	int n = 0;
 
 	DBG("%s: processing TX ring\n", ag->dev->name);
 
-	while (ring->dirty != ring->curr) {
-		unsigned int i = ring->dirty % ring->size;
+	while (ring->dirty + n != ring->curr) {
+		unsigned int i = (ring->dirty + n) % ring->size;
 		struct ag71xx_desc *desc = ring->buf[i].desc;
 		struct sk_buff *skb = ring->buf[i].skb;
 
@@ -911,17 +917,22 @@ static int ag71xx_tx_packets(struct ag71xx *ag)
 			break;
 		}
 
-		ag71xx_wr(ag, AG71XX_REG_TX_STATUS, TX_STATUS_PS);
+		n++;
+		if (!skb)
+			continue;
 
-		if (skb) {
-			dev_kfree_skb_any(skb);
-			ring->buf[i].skb = NULL;
+		dev_kfree_skb_any(skb);
+		ring->buf[i].skb = NULL;
 
-			bytes_compl += ring->buf[i].len;
-			sent++;
+		bytes_compl += ring->buf[i].len;
+
+		sent++;
+		ring->dirty += n;
+
+		while (n > 0) {
+			ag71xx_wr(ag, AG71XX_REG_TX_STATUS, TX_STATUS_PS);
+			n--;
 		}
-
-		ring->dirty++;
 	}
 
 	DBG("%s: %d packets sent out\n", ag->dev->name, sent);
@@ -1257,12 +1268,10 @@ static int ag71xx_probe(struct platform_device *pdev)
 	ag->max_frame_len = pdata->max_frame_len;
 	ag->desc_pktlen_mask = pdata->desc_pktlen_mask;
 
-#ifdef notyet
 	if (!pdata->is_ar724x && !pdata->is_ar91xx) {
 		ag->tx_ring.desc_split = AG71XX_TX_RING_SPLIT;
 		ag->tx_ring.size *= AG71XX_TX_RING_DS_PER_PKT;
 	}
-#endif
 
 	ag->stop_desc = dma_alloc_coherent(NULL,
 		sizeof(struct ag71xx_desc), &ag->stop_desc_dma, GFP_KERNEL);

@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_VERSION:=2014-06-03
+PKG_VERSION:=2014-10-25
 PKG_RELEASE:=1
-PKG_REV:=84df167554569af8c87f0a8ac1fb508192417d8e
+PKG_REV:=01e2231fdc4fbec61fbc382238e3606a1d2826e4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=git://w1.fi/srv/git/hostap.git
@@ -20,6 +20,7 @@ PKG_SOURCE_PROTO:=git
 # PKG_MIRROR_MD5SUM:=4e7c1f97edd7514535056fce54ae053a
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
+PKG_LICENSE:=BSD-3-Clause
 
 PKG_BUILD_PARALLEL:=1
 
@@ -105,6 +106,7 @@ define Package/hostapd
 $(call Package/hostapd/Default)
   TITLE+= (full)
   VARIANT:=full
+  CONFLICTS:=wpad wpad-mini
 endef
 
 define Package/hostapd/description
@@ -116,6 +118,7 @@ define Package/hostapd-mini
 $(call Package/hostapd/Default)
   TITLE+= (WPA-PSK only)
   VARIANT:=mini
+  CONFLICTS:=wpad wpad-mini
 endef
 
 define Package/hostapd-mini/description
@@ -169,6 +172,7 @@ define Package/wpa-supplicant
   TITLE:=WPA Supplicant
   URL:=http://hostap.epitest.fi/wpa_supplicant/
   DEPENDS:=$(DRV_DEPENDS) +WPA_SUPPLICANT_OPENSSL:libopenssl
+  CONFLICTS:=wpad wpad-mini
   VARIANT:=supplicant-full
 endef
 
@@ -184,6 +188,7 @@ define Package/wpa-supplicant-p2p
   $(Package/wpa-supplicant)
   TITLE:=WPA Supplicant (with Wi-Fi P2P support)
   DEPENDS:=$(DRV_DEPENDS)
+  CONFLICTS:=wpad wpad-mini
   VARIANT:=supplicant-p2p
 endef
 
@@ -195,6 +200,7 @@ define Package/wpa-supplicant-mini
   $(Package/wpa-supplicant)
   TITLE:=WPA Supplicant (minimal version)
   DEPENDS:=$(DRV_DEPENDS)
+  CONFLICTS:=wpad wpad-mini
   VARIANT:=supplicant-mini
 endef
 

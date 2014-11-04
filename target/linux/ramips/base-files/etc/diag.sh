@@ -12,6 +12,9 @@ get_status_led() {
 	3g300m | w150m)
 		status_led="tenda:blue:ap"
 		;;
+	ar670w)
+		status_led="ar670w:green:power"
+		;;
 	ar725w)
 		status_led="ar725w:green:power"
 		;;
@@ -62,6 +65,9 @@ get_status_led() {
 		;;
 	hlk-rm04)
 		status_led="hlk-rm04:red:power"
+		;;
+	ht-tm02)
+		status_led="ht-tm02:white:status"
 		;;
 	all0239-3g|\
 	hw550-3g)
@@ -163,6 +169,12 @@ get_status_led() {
 		;;
 	wnce2001)
 		status_led="netgear:green:power"
+		;;
+	nexx-wt1520)
+		status_led="nexx-wt1520:white:power"
+		;;
+	nexx-wt3020)
+		status_led="nexx:blue:power"
 		;;
 	mzk-w300nh2)
 		status_led="mzkw300nh2:green:power"

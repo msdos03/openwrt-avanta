@@ -14,11 +14,11 @@ CPU_TYPE:=cortex-a9
 CPU_SUBTYPE:=vfpv3
 MAINTAINER:=Luka Perkov <luka@openwrt.org>
 
-LINUX_VERSION:=3.14.16
+KERNEL_PATCHVER:=3.14
 
 include $(INCLUDE_DIR)/target.mk
 
-KERNELNAME:="zImage dtbs"
+KERNELNAME:=zImage dtbs
 
 DEFAULT_PACKAGES += uboot-envtools
 

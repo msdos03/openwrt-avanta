@@ -22,7 +22,7 @@ PKG_REMOVE_FILES:=libtool.m4
 PKG_INSTALL:=1
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
-
+PKG_LICENSE:=GPL-3.0+
 PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -45,7 +45,7 @@ define Package/binutils/description
   The Binutils package contains a linker, an assembler, and other tools for handling object files
 endef
 
-TARGET_CFLAGS += $(FPIC)
+TARGET_CFLAGS += $(FPIC) -Wno-unused-value
 
 CONFIGURE_ARGS += \
 	--enable-shared \

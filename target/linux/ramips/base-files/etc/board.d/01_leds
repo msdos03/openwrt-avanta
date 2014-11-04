@@ -27,6 +27,9 @@ case $board in
 	3g300m)
 		set_usb_led "tenda:blue:3g"
 		;;
+	a5-v11)
+		ucidef_set_led_default "power" "POWER" "a5-v11:red:power" "1"
+		;;
 	air3gii)
 		set_wifi_led "airlive:green:wlan"
 		set_usb_led "airlive:green:mobile"
@@ -38,10 +41,9 @@ case $board in
 		ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "all0256n:green:rssihigh" "wlan0" "70" "100" "-69" "8"
 		set_wifi_led "rt2800pci-phy0::radio"
 		;;
+	ar670w|\
+	ar725w|\
 	awapn2403)
-		set_wifi_led "rt2800soc-phy0::radio"
-		;;
-	ar725w)
 		set_wifi_led "rt2800soc-phy0::radio"
 		;;
 	asl26555)
@@ -91,7 +93,7 @@ case $board in
 		set_wifi_led "d-link:green:wifi"
 		;;
 	dir-810l)
-		ucidef_set_led_default "power" "POWER" "dlink:green:power" "1"
+		ucidef_set_led_default "power" "POWER" "d-link:green:power" "1"
 		;;
 	dir-610-a1 |\
 	dir-300-b7 |\
@@ -112,6 +114,10 @@ case $board in
 	hlk-rm04)
 		set_wifi_led "rt2800pci-phy0::radio"
 		;;
+        ht-tm02)
+		ucidef_set_led_netdev "eth" "ETH" "ht-tm02:white:status" "eth0"
+		set_wifi_led "ht-tm02:blue:wifi"
+                ;;
 	all0239-3g|\
 	hw550-3g)
 		set_usb_led "hw550-3g:green:usb"
@@ -205,6 +211,12 @@ case $board in
 		ucidef_set_led_default "power" "power" "wr8305rt:sys" "1"
 		set_usb_led "wr8305rt:usb"
 		set_wifi_led "wr8305rt:wifi"
+		;;
+	wt1520)
+		set_wifi_led "rt2800pci-phy0::radio"
+		;;
+	wt3020)
+		ucidef_set_led_default "power" "power" "nexx:blue:power" "0"
 		;;
 	y1 |\
 	y1s)

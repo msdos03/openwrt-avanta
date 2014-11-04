@@ -34,7 +34,7 @@ get_status_led() {
 	aw-nr580)
 		status_led="aw-nr580:green:ready"
 		;;
-	bullet-m | rocket-m | nano-m | nanostation-m | nanostation-m-xw)
+	bullet-m | rocket-m | nano-m | nanostation-m | nanostation-m-xw | loco-m-xw)
 		status_led="ubnt:green:link4"
 		;;
 	bxu2000n-2-a1)
@@ -61,6 +61,9 @@ get_status_led() {
 	dir-825-c1 |\
 	dir-835-a1)
 		status_led="d-link:amber:power"
+		;;
+	dragino2)
+		status_led="dragino2:red:system"
 		;;
 	eap300v2)
 		status_led="engenius:blue:power"
@@ -165,6 +168,9 @@ get_status_led() {
 		;;
 	oolite)
 		status_led="oolite:red:system"
+		;;
+	qihoo-c301)
+		status_led="qihoo:green:status"
 		;;
 	tew-632brp)
 		status_led="tew-632brp:green:status"
@@ -291,6 +297,12 @@ set_state() {
 		;;
 	done)
 		status_led_on
+		case $(ar71xx_board_name) in
+		qihoo-c301)
+			local n=$(fw_printenv activeregion | cut -d = -f 2)
+			fw_setenv "image${n}trynum" 0
+			;;
+		esac
 		;;
 	esac
 }

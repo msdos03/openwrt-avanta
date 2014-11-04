@@ -8,13 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iproute2
-PKG_VERSION:=3.15.0
+PKG_VERSION:=3.16.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://kernel.org/pub/linux/utils/net/iproute2/
-PKG_MD5SUM:=5b1711c9d16071959052e369a2682d77
+PKG_MD5SUM:=6c823b40fdcfa7b8120743349a52ac18
 PKG_BUILD_PARALLEL:=1
+PKG_LICENSE:=GPL-2.0
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -31,7 +32,11 @@ define Package/iproute2/Default
   VARIANT:=$(1)
 endef
 
-Package/ip=$(call Package/iproute2/Default,tiny,Minimal)
+define Package/ip
+$(call Package/iproute2/Default,tiny,Minimal)
+  CONFLICTS:=ip-full
+endef
+
 Package/ip-full=$(call Package/iproute2/Default,full,Full)
 
 define Package/ip/conffiles
@@ -76,6 +81,9 @@ ifdef CONFIG_USE_EGLIBC
   ifndef CONFIG_EGLIBC_VERSION_2_13
     TARGET_CFLAGS += -DHAVE_SETNS
   endif
+endif
+ifdef CONFIG_USE_MUSL
+  TARGET_CFLAGS += -DHAVE_SETNS
 endif
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections

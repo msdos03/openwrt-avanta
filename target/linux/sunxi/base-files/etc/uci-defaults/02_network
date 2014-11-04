@@ -14,8 +14,10 @@ ucidef_set_interface_loopback
 case "`cat /proc/device-tree/model`" in
 "Cubietech Cubieboard" |\
 "Cubietech Cubieboard2" |\
+"Lemaker bananaPi" |\
 "LinkSprite pcDuino" |\
 "LinkSprite pcDuino V3" |\
+"LinkSprite pcDuino3" |\
 "Olimex A10-OLinuXino-LIME" |\
 "Olimex A20-Olinuxino Micro")
 	ucidef_set_interface_lan 'eth0'

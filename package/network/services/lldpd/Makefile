@@ -16,6 +16,7 @@ PKG_SOURCE_URL:=http://media.luffy.cx/files/lldpd
 PKG_MD5SUM:=9031734c69940dd79a0a175123275f83
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
+PKG_LICENSE:=ISC
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -31,6 +32,7 @@ define Package/lldpd
   TITLE:=Link Layer Discovery Protocol daemon
   URL:=https://github.com/vincentbernat/lldpd/wiki
   DEPENDS:=+libevent2 +USE_EGLIBC:libbsd
+  USERID:=lldp=121:lldp=129
 endef
 
 define Package/lldpd/description

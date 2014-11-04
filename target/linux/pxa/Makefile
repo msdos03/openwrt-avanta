@@ -12,7 +12,7 @@ BOARDNAME:=Marvell/Intel PXA2xx
 FEATURES:=squashfs
 MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
 
-LINUX_VERSION:=3.3.8
+KERNEL_PATCHVER:=3.3
 
 include $(INCLUDE_DIR)/target.mk
 
@@ -20,6 +20,6 @@ define Target/Description
 	Build images for PXA2xx systems, eg. Gumstix.
 endef
 
-KERNELNAME:="uImage"
+KERNELNAME:=uImage
 
 $(eval $(call BuildTarget))

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2006-2013 OpenWrt.org
+# Copyright (C) 2006-2014 OpenWrt.org
 # Copyright (C) 2006 Fokus Fraunhofer <carsten.tittel@fokus.fraunhofer.de>
 # Copyright (C) 2010 Vertical Communications
 
@@ -160,6 +160,69 @@ insert_modules() {
 	}
 }
 
+default_prerm() {
+	local name
+	name=$(echo $(basename $1) | cut -d. -f1)
+	[ -f /usr/lib/opkg/info/${name}.prerm-pkg ] && . /usr/lib/opkg/info/${name}.prerm-pkg
+	for i in `cat /usr/lib/opkg/info/${name}.list | grep "^/etc/init.d/"`; do
+		$i disable
+		$i stop
+	done
+}
+
+default_postinst() {
+	local name rusers
+	name=$(echo $(basename $1) | cut -d. -f1)
+	[ -f ${IPKG_INSTROOT}/usr/lib/opkg/info/${name}.postinst-pkg ] && ( . ${IPKG_INSTROOT}/usr/lib/opkg/info/${name}.postinst-pkg )
+	rusers=$(grep "Require-User:" ${IPKG_INSTROOT}/usr/lib/opkg/info/${name}.control)
+	[ -n "$rusers" ] && {
+		local user group uid gid
+		for a in $(echo $rusers | sed "s/Require-User://g"); do
+			user=""
+			group=""
+			for b in $(echo $a | sed "s/:/ /g"); do
+				local name id
+
+				name=$(echo $b | cut -d= -f1)
+				id=$(echo $b | cut -d= -f2)
+
+				[ -z "$user" ] && {
+					user=$name
+					uid=$id
+					continue
+				}
+
+				gid=$id
+				[ -n "$gid" ] && {
+					group_exists $name || group_add $name $gid
+				}
+
+				[ -z "$gid" ] && {
+					group_add_next $name
+					gid=$?
+				}
+
+				[ -z "$group" ] && {
+					user_exists $user || user_add $user "$uid" $gid
+					group=$name
+					continue
+				}
+
+				group_add_user $name $user
+			done
+		done
+	}
+	[ "$PKG_UPGRADE" = "1" ] || for i in `cat ${IPKG_INSTROOT}/usr/lib/opkg/info/${name}.list | grep "^/etc/init.d/"`; do
+		[ -n "${IPKG_INSTROOT}" ] && $(which bash) ${IPKG_INSTROOT}/etc/rc.common ${IPKG_INSTROOT}$i enable; \
+		[ -n "${IPKG_INSTROOT}" ] || {
+			$i enable
+			$i start
+		}
+	done
+	[ -n "${IPKG_INSTROOT}" ] || rm -f /tmp/luci-indexcache 2>/dev/null
+	return 0
+}
+
 include() {
 	local file
 
@@ -199,14 +262,45 @@ group_exists() {
 	grep -qs "^${1}:" ${IPKG_INSTROOT}/etc/group
 }
 
+group_add_next() {
+	local gid gids
+	gid=$(grep -s "^${1}:" ${IPKG_INSTROOT}/etc/group | cut -d: -f3)
+	[ -n "$gid" ] && return $gid
+	gids=$(cat ${IPKG_INSTROOT}/etc/group | cut -d: -f3)
+	gid=100
+	while [ -n "$(echo $gids | grep $gid)" ] ; do
+	        gid=$((gid + 1))
+	done
+	group_add $1 $gid
+	return $gid
+}
+
+group_add_user() {
+	local grp delim=","
+	grp=$(grep -s "^${1}:" ${IPKG_INSTROOT}/etc/group)
+	[ -z "$(echo $grp | cut -d: -f4 | grep $2)" ] || return
+	[ -n "$(echo $grp | grep ":$")" ] && delim=""
+	[ -n "$IPKG_INSTROOT" ] || lock /var/lock/passwd
+	sed -i "s/$grp/$grp$delim$2/g" ${IPKG_INSTROOT}/etc/group
+	[ -n "$IPKG_INSTROOT" ] || lock -u /var/lock/passwd
+}
+
 user_add() {
 	local name="${1}"
 	local uid="${2}"
-	local gid="${3:-$2}"
+	local gid="${3}"
 	local desc="${4:-$1}"
 	local home="${5:-/var/run/$1}"
 	local shell="${6:-/bin/false}"
 	local rc
+	[ -z "$uid" ] && {
+		uids=$(cat ${IPKG_INSTROOT}/etc/passwd | cut -d: -f3)
+		uid=100
+		while [ -n "$(echo $uids | grep $uid)" ] ; do
+		        uid=$((uid + 1))
+		done
+	}
+	[ -z "$gid" ] && gid=$uid
 	[ -f "${IPKG_INSTROOT}/etc/passwd" ] || return 1
 	[ -n "$IPKG_INSTROOT" ] || lock /var/lock/passwd
 	echo "${name}:x:${uid}:${gid}:${desc}:${home}:${shell}" >> ${IPKG_INSTROOT}/etc/passwd

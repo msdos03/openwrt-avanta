@@ -23,7 +23,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSI
 PKG_FIXUP:=autoreconf
 PKG_REMOVE_FILES = autogen.sh aclocal.m4
 
-PKG_LICENSE:=GPLv2
+PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
 
 PKG_BUILD_PARALLEL:=1
@@ -113,7 +113,7 @@ define Package/opkg/Default/install
 	done
     ifneq ($(CONFIG_PER_FEED_REPO_ADD_DISABLED),)
 	for d in $(FEEDS_DISABLED); do \
-		echo "# src/gz %n_$$$$d %U/$$$$d" >> $(1)/etc/opkg.conf; \
+		echo "$(if $(CONFIG_PER_FEED_REPO_ADD_COMMENTED),# )src/gz %n_$$$$d %U/$$$$d" >> $(1)/etc/opkg.conf; \
 	done
     endif
   endif

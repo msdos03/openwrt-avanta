@@ -190,6 +190,7 @@ platform_check_image() {
 	airgateway | \
 	airrouter | \
 	bullet-m | \
+	loco-m-xw | \
 	nanostation-m | \
 	rocket-m | \
 	nanostation-m-xw | \
@@ -199,6 +200,7 @@ platform_check_image() {
 	wzr-hp-g300nh | \
 	wzr-hp-g450h | \
 	wzr-hp-ag300h | \
+	wzr-450hp2 | \
 	whr-g301n | \
 	whr-hp-g300n | \
 	whr-hp-gn | \
@@ -225,6 +227,7 @@ platform_check_image() {
 		return 1
 		;;
 
+	qihoo-c301 | \
 	mynet-n600 | \
 	mynet-n750)
 		[ "$magic_long" != "5ea3a417" ] && {
@@ -382,6 +385,14 @@ platform_check_image() {
 		fi
 		return 0
 		;;
+    wnr2000-v4)
+		[ "$magic_long" != "32303034" ] && {
+			echo "Invalid image type."
+			return 1
+		}
+		return 0
+		;;
+
 	esac
 
 	echo "Sysupgrade is not yet supported on $board."

@@ -13,8 +13,8 @@ FEATURES:=ext4 rtc usb gpio
 CPU_TYPE:=arm926ej-s
 
 MAINTAINER:=Zoltan HERPAI <wigyori@uid0.hu>
-LINUX_VERSION:=3.14.16
-KERNELNAME:="zImage dtbs"
+KERNEL_PATCHVER:=3.14
+KERNELNAME:=zImage dtbs
 
 define Target/Description
 	Support for Freescale i.MX23/i.MX28 boards

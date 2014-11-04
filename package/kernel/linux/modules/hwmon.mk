@@ -119,7 +119,7 @@ define KernelPackage/hwmon-lm75
   KCONFIG:=CONFIG_SENSORS_LM75
   FILES:=$(LINUX_DIR)/drivers/hwmon/lm75.ko
   AUTOLOAD:=$(call AutoProbe,lm75)
-  $(call AddDepends/hwmon,+kmod-i2c-core)
+  $(call AddDepends/hwmon,+kmod-i2c-core +PACKAGE_kmod-thermal:kmod-thermal)
 endef
 
 define KernelPackage/hwmon-lm75/description
@@ -238,7 +238,7 @@ define KernelPackage/hwmon-w83627hf
   $(call AddDepends/hwmon,@TARGET_rdc||TARGET_x86 +kmod-hwmon-vid)
 endef
 
-define KernelPacakge/hwmon-w83627hf/description
+define KernelPackage/hwmon-w83627hf/description
   Kernel module for the Winbond W83627HF chips.
 endef
 
@@ -253,7 +253,7 @@ define KernelPackage/hwmon-gsc
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
-define KernelPacakge/hwmon-gsc/description
+define KernelPackage/hwmon-gsc/description
   Kernel module for the Gateworks System Controller chips.
 endef
 
@@ -268,7 +268,7 @@ define KernelPackage/hwmon-tmp421
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
-define KernelPacakge/hwmon-tmp421/description
+define KernelPackage/hwmon-tmp421/description
   Kernel module for the Texas Instruments TMP421 and compatible chips.
 endef
 
@@ -283,8 +283,24 @@ define KernelPackage/hwmon-gpiofan
   $(call AddDepends/hwmon,+kmod-i2c-core)
 endef
 
-define KernelPacakge/hwmon-gpiofan/description
+define KernelPackage/hwmon-gpiofan/description
   Kernel module for GPIO controlled FANs
 endef
 
 $(eval $(call KernelPackage,hwmon-gpiofan))
+
+
+define KernelPackage/hwmon-k10temp
+  TITLE:=AMD Family 10h+ temperature sensor
+  KCONFIG:=CONFIG_SENSORS_K10TEMP
+  FILES:=$(LINUX_DIR)/drivers/hwmon/k10temp.ko
+  AUTOLOAD:=$(call AutoLoad,60,k10temp)
+  $(call AddDepends/hwmon,@PCI_SUPPORT @(x86||x86_64))
+endef
+
+define KernelPackage/hwmon-k10temp/description
+  Thermal sensor support for AMD 10h, 11h, 12h (Llano), 14h (Brazos),
+  15h (Bulldozer/Trinity/Kaveri) and 16h (Kabini/Mullins) CPUs
+endef
+
+$(eval $(call KernelPackage,hwmon-k10temp))
