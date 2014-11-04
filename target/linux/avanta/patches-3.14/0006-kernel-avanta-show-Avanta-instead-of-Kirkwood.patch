@@ -8,8 +8,6 @@ Subject: [PATCH 2/3] kernel: avanta: show Avanta instead of Kirkwood
  arch/arm/mach-avanta/common.c   | 10 ++++++++--
  2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-avanta/board-dt.c b/arch/arm/mach-avanta/board-dt.c
-index 37990e7..dd6a4d2 100644
 --- a/arch/arm/mach-avanta/board-dt.c
 +++ b/arch/arm/mach-avanta/board-dt.c
 @@ -106,7 +106,7 @@ eth_fixup_skip:
@@ -21,11 +19,9 @@ index 37990e7..dd6a4d2 100644
  
  	/*
  	 * Disable propagation of mbus errors to the CPU local bus,
-diff --git a/arch/arm/mach-avanta/common.c b/arch/arm/mach-avanta/common.c
-index f3407a5..bee46db 100644
 --- a/arch/arm/mach-avanta/common.c
 +++ b/arch/arm/mach-avanta/common.c
-@@ -544,7 +544,8 @@ static int __init kirkwood_find_tclk(void)
+@@ -544,7 +544,8 @@ static int __init kirkwood_find_tclk(voi
  
  	kirkwood_pcie_id(&dev, &rev);
  
@@ -56,6 +52,3 @@ index f3407a5..bee46db 100644
  
  	/*
  	 * Disable propagation of mbus errors to the CPU local bus,
--- 
-2.0.3
-

@@ -15,9 +15,6 @@ so it's hardcoded
  6 files changed, 216 insertions(+), 14 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/net/fixed-link.txt
 
-diff --git a/Documentation/devicetree/bindings/net/fixed-link.txt b/Documentation/devicetree/bindings/net/fixed-link.txt
-new file mode 100644
-index 0000000..e956de1
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/net/fixed-link.txt
 @@ -0,0 +1,30 @@
@@ -51,11 +48,9 @@ index 0000000..e956de1
 +	};
 +	...
 +};
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index ca2dfbe..3baa1e8 100644
 --- a/drivers/net/ethernet/marvell/mvneta.c
 +++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -2759,7 +2759,10 @@ static void mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
+@@ -2759,7 +2759,10 @@ static void mvneta_port_power_up(struct
  	if (phy_mode == PHY_INTERFACE_MODE_SGMII)
  		mvneta_port_sgmii_config(pp);
  
@@ -67,7 +62,7 @@ index ca2dfbe..3baa1e8 100644
  
  	/* Cancel Port Reset */
  	val = mvreg_read(pp, MVNETA_GMAC_CTRL_2);
-@@ -2808,9 +2811,22 @@ static int mvneta_probe(struct platform_device *pdev)
+@@ -2808,9 +2811,22 @@ static int mvneta_probe(struct platform_
  
  	phy_node = of_parse_phandle(dn, "phy", 0);
  	if (!phy_node) {
@@ -93,8 +88,6 @@ index ca2dfbe..3baa1e8 100644
  	}
  
  	phy_mode = of_get_phy_mode(dn);
-diff --git a/drivers/net/phy/fixed.c b/drivers/net/phy/fixed.c
-index ba55adf..d60d875 100644
 --- a/drivers/net/phy/fixed.c
 +++ b/drivers/net/phy/fixed.c
 @@ -21,6 +21,7 @@
@@ -114,7 +107,7 @@ index ba55adf..d60d875 100644
  	u16 regs[MII_REGS_NUM];
  	struct phy_device *phydev;
  	struct fixed_phy_status status;
-@@ -104,8 +105,8 @@ static int fixed_phy_update_regs(struct fixed_phy *fp)
+@@ -104,8 +105,8 @@ static int fixed_phy_update_regs(struct
  	if (fp->status.asym_pause)
  		lpa |= LPA_PAUSE_ASYM;
  
@@ -125,7 +118,7 @@ index ba55adf..d60d875 100644
  
  	fp->regs[MII_BMSR] = bmsr;
  	fp->regs[MII_BMCR] = bmcr;
-@@ -115,7 +116,7 @@ static int fixed_phy_update_regs(struct fixed_phy *fp)
+@@ -115,7 +116,7 @@ static int fixed_phy_update_regs(struct
  	return 0;
  }
  
@@ -134,7 +127,7 @@ index ba55adf..d60d875 100644
  {
  	struct fixed_mdio_bus *fmb = bus->priv;
  	struct fixed_phy *fp;
-@@ -124,7 +125,7 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_id, int reg_num)
+@@ -124,7 +125,7 @@ static int fixed_mdio_read(struct mii_bu
  		return -1;
  
  	list_for_each_entry(fp, &fmb->phys, node) {
@@ -143,7 +136,7 @@ index ba55adf..d60d875 100644
  			/* Issue callback if user registered it. */
  			if (fp->link_update) {
  				fp->link_update(fp->phydev->attached_dev,
-@@ -138,7 +139,7 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_id, int reg_num)
+@@ -138,7 +139,7 @@ static int fixed_mdio_read(struct mii_bu
  	return 0xFFFF;
  }
  
@@ -152,7 +145,7 @@ index ba55adf..d60d875 100644
  			    u16 val)
  {
  	return 0;
-@@ -160,7 +161,7 @@ int fixed_phy_set_link_update(struct phy_device *phydev,
+@@ -160,7 +161,7 @@ int fixed_phy_set_link_update(struct phy
  		return -EINVAL;
  
  	list_for_each_entry(fp, &fmb->phys, node) {
@@ -161,7 +154,7 @@ index ba55adf..d60d875 100644
  			fp->link_update = link_update;
  			fp->phydev = phydev;
  			return 0;
-@@ -171,7 +172,7 @@ int fixed_phy_set_link_update(struct phy_device *phydev,
+@@ -171,7 +172,7 @@ int fixed_phy_set_link_update(struct phy
  }
  EXPORT_SYMBOL_GPL(fixed_phy_set_link_update);
  
@@ -170,7 +163,7 @@ index ba55adf..d60d875 100644
  		  struct fixed_phy_status *status)
  {
  	int ret;
-@@ -184,9 +185,9 @@ int fixed_phy_add(unsigned int irq, int phy_id,
+@@ -184,9 +185,9 @@ int fixed_phy_add(unsigned int irq, int
  
  	memset(fp->regs, 0xFF,  sizeof(fp->regs[0]) * MII_REGS_NUM);
  
@@ -249,8 +242,6 @@ index ba55adf..d60d875 100644
  static int __init fixed_mdio_bus_init(void)
  {
  	struct fixed_mdio_bus *fmb = &platform_fmb;
-diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
-index 5b3c24f..1e66511 100644
 --- a/drivers/of/of_mdio.c
 +++ b/drivers/of/of_mdio.c
 @@ -14,6 +14,7 @@
@@ -261,7 +252,7 @@ index 5b3c24f..1e66511 100644
  #include <linux/of.h>
  #include <linux/of_irq.h>
  #include <linux/of_mdio.h>
-@@ -280,3 +281,71 @@ struct phy_device *of_phy_attach(struct net_device *dev,
+@@ -280,3 +281,71 @@ struct phy_device *of_phy_attach(struct
  	return phy_attach_direct(dev, phy, flags, iface) ? NULL : phy;
  }
  EXPORT_SYMBOL(of_phy_attach);
@@ -333,11 +324,9 @@ index 5b3c24f..1e66511 100644
 +}
 +EXPORT_SYMBOL(of_phy_register_fixed_link);
 +#endif
-diff --git a/include/linux/of_mdio.h b/include/linux/of_mdio.h
-index 6fe8464..77a6e32 100644
 --- a/include/linux/of_mdio.h
 +++ b/include/linux/of_mdio.h
-@@ -67,4 +67,19 @@ static inline struct mii_bus *of_mdio_find_bus(struct device_node *mdio_np)
+@@ -67,4 +67,19 @@ static inline struct mii_bus *of_mdio_fi
  }
  #endif /* CONFIG_OF */
  
@@ -357,8 +346,6 @@ index 6fe8464..77a6e32 100644
 +
 +
  #endif /* __LINUX_OF_MDIO_H */
-diff --git a/include/linux/phy_fixed.h b/include/linux/phy_fixed.h
-index 509d8f5..4f2478b 100644
 --- a/include/linux/phy_fixed.h
 +++ b/include/linux/phy_fixed.h
 @@ -9,15 +9,26 @@ struct fixed_phy_status {
@@ -388,6 +375,3 @@ index 509d8f5..4f2478b 100644
  #endif /* CONFIG_FIXED_PHY */
  
  /*
--- 
-2.0.3
-
