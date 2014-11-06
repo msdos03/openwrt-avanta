@@ -175,6 +175,9 @@ ramips_board_detect() {
 	*"Kingston MLW221")
 		name="mlw221"
 		;;
+	*"Linksys E1700")
+		name="e1700"
+		;;
 	*"Planex MZK-750DHP")
 		name="mzk-750dhp"
 		;;
@@ -351,6 +354,9 @@ ramips_board_detect() {
 		;;
 	*"Lenovo Y1S")
 		name="y1s"
+		;;
+	*"Mediatek MT7628AN evaluation board")
+		name="mt7628"
 		;;
 	*)
 		name="generic"
