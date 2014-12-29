@@ -48,7 +48,7 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
 +obj-$(CONFIG_GPIO_MT7621)	+= gpio-mt7621.o
 --- /dev/null
 +++ b/drivers/gpio/gpio-mt7621.c
-@@ -0,0 +1,177 @@
+@@ -0,0 +1,178 @@
 +/*
 + * This program is free software; you can redistribute it and/or modify it
 + * under the terms of the GNU General Public License version 2 as published
@@ -178,6 +178,7 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
 +	rg->chip.direction_output = mediatek_gpio_direction_output;
 +	rg->chip.get = mediatek_gpio_get;
 +	rg->chip.set = mediatek_gpio_set;
++	rg->bank = be32_to_cpu(*id);
 +
 +	/* set polarity to low for all gpios */
 +	mtk_gpio_w32(rg, GPIO_REG_POL, 0);

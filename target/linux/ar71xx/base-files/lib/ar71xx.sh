@@ -229,6 +229,39 @@ tplink_board_detect() {
 	AR71XX_MODEL="$model $hwver"
 }
 
+tplink_pharos_get_model_string() {
+	local part
+	part=$(find_mtd_part 'product-info')
+	[ -z "$part" ] && return 1
+
+	# The returned string will end with \r\n, but we don't remove it here
+	# to simplify matching against it in the sysupgrade image check
+	dd if=$part bs=1 skip=4360 2>/dev/null | head -n 1
+}
+
+tplink_pharos_board_detect() {
+	local model_string="$(tplink_pharos_get_model_string | tr -d '\r')"
+	local oIFS="$IFS"; IFS=":"; set -- $model_string; IFS="$oIFS"
+	local model
+
+	case "$1" in
+	'CPE210(TP-LINK|UN|N300-2)')
+		model='TP-Link CPE210'
+		;;
+	'CPE220(TP-LINK|UN|N300-2)')
+		model='TP-Link CPE220'
+		;;
+	'CPE510(TP-LINK|UN|N300-5)')
+		model='TP-Link CPE510'
+		;;
+	'CPE520(TP-LINK|UN|N300-5)')
+		model='TP-Link CPE520'
+		;;
+	esac
+
+	[ -n "$model" ] && AR71XX_MODEL="$model v$2"
+}
+
 ar71xx_board_detect() {
 	local machine
 	local name
@@ -238,6 +271,9 @@ ar71xx_board_detect() {
 	case "$machine" in
 	*"Oolite V1.0")
 		name="oolite"
+		;;
+	*"AC1750DB")
+		name="f9k1115v2"
 		;;
 	*"AirGateway")
 		name="airgateway"
@@ -302,8 +338,18 @@ ar71xx_board_detect() {
 	*CAP4200AG)
 		name="cap4200ag"
 		;;
+	*"CPE210/220/510/520")
+		name="cpe510"
+		tplink_pharos_board_detect
+		;;
 	*"DB120 reference board")
 		name="db120"
+		;;
+	*"DGL-5500 rev. A1")
+		name="dgl-5500-a1"
+		;;
+	*"DHP-1565 rev. A1")
+		name="dhp-1565-a1"
 		;;
 	*"DIR-505 rev. A1")
 		name="dir-505-a1"
@@ -391,6 +437,12 @@ ar71xx_board_detect() {
 		;;
 	*MR600)
 		name="mr600"
+		;;
+	*MR900)
+		name="mr900"
+		;;
+	*MR900v2)
+		name="mr900v2"
 		;;
 	*"My Net N600")
 		name="mynet-n600"
@@ -692,6 +744,9 @@ ar71xx_board_detect() {
 	*"WNDR3700/WNDR3800/WNDRMAC")
 		wndr3700_board_detect "$machine"
 		;;
+	*"R6100")
+		name="r6100"
+		;;
 	*"WNDR3700v4")
 		name="wndr3700v4"
 		;;
@@ -763,7 +818,8 @@ ar71xx_board_detect() {
 		;;
 	esac
 
-	[ "${machine:0:8}" = 'TP-LINK ' ] && tplink_board_detect "$machine"
+	[ -z "$AR71XX_MODEL" ] && [ "${machine:0:8}" = 'TP-LINK ' ] && \
+		tplink_board_detect "$machine"
 
 	[ -z "$name" ] && name="unknown"
 

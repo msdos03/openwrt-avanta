@@ -9,12 +9,14 @@ OTHER_MENU:=Other modules
 define KernelPackage/sdhci-mt7620
   SUBMENU:=Other modules
   TITLE:=MT7620 SDCI
-  DEPENDS:=@TARGET_ramips_mt7620a +kmod-sdhci
+  DEPENDS:=@(TARGET_ramips_mt7620||TARGET_ramips_mt7628||TARGET_ramips_mt7621) +kmod-sdhci
   KCONFIG:= \
-	CONFIG_MMC_SDHCI_MT7620
+	CONFIG_MTK_MMC \
+	CONFIG_MTK_AEE_KDUMP=n \
+	CONFIG_MTK_MMC_CD_POLL=n
   FILES:= \
-	$(LINUX_DIR)/drivers/mmc/host/sdhci-mt7620.ko
-  AUTOLOAD:=$(call AutoProbe,sdhci-mt7620,1)
+	$(LINUX_DIR)/drivers/mmc/host/mtk-mmc/mtk_sd.ko
+  AUTOLOAD:=$(call AutoProbe,mtk_sd,1)
 endef
 
 $(eval $(call KernelPackage,sdhci-mt7620))
@@ -36,7 +38,7 @@ $(eval $(call KernelPackage,i2c-ralink))
 
 define KernelPackage/sound-mt7620
   TITLE:=MT7620 PCM/I2S Alsa Driver
-  DEPENDS:=@TARGET_ramips_mt7620a +kmod-sound-soc-core +kmod-regmap
+  DEPENDS:=@TARGET_ramips_mt7620 +kmod-sound-soc-core +kmod-regmap
   KCONFIG:= \
 	CONFIG_SND_MT7620_SOC_I2S \
 	CONFIG_SND_MT7620_SOC_WM8960

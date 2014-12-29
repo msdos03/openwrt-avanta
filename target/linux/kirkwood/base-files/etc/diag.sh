@@ -6,8 +6,8 @@
 
 get_status_led() {
 	case $(kirkwood_board_name) in
-	dir665)
-		status_led="dir665:blue:status"
+	ea4500)
+		status_led="ea4500:white:health"
 		;;
 	esac
 }
@@ -21,6 +21,9 @@ set_state() {
 		;;
 	failsafe)
 		status_led_blink_failsafe
+		;;
+	preinit_regular)
+		status_led_blink_preinit_regular
 		;;
 	done)
 		status_led_on

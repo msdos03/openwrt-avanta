@@ -19,6 +19,7 @@ platform_check_image() {
 	3g300m | \
 	a5-v11 | \
 	air3gii | \
+	ai-br100 |\
 	all0239-3g | \
 	all0256n | \
 	all5002 | \
@@ -89,6 +90,8 @@ platform_check_image() {
 	whr-g300n |\
 	whr-600d |\
 	whr-1166d |\
+	wsr-600 |\
+	wsr-1166 |\
 	wl-330n | \
 	wl-330n3g | \
 	wl-351 | \

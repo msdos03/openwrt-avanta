@@ -328,7 +328,7 @@ endef
 
 define KernelPackage/rt2800-soc
 $(call KernelPackage/rt2x00/Default)
-  DEPENDS += @(TARGET_ramips_rt288x||TARGET_ramips_rt305x||TARGET_ramips_rt3883||TARGET_ramips_mt7620n||TARGET_ramips_mt7620a) +kmod-rt2800-mmio +kmod-rt2800-lib
+  DEPENDS += @(TARGET_ramips_rt288x||TARGET_ramips_rt305x||TARGET_ramips_rt3883||TARGET_ramips_mt7620) +kmod-rt2800-mmio +kmod-rt2800-lib
   TITLE += (RT28xx/RT3xxx SoC)
   FILES := \
 	$(PKG_BUILD_DIR)/drivers/net/wireless/rt2x00/rt2x00soc.ko \
@@ -1498,6 +1498,7 @@ config-y:= \
 	CFG80211_CERTIFICATION_ONUS \
 	MAC80211_RC_MINSTREL \
 	MAC80211_RC_MINSTREL_HT \
+	MAC80211_RC_MINSTREL_VHT \
 	MAC80211_RC_DEFAULT_MINSTREL \
 
 config-$(call config_package,cfg80211) += CFG80211
@@ -1709,6 +1710,7 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/backport-include/* $(1)/usr/include/mac80211-backport/
 	$(CP) $(PKG_BUILD_DIR)/net/mac80211/rate.h $(1)/usr/include/net/mac80211/
 	$(CP) $(PKG_BUILD_DIR)/drivers/net/wireless/ath/*.h $(1)/usr/include/mac80211/ath/
+	rm -f $(1)/usr/include/mac80211-backport/linux/module.h
 endef
 
 define KernelPackage/libertas-usb/install

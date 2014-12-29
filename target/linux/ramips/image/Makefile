@@ -596,12 +596,7 @@ Image/Build/Profile/WNCE2001=$(call BuildFirmware/WNCE2001/$(1),$(1),wnce2001,WN
 
 Image/Build/Profile/WR512-3GN=$(call BuildFirmware/DefaultDualSize/$(1),$(1),wr512-3ng,WR512-3GN)
 
-define BuildFirmware/WT1520/initramfs
-	$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3),$(4))
-endef
-BuildFirmware/WT1520/squashfs=$(call BuildFirmware/Default4M/squashfs,$(1),$(2),$(3),$(4))
-
-Image/Build/Profile/WT1520=$(call BuildFirmware/WT1520/$(1),$(1),wt1520,WT1520,WT1520)
+Image/Build/Profile/WT1520=$(call BuildFirmware/PorayDualSize/$(1),$(1),wt1520,WT1520)
 
 Image/Build/Profile/UR-326N4G=$(call BuildFirmware/Default4M/$(1),$(1),ur-326n4g,UR-326N4G)
 
@@ -775,6 +770,8 @@ Image/Build/Profile/MT7620a=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a,MT7
 Image/Build/Profile/MT7620a_MT7610e=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a_mt7610e,MT7620a_MT7610e)
 Image/Build/Profile/MT7620a_MT7530=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a_mt7530,MT7620a_MT7530)
 Image/Build/Profile/MT7620a_V22SG=$(call BuildFirmware/Default8M/$(1),$(1),mt7620a_v22sg,MT7620a_V22SG)
+br100_mtd_size=8126464
+Image/Build/Profile/AIBR100=$(call BuildFirmware/CustomFlash/$(1),$(1),ai-br100,AIBR100,$(br100_mtd_size),Ai-BR)
 Image/Build/Profile/RP-N53=$(call BuildFirmware/Default8M/$(1),$(1),rp_n53,RP-N53)
 whr_300hp2_mtd_size=7012352
 Image/Build/Profile/WHR300HP2=$(call BuildFirmware/CustomFlash/$(1),$(1),whr-300hp2,WHR-300HP2,$(whr_300hp2_mtd_size))
@@ -788,14 +785,23 @@ Image/Build/Profile/NA930=$(call BuildFirmware/CustomFlash/$(1),$(1),na930,NA930
 Image/Build/Profile/MZK-750DHP=$(call BuildFirmware/Default8M/$(1),$(1),mzk-750dhp,MZK-750DHP)
 Image/Build/Profile/Y1=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1,Y1)
 Image/Build/Profile/Y1S=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1s,Y1S)
+Image/Build/Profile/MLW221=$(call BuildFirmware/Default16M/$(1),$(1),mlw221,MLW221)
+Image/Build/Profile/WMR300=$(call BuildFirmware/Default8M/$(1),$(1),wmr-300,WMR300)
+Image/Build/Profile/RT-N14U=$(call BuildFirmware/Default8M/$(1),$(1),rt-n14u,RT-N14U)
+Image/Build/Profile/WR8305RT=$(call BuildFirmware/Default8M/$(1),$(1),wr8305rt,WR8305RT)
+Image/Build/Profile/WRTNODE=$(call BuildFirmware/Default16M/$(1),$(1),wrtnode,WRTNODE)
+Image/Build/Profile/WT3020=$(call BuildFirmware/PorayDualSize/$(1),$(1),wt3020,WT3020)
+Image/Build/Profile/ZBT-WA05=$(call BuildFirmware/Default8M/$(1),$(1),zbt-wa05,ZBT-WA05)
 
-ifeq ($(SUBTARGET),mt7620a)
+
+ifeq ($(SUBTARGET),mt7620)
 define Image/Build/Profile/Default
 	$(call Image/Build/Profile/E1700,$(1))
 	$(call Image/Build/Profile/MT7620a,$(1))
 	$(call Image/Build/Profile/MT7620a_MT7610e,$(1))
 	$(call Image/Build/Profile/MT7620a_MT7530,$(1))
 	$(call Image/Build/Profile/MT7620a_V22SG,$(1))
+	$(call Image/Build/Profile/AIBR100,$(1))
 	$(call Image/Build/Profile/RP-N53,$(1))
 	$(call Image/Build/Profile/DIR-810L,$(1))
 	$(call Image/Build/Profile/WHR300HP2,$(1))
@@ -805,24 +811,6 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/NA930,$(1))
 	$(call Image/Build/Profile/Y1,$(1))
 	$(call Image/Build/Profile/Y1S,$(1))
-endef
-endif
-
-
-#
-# MT7620N Profiles
-#
-
-Image/Build/Profile/MLW221=$(call BuildFirmware/Default16M/$(1),$(1),mlw221,MLW221)
-Image/Build/Profile/WMR300=$(call BuildFirmware/Default8M/$(1),$(1),wmr-300,WMR300)
-Image/Build/Profile/RT-N14U=$(call BuildFirmware/Default8M/$(1),$(1),rt-n14u,RT-N14U)
-Image/Build/Profile/WR8305RT=$(call BuildFirmware/Default8M/$(1),$(1),wr8305rt,WR8305RT)
-Image/Build/Profile/WRTNODE=$(call BuildFirmware/Default16M/$(1),$(1),wrtnode,WRTNODE)
-Image/Build/Profile/WT3020=$(call BuildFirmware/DefaultDualSize/$(1),$(1),wt3020,WT3020)
-Image/Build/Profile/ZBT-WA05=$(call BuildFirmware/Default8M/$(1),$(1),zbt-wa05,ZBT-WA05)
-
-ifeq ($(SUBTARGET),mt7620n)
-define Image/Build/Profile/Default
 	$(call Image/Build/Profile/MLW221,$(1))
 	$(call Image/Build/Profile/WMR300,$(1))
 	$(call Image/Build/Profile/RT-N14U,$(1))
@@ -833,16 +821,19 @@ define Image/Build/Profile/Default
 endef
 endif
 
-
 #
 # MT7621 Profiles
 #
 
 Image/Build/Profile/MT7621=$(call BuildFirmware/Default4M/$(1),$(1),mt7621,MT7621)
+Image/Build/Profile/WSR-600=$(call BuildFirmware/Default4M/$(1),$(1),wsr-600,WSR-600)
+Image/Build/Profile/WSR-1166=$(call BuildFirmware/Default4M/$(1),$(1),wsr-1166,WSR-1166)
 
 ifeq ($(SUBTARGET),mt7621)
 define Image/Build/Profile/Default
 	$(call Image/Build/Profile/MT7621,$(1))
+	$(call Image/Build/Profile/WSR-600,$(1))
+	$(call Image/Build/Profile/WSR-1166,$(1))
 endef
 endif
 

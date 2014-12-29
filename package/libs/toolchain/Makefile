@@ -402,7 +402,7 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 
   define Package/libatomic/install
 	$(INSTALL_DIR) $(1)/lib
-	$(if $(CONFIG_TARGET_avr32)$(CONFIG_TARGET_coldfire),,$(CP) $(TOOLCHAIN_DIR)/lib/libatomic.so.* $(1)/lib/)
+	$(if $(CONFIG_GCC_VERSION_4_6)$(CONFIG_TARGET_avr32)$(CONFIG_TARGET_coldfire),,$(CP) $(TOOLCHAIN_DIR)/lib/libatomic.so.* $(1)/lib/)
   endef
 
   define Package/libgfortran/install
@@ -452,7 +452,7 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 		$(TOOLCHAIN_DIR)/lib/libc.so.* \
 		$(TOOLCHAIN_DIR)/lib/libuClibc-$(LIBC_SO_VERSION).so \
 		$(1)/lib/
-	for file in libatomic libcrypt libdl libm libutil; do \
+	for file in libcrypt libdl libm libutil; do \
 		$(CP) \
 			$(TOOLCHAIN_DIR)/lib/$$$$file.so.* \
 			$(TOOLCHAIN_DIR)/lib/$$$$file-$(LIBC_SO_VERSION).so \
@@ -466,7 +466,7 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 		$(1)/lib/
   endef
 
-  LD_MUSL_NAME = $(notdir $(firstword $(wildcard $(TOOLCHAIN_DIR)/lib/ld-musl-*.so*)))
+  LD_MUSL_NAME = $(notdir $(firstword $(wildcard $(TOOLCHAIN_DIR)/lib/libc.so*)))
 
   define Package/musl/install
 	$(INSTALL_DIR) $(1)/lib $(1)/usr/bin

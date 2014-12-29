@@ -41,6 +41,7 @@ define Host/Compile
 	$(call cc,mkplanexfw sha1)
 	$(call cc,mktplinkfw md5)
 	$(call cc,mktplinkfw2 md5)
+	$(call cc,tplink-safeloader md5, -Wall)
 	$(call cc,pc1crypt)
 	$(call cc,osbridge-crc)
 	$(call cc,wrt400n cyg_crc32)
@@ -70,6 +71,7 @@ define Host/Compile
 	$(call cc,mkheader_gemtek,-lz)
 	$(call cc,mkrtn56uimg, -lz)
 	$(call cc,dgn3500sum)
+	$(call cc,edimax_fw_header, -Wall)
 endef
 
 define Host/Install

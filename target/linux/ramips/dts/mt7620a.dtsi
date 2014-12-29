@@ -302,8 +302,8 @@
 		};
 		i2c_pins: i2c {
 			i2c {
-				lantiq,group = "i2c";
-				lantiq,function = "i2c";
+				ralink,group = "i2c";
+				ralink,function = "i2c";
 			};
 		};
 		uartlite_pins: uartlite {
@@ -340,6 +340,12 @@
 			rgmii2 {
 				ralink,group = "rgmii2";
 				ralink,function = "rgmii2";
+			};
+		};
+		pcie_pins: pcie {
+			pcie {
+				ralink,group = "pcie";
+				ralink,function = "pcie rst";
 			};
 		};
 	};
@@ -400,7 +406,7 @@
 	};
 
 	sdhci@10130000 {
-		compatible = "ralink,mt7620a-sdhci";
+		compatible = "ralink,mt7620-sdhci";
 		reg = <0x10130000 4000>;
 
 		interrupt-parent = <&intc>;
@@ -442,6 +448,17 @@
 
 		interrupt-parent = <&cpuintc>;
 		interrupts = <4>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pcie_pins>;
+
+		device_type = "pci";
+
+		bus-range = <0 255>;
+		ranges = <
+			0x02000000 0 0x00000000 0x20000000 0 0x10000000 /* pci memory */
+			0x01000000 0 0x00000000 0x10160000 0 0x00010000 /* io space */
+		>;
 
 		status = "disabled";
 

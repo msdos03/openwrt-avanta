@@ -63,6 +63,13 @@ tl-wdr4900-v2)
 	ucidef_add_switch_vlan "switch0" "2" "1 6"
 	;;
 
+cpe510)
+	ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
+	ucidef_add_switch "switch0" "1" "1"
+	ucidef_add_switch_vlan "switch0" "1" "0t 5"
+	ucidef_add_switch_vlan "switch0" "2" "0t 4"
+	;;
+
 db120 |\
 rb-2011l | \
 rb-2011uas |\
@@ -89,6 +96,13 @@ tew-673gru)
 	ucidef_set_interfaces_lan_wan "eth0.1" "eth1"
 	ucidef_add_switch "switch0" "1" "1"
 	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 5t"
+	;;
+
+f9k1115v2)
+	ucidef_set_interfaces_lan_wan "eth1" "eth0"
+	ucidef_add_switch "switch0" "1" "1"
+	ucidef_add_switch_vlan "switch0" "1" "2 3 4 5 6"
+	ucidef_add_switch_vlan "switch0" "2" "0 1"
 	;;
 
 nbg460n_550n_550nh)
@@ -201,7 +215,8 @@ tl-wr941nd)
 	ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
 	;;
 
-smart-300 | \
+r6100 |\
+smart-300 |\
 tl-mr3420-v2 |\
 tl-wr841n-v8 |\
 tl-wr842n-v2 |\
@@ -215,9 +230,10 @@ wnr612-v2)
 	;;
 
 uap-pro)
-	ucidef_set_interface_lan "eth0"
+	ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 	ucidef_add_switch "switch0" "1" "1"
-	ucidef_add_switch_vlan "switch0" "1" "0 1 2"
+	ucidef_add_switch_vlan "switch0" "1" "0t 1"
+	ucidef_add_switch_vlan "switch0" "2" "0t 2"
 	;;
 
 nanostation-m-xw)
@@ -239,6 +255,7 @@ wzr-hp-g300nh)
 	ucidef_add_switch_vlan "switch0" "1" "0 1 2 3 5t"
 	;;
 
+dgl-5500-a1 |\
 dir-825-c1)
 	local mac
 	ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
@@ -259,6 +276,7 @@ mynet-n750)
 	[ -n "$mac" ] && ucidef_set_interface_macaddr "wan" "$mac"
 	;;
 
+dhp-1565-a1 |\
 dir-835-a1 |\
 wndr3700v4 | \
 wndr4300)
@@ -291,6 +309,8 @@ eap7660d |\
 loco-m-xw |\
 mr600 |\
 mr600v2 |\
+mr900 |\
+mr900v2 |\
 rb-411 |\
 rb-911g-2hpnd |\
 rb-911g-5hpnd |\

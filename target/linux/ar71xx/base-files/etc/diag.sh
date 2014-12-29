@@ -43,9 +43,14 @@ get_status_led() {
 	cap4200ag)
 		status_led="senao:green:pwr"
 		;;
+	cpe510)
+		status_led="tp-link:green:link4"
+		;;
 	db120)
 		status_led="db120:green:status"
 		;;
+	dgl-5500-a1 |\
+	dhp-1565-a1|\
 	dir-505-a1 |\
 	dir-600-a1 |\
 	dir-615-e1 |\
@@ -73,7 +78,10 @@ get_status_led() {
 		;;
 	el-mini | \
 	el-m150)
-		status_led="EasyLink:green:system"
+		status_led="easylink:green:system"
+		;;
+	f9k1115v2)
+		status_led="belkin:blue:status"
 		;;
 	gl-inet)
 		status_led="gl-connect:green:lan"
@@ -102,6 +110,10 @@ get_status_led() {
 		;;
 	mr600v2)
 		status_led="mr600:blue:power"
+		;;
+	mr900 | \
+	mr900v2)
+		status_led="mr900:blue:power"
 		;;
 	mynet-n600 | \
 	mynet-n750)
@@ -258,6 +270,7 @@ get_status_led() {
 	wzr-hp-g300nh2)
 		status_led="buffalo:red:diag"
 		;;
+	r6100 | \
 	wndap360 | \
 	wndr3700 | \
 	wndr3700v4 | \
@@ -294,6 +307,9 @@ set_state() {
 		;;
 	failsafe)
 		status_led_blink_failsafe
+		;;
+	preinit_regular)
+		status_led_blink_preinit_regular
 		;;
 	done)
 		status_led_on

@@ -126,8 +126,8 @@
 --- a/drivers/net/wireless/ath/ath9k/main.c
 +++ b/drivers/net/wireless/ath/ath9k/main.c
 @@ -532,6 +532,11 @@ irqreturn_t ath_isr(int irq, void *dev)
- 	ath9k_debug_sync_cause(sc, sync_cause);
- 	status &= ah->imask;	/* discard unasked-for bits */
+ 	if (AR_SREV_9100(ah) && test_bit(ATH_OP_HW_RESET, &common->op_flags))
+ 		return IRQ_HANDLED;
  
 +	if (test_bit(ATH_DIAG_TRIGGER_ERROR, &ah->diag)) {
 +		status |= ATH9K_INT_FATAL;

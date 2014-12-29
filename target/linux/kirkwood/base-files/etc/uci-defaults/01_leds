@@ -9,12 +9,12 @@
 board=$(kirkwood_board_name)
 
 case "$board" in
-"dir665")
-	ucidef_set_led_netdev "wan" "WAN (blue)" "dir665:blue:internet" "eth1"
-	ucidef_set_led_usbdev "usb" "USB" "dir665:blue:usb" "1-1"
 "dockstar")
 	ucidef_set_led_default "health" "status:green:health" "1"
 	ucidef_set_led_default "fault" "status:orange:fault" "1"
+	;;
+"ea3500")
+	ucidef_set_led_default "power" "ea3500:green:power" "1"
 	;;
 "ea4500")
 	ucidef_set_led_default "health" "ea4500:white:health" "1"
@@ -27,6 +27,13 @@ case "$board" in
 "pogo_e02")
 	ucidef_set_led_default "health" "status:green:health" "1"
 	ucidef_set_led_default "fault" "status:orange:fault" "1"
+	;;
+"guruplug-server-plus")
+	ucidef_set_led_timer "health" "guruplug:red:health" "200" "800"
+	;;
+"sheevaplug" | \
+"sheevaplug-esata")
+	ucidef_set_led_timer "health" "sheevaplug:blue:health" "200" "800"
 	;;
 *)
 	;;

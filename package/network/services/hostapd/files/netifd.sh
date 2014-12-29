@@ -1,4 +1,4 @@
-hostapd_add_rate() {
+wpa_supplicant_add_rate() {
 	local var="$1"
 	local val="$(($2 / 1000))"
 	local sub="$((($2 / 100) % 10))"
@@ -6,7 +6,7 @@ hostapd_add_rate() {
 	[ $sub -gt 0 ] && append $var "."
 }
 
-hostapd_add_basic_rate() {
+hostapd_add_rate() {
 	local var="$1"
 	local val="$(($2 / 100))"
 	append $var "$val" " "
@@ -49,6 +49,7 @@ hostapd_add_log_config() {
 
 hostapd_common_add_device_config() {
 	config_add_array basic_rate
+	config_add_array supported_rates
 
 	config_add_string country
 	config_add_boolean country_ie doth
@@ -82,13 +83,21 @@ hostapd_prepare_device_config() {
 	local brlist= br
 	json_get_values basic_rate_list basic_rate
 	for br in $basic_rate_list; do
-		hostapd_add_basic_rate brlist "$br"
+		hostapd_add_rate brlist "$br"
 	done
 	case "$require_mode" in
 		g) brlist="60 120 240" ;;
 		n) append base_cfg "require_ht=1" "$N";;
 		ac) append base_cfg "require_vht=1" "$N";;
 	esac
+
+	local rlist= r
+	json_get_values rate_list supported_rates
+	for r in $rate_list; do
+		hostapd_add_rate rlist "$r"
+	done
+
+	[ -n "$rlist" ] && append base_cfg "supported_rates=$rlist" "$N"
 	[ -n "$brlist" ] && append base_cfg "basic_rates=$brlist" "$N"
 	[ -n "$beacon_int" ] && append base_cfg "beacon_int=$beacon_int" "$N"
 
@@ -130,7 +139,7 @@ hostapd_common_add_bss_config() {
 	config_add_string eap_type ca_cert client_cert identity auth priv_key priv_key_pwd
 
 	config_add_int dynamic_vlan vlan_naming
-	config_add_string vlan_tagged_interface
+	config_add_string vlan_tagged_interface vlan_bridge
 
 	config_add_string 'key1:wepkey' 'key2:wepkey' 'key3:wepkey' 'key4:wepkey' 'password:wpakey'
 
@@ -146,6 +155,7 @@ hostapd_common_add_bss_config() {
 
 	config_add_int mcast_rate
 	config_add_array basic_rate
+	config_add_array supported_rates
 }
 
 hostapd_set_bss_options() {
@@ -226,7 +236,8 @@ hostapd_set_bss_options() {
 				dae_client dae_secret dae_port \
 				nasid ownip \
 				eap_reauth_period dynamic_vlan \
-				vlan_naming vlan_tagged_interface
+				vlan_naming vlan_tagged_interface \
+				vlan_bridge
 
 			# legacy compatibility
 			[ -n "$auth_server" ] || json_get_var auth_server server
@@ -266,6 +277,8 @@ hostapd_set_bss_options() {
 			[ -n "$dynamic_vlan" ] && {
 				append bss_conf "dynamic_vlan=$dynamic_vlan" "$N"
 				append bss_conf "vlan_naming=$vlan_naming" "$N"
+				[ -n "$vlan_bridge" ] && \
+					append bss_conf "vlan_bridge=$vlan_bridge" "$N"
 				[ -n "$vlan_tagged_interface" ] && \
 					append bss_conf "vlan_tagged_interface=$vlan_tagged_interface" "$N"
 			}
@@ -569,14 +582,14 @@ wpa_supplicant_add_network() {
 	[ -n "$basic_rate" ] && {
 		local br rate_list=
 		for br in $basic_rate; do
-			hostapd_add_rate rate_list "$br"
+			wpa_supplicant_add_rate rate_list "$br"
 		done
 		[ -n "$rate_list" ] && append network_data "rates=$rate_list" "$N$T"
 	}
 
 	[ -n "$mcast_rate" ] && {
 		local mc_rate=
-		hostapd_add_rate mc_rate "$mcast_rate"
+		wpa_supplicant_add_rate mc_rate "$mcast_rate"
 		append network_data "mcast_rate=$mc_rate" "$N$T"
 	}
 
