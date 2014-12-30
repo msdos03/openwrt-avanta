@@ -14,8 +14,8 @@ Subject: [PATCH 3/4] mvsw6171: add support for built-in switch on Avanta
  
  #define MV_IDENT_MASK			0xffc0
 -#define MV_IDENT_VALUE			0x1700
--#define MV_IDENT_STR			"MV88E6171"
-+#define MV_IDENT_VALUE			0x440
+-#define MV_IDENT_STR			"MV88E617x"
++#define MV_IDENT_VALUE			0x0440
 +#define MV_IDENT_STR			"MV88F6560"
  
  #define MV_PVID_MASK			0x0fff

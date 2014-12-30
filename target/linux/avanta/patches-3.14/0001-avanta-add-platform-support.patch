@@ -2563,7 +2563,7 @@ Subject: [PATCH 1/4] avanta: add platform support
 +}
 --- a/arch/arm/mm/Kconfig
 +++ b/arch/arm/mm/Kconfig
-@@ -854,7 +854,7 @@ config OUTER_CACHE_SYNC
+@@ -855,7 +855,7 @@ config OUTER_CACHE_SYNC
  
  config CACHE_FEROCEON_L2
  	bool "Enable the Feroceon L2 cache controller"
