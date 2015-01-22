@@ -50,7 +50,7 @@ so it's hardcoded
 +};
 --- a/drivers/net/ethernet/marvell/mvneta.c
 +++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -2759,7 +2759,10 @@ static void mvneta_port_power_up(struct
+@@ -2760,7 +2760,10 @@ static void mvneta_port_power_up(struct
  	if (phy_mode == PHY_INTERFACE_MODE_SGMII)
  		mvneta_port_sgmii_config(pp);
  
@@ -62,7 +62,7 @@ so it's hardcoded
  
  	/* Cancel Port Reset */
  	val = mvreg_read(pp, MVNETA_GMAC_CTRL_2);
-@@ -2808,9 +2811,22 @@ static int mvneta_probe(struct platform_
+@@ -2809,9 +2812,22 @@ static int mvneta_probe(struct platform_
  
  	phy_node = of_parse_phandle(dn, "phy", 0);
  	if (!phy_node) {

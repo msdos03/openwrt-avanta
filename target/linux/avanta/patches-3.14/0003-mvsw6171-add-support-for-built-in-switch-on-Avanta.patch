@@ -7,16 +7,27 @@ Subject: [PATCH 3/4] mvsw6171: add support for built-in switch on Avanta
  drivers/net/phy/mvsw6171.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/phy/mvsw6171.h
-+++ b/drivers/net/phy/mvsw6171.h
-@@ -191,8 +191,8 @@ enum {
- #define MV_INDIRECT_ADDR_S		5
+--- a/drivers/net/phy/mvsw61xx.c
++++ b/drivers/net/phy/mvsw61xx.c
+@@ -813,6 +813,9 @@ static int mvsw61xx_probe(struct platfor
+ 	case MV_IDENT_VALUE_6176:
+ 		model_str = MV_IDENT_STR_6176;
+ 		break;
++	case MV_IDENT_VALUE_6560:
++		model_str = MV_IDENT_STR_6560;
++		break;
+ 	default:
+ 		dev_err(&pdev->dev, "No compatible switch found at 0x%02x\n",
+ 				state->base_addr);
+--- a/drivers/net/phy/mvsw61xx.h
++++ b/drivers/net/phy/mvsw61xx.h
+@@ -222,6 +222,9 @@ enum {
+ #define MV_IDENT_VALUE_6176		0x1760
+ #define MV_IDENT_STR_6176		"MV88E6176"
  
- #define MV_IDENT_MASK			0xffc0
--#define MV_IDENT_VALUE			0x1700
--#define MV_IDENT_STR			"MV88E617x"
-+#define MV_IDENT_VALUE			0x0440
-+#define MV_IDENT_STR			"MV88F6560"
- 
++#define MV_IDENT_VALUE_6560		0x0440
++#define MV_IDENT_STR_6560		"MV88F6560 built-in"
++
  #define MV_PVID_MASK			0x0fff
  
+ struct mvsw61xx_state {
