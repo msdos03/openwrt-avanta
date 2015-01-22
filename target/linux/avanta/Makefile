@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 ARCH:=arm
 BOARD:=avanta
 BOARDNAME:=Marvell Avanta
-FEATURES:=targz usb nand ubifs
+FEATURES:=usb nand ubifs
 CPU_TYPE:=xscale
 
 KERNEL_PATCHVER:=3.14
