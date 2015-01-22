@@ -22,21 +22,52 @@ define Image/Build/Initramfs
 	$(call Image/Build/Profile/$(PROFILE),initramfs)
 endef
 
-ifeq ($(CONFIG_SOC_RT288X),y)
-define kernel_entry
--a 0x88000000 -e 0x88000000
+DEVICE_VARS += DTS
+
+loadaddr-y := 0x80000000
+loadaddr-$(CONFIG_TARGET_ramips_rt288x) := 0x88000000
+loadaddr-$(CONFIG_TARGET_ramips_mt7621) := 0x80001000
+
+KERNEL_LOADADDR := $(loadaddr-y)
+
+KERNEL_DTB = kernel-bin | patch-dtb | lzma
+define Device/Default
+  KERNEL := $(KERNEL_DTB) | uImage lzma
+  IMAGES := sysupgrade.bin
+  IMAGE_SIZE := $(ralink_default_fw_size_8M)
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | check-size $$$$(IMAGE_SIZE) | pad-rootfs
 endef
-else
-ifeq ($(CONFIG_SOC_MT7621),y)
-define kernel_entry
--a 0x80001000 -e 0x80001000
+
+define Build/patch-dtb
+	$(LINUX_DIR)/scripts/dtc/dtc -O dtb -o $@.dtb ../dts/$(DTS).dts
+	$(STAGING_DIR_HOST)/bin/patch-dtb $@ $@.dtb
 endef
-else
-define kernel_entry
--a 0x80000000 -e 0x80000000
+
+define Build/trx
+	$(STAGING_DIR_HOST)/bin/trx \
+		-o $@ \
+		-m $(IMAGE_SIZE) \
+		-f $(word 1,$^) \
+		-a 4 -f $(word 2,$^)
 endef
-endif
-endif
+
+define Build/seama
+	$(STAGING_DIR_HOST)/bin/seama -i $@ $(1)
+	mv $@.seama $@
+endef
+
+define Build/seama-seal
+	$(call Build/seama,-s $@.seama $(1))
+endef
+
+define Build/relocate-kernel
+	( \
+		dd if=$(KDIR)/relocate/loader.bin bs=32 conv=sync && \
+		perl -e '@s = stat("$@"); print pack("V", @s[7])' && \
+		cat $@ \
+	) > $@.new
+	mv $@.new $@
+endef
 
 define MkCombineduImage
 	$(call PatchKernelLzma,$(2),$(3))
@@ -59,7 +90,7 @@ endef
 # $(3), output filename
 define MkImage
 	$(eval imagename=$(if $(4),$(4),MIPS OpenWrt Linux-$(LINUX_VERSION)))
-	-mkimage -A mips -O linux -T kernel -C $(1) $(call kernel_entry)\
+	-mkimage -A mips -O linux -T kernel -C $(1) -a $(loadaddr-y) -e $(loadaddr-y) \
 		-n "$(imagename)" \
 		-d $(2) $(3)
 endef
@@ -77,6 +108,23 @@ define MkImageSysupgrade/squashfs
 	else \
 		$(CP) $(KDIR)/$(output_name) $(BIN_DIR)/$(output_name); \
 	fi
+endef
+
+define MkImageTpl/squashfs
+	$(eval output_name=$(IMG_PREFIX)-$(2)-$(1)-$(if $(4),$(4),sysupgrade).bin)
+	$(STAGING_DIR_HOST)/bin/mktplinkfw2 -V "ver. 2.0" -B "$(2)" -j \
+		-o $(KDIR)/$(output_name) \
+		-k $(KDIR)/vmlinux-$(1)$(4).bin.lzma \
+		-r $(KDIR)/root.$(1)
+	$(CP) $(KDIR)/$(output_name) $(BIN_DIR)/$(output_name)
+endef
+
+define MkImageTpl/initramfs
+	$(eval output_name=$(IMG_PREFIX)-$(2)-$(1).bin)
+	$(STAGING_DIR_HOST)/bin/mktplinkfw2 -V "ver. 2.0" -B "$(2)" -c \
+		-o $(KDIR)/$(output_name) \
+		-k $(KDIR)/vmlinux-$(1).bin.lzma
+	$(CP) $(KDIR)/$(output_name) $(BIN_DIR)/$(output_name)
 endef
 
 # $(1), lowercase board name like "mt7620a_v22sg"
@@ -108,6 +156,16 @@ define BuildFirmware/OF
 	$(call MkImageSysupgrade/$(1),$(1),$(2),$(4),$(6))
 endef
 
+define BuildFirmware/OF/tplink
+	$(call PatchKernelLzmaDtb,$(1),$(2),$(4))
+	$(call MkImageTpl/$(1),$(1),$(2),$(4),$(5))
+endef
+
+define BuildFirmware/OF/tplink/initramfs
+	$(call PatchKernelLzmaDtb,$(2),$(3),-initramfs)
+	$(call MkImageTpl/$(1),$(1),$(2),$(4),$(5))
+endef
+
 # $(1), squashfs/initramfs
 # $(2), lowercase board name
 # $(3), DTS filename without .dts extension
@@ -136,6 +194,8 @@ BuildFirmware/Default4M/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(
 ralink_default_fw_size_8M=8060928
 BuildFirmware/Default8M/squashfs=$(call BuildFirmware/OF,$(1),$(2),$(3),$(ralink_default_fw_size_8M),$(4))
 BuildFirmware/Default8M/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3),$(4))
+BuildFirmware/Tplink/squashfs=$(call BuildFirmware/OF/tplink,$(1),$(2),$(3),$(4))
+BuildFirmware/Tplink/initramfs=$(call BuildFirmware/OF/tplink/initramfs,$(1),$(2),$(3),$(4))
 
 ralink_default_fw_size_16M=16121856
 BuildFirmware/Default16M/squashfs=$(call BuildFirmware/OF,$(1),$(2),$(3),$(ralink_default_fw_size_16M),$(4))
@@ -489,6 +549,8 @@ Image/Build/Profile/M4=$(call BuildFirmware/PorayDualSize/$(1),$(1),m4,M4)
 Image/Build/Profile/MOFI3500-3GN=$(call BuildFirmware/Default8M/$(1),$(1),mofi3500-3gn,MOFI3500-3GN)
 
 # Kernel name should be "Linux Kernel Image" to make the OpenWrt image installable from factory Web UI
+Image/Build/Profile/3G150B=$(call BuildFirmware/Default4M/$(1),$(1),3g150b,3G150B,Linux Kernel Image)
+
 Image/Build/Profile/MPRA1=$(call BuildFirmware/Default4M/$(1),$(1),mpr-a1,MPRA1,Linux Kernel Image)
 Image/Build/Profile/MPRA2=$(call BuildFirmware/Default8M/$(1),$(1),mpr-a2,MPRA2,Linux Kernel Image)
 
@@ -503,6 +565,8 @@ Image/Build/Profile/NCS601W=$(call BuildFirmware/Default8M/$(1),$(1),ncs601W,NCS
 
 nw718_mtd_size=3801088
 Image/Build/Profile/NW718=$(call BuildFirmware/CustomFlashFactory/$(1),$(1),nw718m,NW718,$(nw718_mtd_size),ARA1B4NCRNW718;1,factory)
+
+Image/Build/Profile/M2M=$(call BuildFirmware/Default8M/$(1),$(1),m2m,M2M,Linux Kernel Image)
 
 Image/Build/Profile/OMNI-EMB=$(call BuildFirmware/Default8M/$(1),$(1),omni-emb,OMNI-EMB)
 
@@ -614,6 +678,7 @@ ifeq ($(SUBTARGET),rt305x)
 define Image/Build/Profile/Default
 	$(call Image/Build/Profile/3G6200N,$(1))
 	$(call Image/Build/Profile/3G6200NL,$(1))
+	$(call Image/Build/Profile/3G150B,$(1))
 	$(call Image/Build/Profile/3G300M,$(1))
 	$(call Image/Build/Profile/A5-11,$(1))
 	$(call Image/Build/Profile/AIR3GII,$(1))
@@ -652,6 +717,7 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/HT-TM02,$(1))
 	$(call Image/Build/Profile/HW550-3G,$(1))
 	$(call Image/Build/Profile/IP2202,$(1))
+	$(call Image/Build/Profile/M2M,$(1))
 	$(call Image/Build/Profile/M3,$(1))
 	$(call Image/Build/Profile/M4,$(1))
 	$(call Image/Build/Profile/MOFI3500-3GN,$(1))
@@ -786,12 +852,14 @@ Image/Build/Profile/MZK-750DHP=$(call BuildFirmware/Default8M/$(1),$(1),mzk-750d
 Image/Build/Profile/Y1=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1,Y1)
 Image/Build/Profile/Y1S=$(call BuildFirmware/Default16M/$(1),$(1),Lenovo-y1s,Y1S)
 Image/Build/Profile/MLW221=$(call BuildFirmware/Default16M/$(1),$(1),mlw221,MLW221)
+Image/Build/Profile/MLWG2=$(call BuildFirmware/Default16M/$(1),$(1),mlwg2,MLWG2)
 Image/Build/Profile/WMR300=$(call BuildFirmware/Default8M/$(1),$(1),wmr-300,WMR300)
 Image/Build/Profile/RT-N14U=$(call BuildFirmware/Default8M/$(1),$(1),rt-n14u,RT-N14U)
 Image/Build/Profile/WR8305RT=$(call BuildFirmware/Default8M/$(1),$(1),wr8305rt,WR8305RT)
 Image/Build/Profile/WRTNODE=$(call BuildFirmware/Default16M/$(1),$(1),wrtnode,WRTNODE)
 Image/Build/Profile/WT3020=$(call BuildFirmware/PorayDualSize/$(1),$(1),wt3020,WT3020)
 Image/Build/Profile/ZBT-WA05=$(call BuildFirmware/Default8M/$(1),$(1),zbt-wa05,ZBT-WA05)
+Image/Build/Profile/ArcherC20i=$(call BuildFirmware/Tplink/$(1),$(1),ArcherC20i,ArcherC20i)
 
 
 ifeq ($(SUBTARGET),mt7620)
@@ -812,12 +880,14 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/Y1,$(1))
 	$(call Image/Build/Profile/Y1S,$(1))
 	$(call Image/Build/Profile/MLW221,$(1))
+	$(call Image/Build/Profile/MLWG2,$(1))
 	$(call Image/Build/Profile/WMR300,$(1))
 	$(call Image/Build/Profile/RT-N14U,$(1))
 	$(call Image/Build/Profile/WR8305RT,$(1))
 	$(call Image/Build/Profile/WRTNODE,$(1))
 	$(call Image/Build/Profile/WT3020,$(1))
 	$(call Image/Build/Profile/ZBT-WA05,$(1))
+	$(call Image/Build/Profile/ArcherC20i,$(1))
 endef
 endif
 
@@ -825,17 +895,43 @@ endif
 # MT7621 Profiles
 #
 
-Image/Build/Profile/MT7621=$(call BuildFirmware/Default4M/$(1),$(1),mt7621,MT7621)
-Image/Build/Profile/WSR-600=$(call BuildFirmware/Default4M/$(1),$(1),wsr-600,WSR-600)
-Image/Build/Profile/WSR-1166=$(call BuildFirmware/Default4M/$(1),$(1),wsr-1166,WSR-1166)
-
 ifeq ($(SUBTARGET),mt7621)
-define Image/Build/Profile/Default
-	$(call Image/Build/Profile/MT7621,$(1))
-	$(call Image/Build/Profile/WSR-600,$(1))
-	$(call Image/Build/Profile/WSR-1166,$(1))
-endef
+  TARGET_DEVICES += mt7621 wsr-600 wsr-1166 dir-860l-b1 firewrt
 endif
+
+define Device/mt7621
+  DTS := MT7621
+  IMAGE_SIZE := $(ralink_default_fw_size_4M)
+endef
+
+define Device/wsr-600
+  DTS := WSR-600
+endef
+
+define Device/wsr-1166
+  DTS := WSR-1166
+  IMAGE/sysupgrade.bin := trx | pad-rootfs
+endef
+
+define Device/dir-860l-b1
+  DTS := DIR-860L-B1
+  IMAGES += factory.bin
+  KERNEL := kernel-bin | patch-dtb | relocate-kernel | lzma | uImage lzma
+  IMAGE/sysupgrade.bin := \
+	append-kernel | pad-offset 65536 64 | append-rootfs | \
+	seama -m "dev=/dev/mtdblock/2" -m "type=firmware" | \
+	pad-rootfs | check-size $$$$(IMAGE_SIZE)
+  IMAGE/factory.bin := \
+	append-kernel | pad-offset 65536 64 | append-rootfs | pad-rootfs -x 64 | \
+	seama -m "dev=/dev/mtdblock/2" -m "type=firmware" | \
+	check-size $$$$(IMAGE_SIZE) | \
+	seama-seal -m "signature=wrgac13_dlink.2013gui_dir860lb"
+endef
+
+define Device/firewrt
+  DTS := FIREWRT
+  IMAGE_SIZE := $(ralink_default_fw_size_8M)
+endef
 
 #
 # MT7628 Profiles
@@ -849,9 +945,9 @@ define Image/Build/Profile/Default
 endef
 endif
 
-
+ifndef TARGET_DEVICES
 #
-# Generic Targets
+# Generic Targets - only needed for legacy image building code
 #
 define Image/BuildKernel
 	cp $(KDIR)/vmlinux.elf $(BIN_DIR)/$(VMLINUX).elf
@@ -875,5 +971,14 @@ define Image/Build
 	dd if=$(KDIR)/root.$(1) of=$(BIN_DIR)/$(IMG_PREFIX)-root.$(1) bs=128k conv=sync
 	$(call Image/Build/Profile/$(PROFILE),$(1))
 endef
+endif
+
+ifeq ($(SUBTARGET),mt7621)
+define Build/Compile
+	rm -rf $(KDIR)/relocate
+	$(CP) ./relocate $(KDIR)
+	$(MAKE) -C $(KDIR)/relocate KERNEL_ADDR=$(KERNEL_LOADADDR) CROSS_COMPILE=$(TARGET_CROSS)
+endef
+endif
 
 $(eval $(call BuildImage))
