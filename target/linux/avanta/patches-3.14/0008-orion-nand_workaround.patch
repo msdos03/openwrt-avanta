@@ -1,0 +1,30 @@
+--- a/drivers/mtd/nand/orion_nand.c
++++ b/drivers/mtd/nand/orion_nand.c
+@@ -45,6 +45,18 @@ static void orion_nand_cmd_ctrl(struct m
+ 	writeb(cmd, nc->IO_ADDR_W + offs);
+ }
+ 
++static void orion_nand_read_buf_bybyte(struct mtd_info *mtd, uint8_t *buf, int len)
++{
++	struct nand_chip *chip = mtd->priv;
++	void __iomem *io_base = chip->IO_ADDR_R;
++	int i = 0;
++
++	while (len) {
++		*buf++ = readb(io_base);
++		len--;
++	}
++}
++
+ static void orion_nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+ {
+ 	struct nand_chip *chip = mtd->priv;
+@@ -138,7 +150,7 @@ static int __init orion_nand_probe(struc
+ 	nc->priv = board;
+ 	nc->IO_ADDR_R = nc->IO_ADDR_W = io_base;
+ 	nc->cmd_ctrl = orion_nand_cmd_ctrl;
+-	nc->read_buf = orion_nand_read_buf;
++	nc->read_buf = orion_nand_read_buf_bybyte;
+ 	nc->ecc.mode = NAND_ECC_SOFT;
+ 
+ 	if (board->chip_delay)
