@@ -88,9 +88,7 @@ get_status_led() {
 	m4)
 		status_led="m4:blue:status"
 		;;
-	mlw221)
-		status_led="kingston:blue:status"
-		;;
+	mlw221|\
 	mlwg2)
 		status_led="kingston:blue:system"
 		;;
@@ -170,6 +168,9 @@ get_status_led() {
 	wli-tx4-ag300n)
 		status_led="buffalo:blue:power"
 		;;
+	wzr-agl300nh)
+		status_led="buffalo:green:router"
+		;;
 	wl-351)
 		status_led="wl-351:amber:power"
 		;;
@@ -189,7 +190,7 @@ get_status_led() {
 	nexx-wt1520)
 		status_led="nexx-wt1520:white:power"
 		;;
-	nexx-wt3020)
+	wt3020)
 		status_led="nexx:blue:power"
 		;;
 	mzk-w300nh2)
@@ -209,6 +210,9 @@ get_status_led() {
 		;;
 	xdxrn502j)
 		status_led="xdxrn502j:green:power"
+		;;
+	xiaomi-mini)
+		status_led="xiaomi:red:status"
 		;;
 	f7c027)
 		status_led="belkin:orange:status"

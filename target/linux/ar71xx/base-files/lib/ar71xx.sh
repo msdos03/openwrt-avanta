@@ -97,6 +97,9 @@ tplink_board_detect() {
 	"015300"*)
 		model="EasyLink EL-MINI"
 		;;
+	"120000"*)
+		model="MERCURY MAC1200R"
+		;;
 	"3C0001"*)
 		model="OOLITE"
 		;;
@@ -127,6 +130,9 @@ tplink_board_detect() {
 	"075000"*)
 		model="TP-Link TL-WA750RE"
 		;;
+	"721000"*)
+		model="TP-Link TL-WA7210N"
+		;;
 	"751000"*)
 		model="TP-Link TL-WA7510N"
 		;;
@@ -141,6 +147,9 @@ tplink_board_detect() {
 		;;
 	"084200"*)
 		model="TP-Link TL-WR842N/ND"
+		;;
+	"084300"*)
+		model="TP-Link TL-WR843N/ND"
 		;;
 	"085000"*)
 		model="TP-Link TL-WA850RE"
@@ -173,6 +182,9 @@ tplink_board_detect() {
 		;;
 	"001101"*)
 		model="TP-Link TL-MR11U"
+		;;
+	"001201"*)
+		model="TP-Link TL-MR12U"
 		;;
 	"001301"*)
 		model="TP-Link TL-MR13U"
@@ -432,6 +444,9 @@ ar71xx_board_detect() {
 	*LS-SR71)
 		name="ls-sr71"
 		;;
+	*"MAC1200R")
+		name="mc-mac1200r"
+		;;
 	*MR600v2)
 		name="mr600v2"
 		;;
@@ -639,6 +654,9 @@ ar71xx_board_detect() {
 	*"TL-WA701ND v2")
 		name="tl-wa701nd-v2"
 		;;
+	*"TL-WA7210N v2")
+		name="tl-wa7210n-v2"
+		;;
 	*TL-WA750RE)
 		name="tl-wa750re"
 		;;
@@ -699,6 +717,9 @@ ar71xx_board_detect() {
 	*TL-WR941ND)
 		name="tl-wr941nd"
 		;;
+	*"TL-WR941N/ND v5")
+		name="tl-wr941nd-v5"
+		;;
 	*"TL-WR703N v1")
 		name="tl-wr703n"
 		;;
@@ -713,6 +734,9 @@ ar71xx_board_detect() {
 		;;
 	*"TL-MR11U")
 		name="tl-mr11u"
+		;;
+	*"TL-MR12U")
+		name="tl-mr12u"
 		;;
 	*"TL-MR13U")
 		name="tl-mr13u"
@@ -747,6 +771,9 @@ ar71xx_board_detect() {
 	*WPE72)
 		name="wpe72"
 		;;
+	*WPJ558)
+		name="wpj558"
+		;;
 	*WNDAP360)
 		name="wndap360"
 		;;
@@ -776,6 +803,9 @@ ar71xx_board_detect() {
 		;;
 	*"WNR612 V2")
 		name="wnr612-v2"
+		;;
+	*"WNR1000 V2")
+		name="wnr1000-v2"
 		;;
 	*WRT160NL)
 		name="wrt160nl"

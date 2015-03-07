@@ -113,7 +113,7 @@ proto_pppoe_init_config() {
 	ppp_generic_init_config
 	proto_config_add_string "ac"
 	proto_config_add_string "service"
-	proto_config_add_string host_uniq
+	proto_config_add_string "host_uniq"
 }
 
 proto_pppoe_setup() {
@@ -135,8 +135,8 @@ proto_pppoe_setup() {
 		plugin rp-pppoe.so \
 		${ac:+rp_pppoe_ac "$ac"} \
 		${service:+rp_pppoe_service "$service"} \
-		"nic-$iface" \
-		${host_uniq:+host-uniq "$host_uniq"}
+		${host_uniq:+host-uniq "$host_uniq"} \
+		"nic-$iface"
 }
 
 proto_pppoe_teardown() {
@@ -181,6 +181,7 @@ proto_pppoa_teardown() {
 proto_pptp_init_config() {
 	ppp_generic_init_config
 	proto_config_add_string "server"
+	proto_config_add_string "interface"
 	available=1
 	no_device=1
 }
@@ -189,10 +190,11 @@ proto_pptp_setup() {
 	local config="$1"
 	local iface="$2"
 
-	local ip serv_addr server
-	json_get_var server server && {
+	local ip serv_addr server interface
+	json_get_vars interface server
+	[ -n "$server" ] && {
 		for ip in $(resolveip -t 5 "$server"); do
-			( proto_add_host_dependency "$config" "$ip" )
+			( proto_add_host_dependency "$config" "$ip" $interface )
 			serv_addr=1
 		done
 	}

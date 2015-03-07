@@ -383,6 +383,9 @@ sub install_package {
 	my $type = $feed->[0];
 	$src or $src = $name;
 
+	# If it's a core package and we don't want to override, just return
+	!$force and is_core_package($src) and return 0;
+
 	# previously installed packages set the runtime package
 	# newly installed packages set the source package to 1
 	$installed{$src} and $installed{$src} == 1 and return 0;
@@ -391,13 +394,13 @@ sub install_package {
 	# - override is allowed by command line (-f)
 	# - a package with the same src exists in the core packages list
 	# - the package previously installed is not from a feed
-	my $override = 1 if ($force and is_core_package($src) and !$installed{$src}->{feed});
+	my $override = 1 if ($force and is_core_package($src) and !$installed{$name}->{feed});
 
 	# check previously installed packages
 	$installed{$name} and !$override and return 0;
 	$installed{$src} = 1;
 
-	$override == 1
+	defined($override) and $override == 1
 		and warn "Overriding package '$src'\n"
 		or warn "Installing package '$src'\n";
 
@@ -419,7 +422,7 @@ sub install_package {
 			$dep =~ s/^.+://;
 			$dep =~ s/\/.+$//;
 			next unless $dep;
-			install_package($feed, $dep) == 0 or $ret = 1;
+			install_package($feed, $dep, 0) == 0 or $ret = 1;
 		}
 	}
 

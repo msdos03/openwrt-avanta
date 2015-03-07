@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=comgt
 PKG_VERSION:=0.32
-PKG_RELEASE:=24
+PKG_RELEASE:=25
 
 PKG_SOURCE:=$(PKG_NAME).$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=@SF/comgt
@@ -44,7 +44,7 @@ endef
 define Package/comgt-ncm
 $(call Package/comgt/Default)
   TITLE+=NCM 3G/4G Support
-  DEPENDS:=+comgt +kmod-usb-serial +kmod-usb-serial-option +kmod-usb-net +kmod-usb-net-cdc-ncm +kmod-usb-net-huawei-cdc-ncm
+  DEPENDS:=+comgt
 endef
 
 define Package/comgt/description

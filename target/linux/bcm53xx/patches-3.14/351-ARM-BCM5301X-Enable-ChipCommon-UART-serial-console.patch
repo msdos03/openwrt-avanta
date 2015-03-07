@@ -31,7 +31,7 @@ Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
 +	};
 +
  	gpio-keys {
- 		compatible = "gpio-keys-polled";
+ 		compatible = "gpio-keys";
  		#address-cells = <1>;
 --- a/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
 +++ b/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
@@ -126,5 +126,24 @@ Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
 +	};
 +
  	gpio-keys {
- 		compatible = "gpio-keys-polled";
+ 		compatible = "gpio-keys";
  		#address-cells = <1>;
+--- a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
++++ b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
+@@ -23,4 +23,16 @@
+ 		reg = <0x00000000 0x08000000
+ 		       0x88000000 0x08000000>;
+ 	};
++
++	chipcommonA {
++		uart0: serial@0300 {
++			status = "okay";
++			clock-frequency = <125000000>;
++		};
++
++		uart1: serial@0400 {
++			status = "okay";
++			clock-frequency = <125000000>;
++		};
++	};
+ };

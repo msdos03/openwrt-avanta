@@ -153,6 +153,9 @@ hostapd_common_add_bss_config() {
 	config_add_string macfilter 'macfile:file'
 	config_add_array 'maclist:list(macaddr)'
 
+	config_add_array bssid_blacklist
+	config_add_array bssid_whitelist
+
 	config_add_int mcast_rate
 	config_add_array basic_rate
 	config_add_array supported_rates
@@ -580,6 +583,12 @@ wpa_supplicant_add_network() {
 	[ -n "$bssid" ] && append network_data "bssid=$bssid" "$N$T"
 	[ -n "$beacon_int" ] && append network_data "beacon_int=$beacon_int" "$N$T"
 
+	local bssid_blacklist bssid_whitelist
+	json_get_values bssid_blacklist bssid_blacklist
+	json_get_values bssid_whitelist bssid_whitelist
+
+	[ -n "$bssid_blacklist" ] && append network_data "bssid_blacklist=$bssid_blacklist" "$N$T"
+	[ -n "$bssid_whitelist" ] && append network_data "bssid_whitelist=$bssid_whitelist" "$N$T"
 
 	[ -n "$basic_rate" ] && {
 		local br rate_list=
@@ -596,7 +605,8 @@ wpa_supplicant_add_network() {
 	}
 
 	local ht_str
-	[ -n "$ht" ] && append network_data "htmode=$ht" "$N$T"
+	[[ "$_w_mode" = adhoc ]] || ibss_htmode=
+	[ -n "$ibss_htmode" ] && append network_data "htmode=$ibss_htmode" "$N$T"
 
 	cat >> "$_config" <<EOF
 network={

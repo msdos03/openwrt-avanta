@@ -100,6 +100,7 @@ platform_check_image() {
 	wl-351 | \
 	wl341v3 | \
 	wli-tx4-ag300n | \
+	wzr-agl300nh | \
 	wmr300 |\
 	wnce2001 | \
 	wr512-3gn |\
@@ -110,6 +111,7 @@ platform_check_image() {
 	wt3020 |\
 	x5 |\
 	x8 |\
+	xiaomi-miwifi-mini |\
 	y1 |\
 	y1s |\
 	zbt-wa05)
