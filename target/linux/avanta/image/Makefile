@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-NAND_BLOCKSIZE := 2048:128k
+KDIR_TMP:=$(KDIR)/tmp
 
 define sanitize_profile_name
 $(shell echo $(PROFILE) | tr '[:upper:]' '[:lower:]')
@@ -91,10 +91,14 @@ define Image/Build/squashfs
 		dd if=$(KDIR)/root.$(1) bs=128k conv=sync; \
 	) > $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1).img
 
-	( \
-		dd if=$(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-uImage bs=1536k conv=sync; \
-		dd if=$(KDIR)/root.$(1); \
-	) > $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1)-sysupgrade.bin
+ ifneq ($($(PROFILE)_UBI_OPTS),)
+	$(call Image/Build/UbinizeImage,$(call sanitize_profile_name),,squashfs,$($(PROFILE)_UBI_OPTS))
+ endif
+	
+endef
+
+define BuildSysupgrade
+	$(call Image/Build/SysupgradeNAND,$(2),$(1),$(BIN_DIR)/$(IMG_PREFIX)-$(2)-uImage)
 endef
 
 define Image/mkfs/targz
@@ -121,6 +125,17 @@ Image/InstallKernel/Template/Generic=$(call Image/InstallKernel/Template)
 
 Image/BuildKernel/Template/MI424WR=$(call Image/BuildKernel/Template,mi424wr)
 Image/InstallKernel/Template/MI424WR=$(call Image/InstallKernel/Template,mi424wr)
+define Image/Build/Template/MI424WR
+
+ ifeq ($(1),squashfs)
+	$(call BuildSysupgrade,$(1),$(call sanitize_profile_name))
+	( \
+		dd if=$(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-uImage bs=2048k conv=sync; \
+		dd if=$(KDIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1)-ubinized.bin; \
+	) > $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1)-combined.bin
+ endif
+
+endef
 
 define Image/BuildKernel
 	$(call Image/BuildKernel/Template/$(PROFILE))
@@ -135,6 +150,8 @@ define Image/Build
 		$(call Image/Build/$(1),$(1)), \
 		$(CP) $(KDIR)/root.$(1) $(BIN_DIR)/$(IMG_PREFIX)-$(call sanitize_profile_name)-$(1).img \
 	)
+
+	$(call Image/Build/Template/$(PROFILE),$(1))
 endef
 
 $(eval $(call BuildImage))
