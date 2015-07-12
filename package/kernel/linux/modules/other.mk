@@ -79,7 +79,7 @@ define KernelPackage/bluetooth_6lowpan
   FILES:= \
        $(LINUX_DIR)/net/bluetooth/bluetooth_6lowpan.ko \
        $(LINUX_DIR)/net/6lowpan/6lowpan.ko
-       AUTOLOAD:=$(call AutoProbe,bluetooth)
+       AUTOLOAD:=$(call AutoProbe,bluetooth_6lowpan)
 endef
 
 define KernelPackage/bluetooth_6lowpan/description
