@@ -12,7 +12,7 @@ platform_check_image() {
 	[ "$#" -gt 1 ] && return 1
 
 	case "$board" in
-	"mi424wr")
+	"f660")
 		nand_do_platform_check $board $1
 		return $?;
 		;;

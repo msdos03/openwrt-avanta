@@ -1,0 +1,81 @@
+--- a/arch/arm/boot/dts/avanta-mi424wr.dts
++++ b/arch/arm/boot/dts/avanta-mi424wr.dts
+@@ -1,4 +1,9 @@
+ /*
++ * Device Tree file for zte f660
++ *   (c) 2021 winnt5 <jiconglu58@gmail.com>
++ *
++ * based on avanta-mi424wr.dts by Claudio Leite
++ *
+  * avanta-mi424wr.dts - Device Tree file for Actiontec MI-424WR Rev I
+  *   (c) 2015 Claudio Leite <leitec@staticky.com>
+  *
+@@ -18,8 +23,8 @@
+ #include "avanta-6560.dtsi"
+ 
+ / {
+-	model = "Actiontec MI424WR-I";
+-	compatible = "actiontec,mi424wr-i", "marvell,kirkwood-88f6282", "marvell,kirkwood";
++	model = "ZTE F660";
++	compatible = "zte,f660", "marvell,kirkwood-88f6282", "marvell,kirkwood";
+ 
+ 	memory {
+ 		device_type = "memory";
+@@ -121,8 +126,8 @@
+ 		reg = <0x8>;
+ 
+ 		mii-bus = <&mdio>;
+-		cpu-port-0 = <5>;
+-		cpu-port-1 = <6>;
++		cpu-port-0 = <4>;
++		cpu-port-1 = <5>;
+ 		is-indirect;
+ 	};
+ };
+@@ -136,32 +141,22 @@
+ 
+ 	partition@0 {
+ 		label = "u-boot";
+-		reg = <0 0x200000>;
++		reg = <0 0x80000>;
+ 	};
+ 
+-	partition@200000 {
+-		label = "jffs2";
+-		reg = <0x200000 0x2000000>;
+-	};
+-
+-
+-	partition@3000000 {
++	partition@80000 {
+ 		label = "kernel";
+-		reg = <0x3000000 0x200000>;
++		reg = <0x80000 0x200000>;
+ 	};
+ 
+-	partition@4000000 {
++	partition@280000 {
+ 		label = "ubi";
+-		reg = <0x3200000 0x4e00000>;
++		reg = <0x280000 0x1d80000>;
+ 	};
+ };
+ 
+ &mdio {
+ 	status = "okay";
+-
+-	phy0: ethernet-phy@9 {
+-		reg = <9>;
+-	};
+ };
+ 
+ &eth0 {
+@@ -174,8 +169,3 @@
+ 	};
+ };
+ 
+-&eth1 {
+-	status = "okay";
+-	phy = <&phy0>;
+-	phy-mode = "rgmii-id";
+-};

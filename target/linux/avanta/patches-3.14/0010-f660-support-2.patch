@@ -1,0 +1,30 @@
+--- a/arch/arm/boot/dts/avanta.dtsi
++++ b/arch/arm/boot/dts/avanta.dtsi
+@@ -217,19 +217,19 @@
+ 			status = "okay";
+ 		};
+ 
+-		eth0: ethernet@74000 {
++		eth0: ethernet@70000 {
+ 			compatible = "marvell,armada-370-neta";
+-			reg = <0x74000 0x4000>;
+-			interrupts = <11>;
+-			clocks = <&gate_clk 19>;
++			reg = <0x70000 0x4000>;
++			interrupts = <7>;
++			clocks = <&gate_clk 0>;
+ 			status = "disabled";
+ 		};
+ 
+-		eth1: ethernet@70000 {
++		eth1: ethernet@74000 {
+ 			compatible = "marvell,armada-370-neta";
+-			reg = <0x70000 0x4000>;
+-			interrupts = <7>;
+-			clocks = <&gate_clk 0>;
++			reg = <0x74000 0x4000>;
++			interrupts = <11>;
++			clocks = <&gate_clk 19>;
+ 			status = "disabled";
+ 		};
+ 

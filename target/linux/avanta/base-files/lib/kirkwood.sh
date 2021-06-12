@@ -37,8 +37,8 @@ kirkwood_board_detect() {
 		name="ea4500"
 		;;
 
-	"Actiontec MI424WR-I")
-		name="mi424wr"
+	"ZTE F660")
+		name="f660"
 		;;
 
 	*)
