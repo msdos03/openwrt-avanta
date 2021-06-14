@@ -8,7 +8,7 @@
 define Profile/MI424WR
   NAME:=Actiontec MI-424WR Rev I
   PACKAGES:= \
-	kmod-rtl8192ce kmod-usb2 kmod-usb-storage \
+	kmod-usb2 kmod-usb-storage \
 	kmod-leds-gpio kmod-ledtrig-netdev \
 	kmod-ledtrig-usbdev wpad-mini \
 	swconfig uboot-envtools
