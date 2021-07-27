@@ -79,14 +79,14 @@
  }
 --- a/kernel/irq/proc.c
 +++ b/kernel/irq/proc.c
-@@ -328,6 +328,9 @@ void register_irq_proc(unsigned int irq,
- {
+@@ -328,6 +328,9 @@
+ 	static DEFINE_MUTEX(register_lock);
  	char name [MAX_NAMELEN];
  
 +	if (IS_ENABLED(CONFIG_PROC_STRIPPED) && !IS_ENABLED(CONFIG_SMP))
 +		return;
 +
- 	if (!root_irq_dir || (desc->irq_data.chip == &no_irq_chip) || desc->dir)
+ 	if (!root_irq_dir || (desc->irq_data.chip == &no_irq_chip))
  		return;
  
 @@ -364,6 +367,9 @@ void unregister_irq_proc(unsigned int ir

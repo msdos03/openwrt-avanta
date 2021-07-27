@@ -1,0 +1,46 @@
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -22,6 +22,7 @@
+ #include <linux/interrupt.h>
+ #include <net/ip.h>
+ #include <net/ipv6.h>
++#include <linux/if_vlan.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
+ #include <linux/of_irq.h>
+@@ -1379,16 +1380,24 @@ static int mvneta_rx_refill(struct mvnet
+ static u32 mvneta_skb_tx_csum(struct mvneta_port *pp, struct sk_buff *skb)
+ {
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		__be16 l3_proto = skb->protocol;
+ 		int ip_hdr_len = 0;
+ 		u8 l4_proto;
+ 
+-		if (skb->protocol == htons(ETH_P_IP)) {
++		if (skb->protocol == htons(ETH_P_8021Q)) {
++			struct vlan_ethhdr *veh =
++				(struct vlan_ethhdr *)skb->data;
++
++			l3_proto = veh->h_vlan_encapsulated_proto;
++		}
++
++		if (l3_proto == htons(ETH_P_IP)) {
+ 			struct iphdr *ip4h = ip_hdr(skb);
+ 
+ 			/* Calculate IPv4 checksum and L4 checksum */
+ 			ip_hdr_len = ip4h->ihl;
+ 			l4_proto = ip4h->protocol;
+-		} else if (skb->protocol == htons(ETH_P_IPV6)) {
++		} else if (l3_proto == htons(ETH_P_IPV6)) {
+ 			struct ipv6hdr *ip6h = ipv6_hdr(skb);
+ 
+ 			/* Read l4_protocol from one of IPv6 extra headers */
+@@ -1399,7 +1408,7 @@ static u32 mvneta_skb_tx_csum(struct mvn
+ 			return MVNETA_TX_L4_CSUM_NOT;
+ 
+ 		return mvneta_txq_desc_csum(skb_network_offset(skb),
+-				skb->protocol, ip_hdr_len, l4_proto);
++				l3_proto, ip_hdr_len, l4_proto);
+ 	}
+ 
+ 	return MVNETA_TX_L4_CSUM_NOT;

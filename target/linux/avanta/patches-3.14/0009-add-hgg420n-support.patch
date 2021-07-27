@@ -1,0 +1,166 @@
+--- /dev/null
++++ b/arch/arm/boot/dts/avanta-hgg420n.dts
+@@ -0,0 +1,163 @@
++/*
++ * Device Tree file for hqw hgg420n
++ *   (c) 2021 winnt5 <jiconglu58@gmail.com>
++ *
++ * based on avanta-mi424wr.dts by Claudio Leite
++ *
++ * avanta-mi424wr.dts - Device Tree file for Actiontec MI-424WR Rev I
++ *   (c) 2015 Claudio Leite <leitec@staticky.com>
++ *
++ * based on kirkwood-ea4500.dts,
++ *   (c) 2013 Jonas Gorski <jogo@openwrt.org>
++ *   (c) 2013 Deutsche Telekom Innovation Laboratories
++ *   (c) 2014 Luka Perkov <luka@openwrt.org>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++/dts-v1/;
++
++#include "avanta.dtsi"
++#include "avanta-6560.dtsi"
++
++/ {
++	model = "HQW HGG420N";
++	compatible = "hql,hgg420n", "marvell,kirkwood-88f6282", "marvell,kirkwood";
++
++	memory {
++		device_type = "memory";
++		reg = <0x00000000 0x8000000>;
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200n8 earlyprintk";
++	};
++
++
++	mbus {
++		pcie-controller {
++			status = "okay";
++
++			pcie@1,0 {
++				status = "okay";
++			};
++
++			pcie@2,0 {
++				status = "okay";
++			};
++		};
++	};
++
++	ocp@f1000000 {
++/*
++		pinctrl: pinctrl@10000 {
++			pmx_led_white_health: pmx-led-white-health {
++				marvell,pins = "mpp7";
++				marvell,function = "gpo";
++			};
++			pmx_led_white_pulse: pmx-led-white-pulse {
++				marvell,pins = "mpp14";
++				marvell,function = "gpio";
++			};
++			pmx_btn_wps: pmx-btn-wps {
++				marvell,pins = "mpp47";
++				marvell,function = "gpio";
++			};
++			pmx_btn_reset: pmx-btn-reset {
++				marvell,pins = "mpp48";
++				marvell,function = "gpio";
++			};
++		};
++*/
++
++		rtc@10300 {
++			status = "disabled";
++		};
++
++		serial@12000 {
++			status = "okay";
++		};
++	};
++
++/*
++	gpio_keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		pinctrl-0 = < &pmx_btn_wps &pmx_btn_reset >;
++		pinctrl-names = "default";
++
++		button@15 {
++			label = "WPS Button";
++			linux,code = <KEY_WPS_BUTTON>;
++			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
++		};
++
++		button@16 {
++			label = "Reset Button";
++			linux,code = <KEY_RESTART>;
++			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
++		};
++	};
++*/
++
++	mvsw6171 {
++		compatible = "marvell,88e6171";
++		status = "okay";
++		reg = <0x8>;
++
++		mii-bus = <&mdio>;
++		cpu-port-0 = <4>;
++		cpu-port-1 = <5>;
++		is-indirect;
++	};
++};
++
++&nand {
++	status = "okay";
++/*
++	pinctrl-0 = <&pmx_nand_none>;
++	pinctrl-names = "default";
++*/
++
++	partition@0 {
++		label = "u-boot";
++		reg = <0 0x100000>;
++	};
++
++	partition@100000 {
++		label = "kernel";
++		reg = <0x100000 0x200000>;
++	};
++
++	partition@300000 {
++		label = "ubi";
++		reg = <0x300000 0x3d00000>;
++	};
++};
++
++&mdio {
++	status = "okay";
++};
++
++&eth0 {
++	status = "okay";
++	phy-mode = "gmii";
++
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
++};
++
++&eth1 {
++	status = "okay";
++	phy-mode = "gmii";
++
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
++};

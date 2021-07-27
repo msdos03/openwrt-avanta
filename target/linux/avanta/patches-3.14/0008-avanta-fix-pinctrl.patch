@@ -1,0 +1,71 @@
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-370.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-370.c
+@@ -363,6 +363,52 @@
+ 	   MPP_FUNCTION(0x0, "gpio", NULL),
+ 	   MPP_FUNCTION(0x1, "spi0", "mosi"),
+ 	   MPP_FUNCTION(0x2, "spi0", "cs2")),
++	MPP_MODE(66,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(67,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(68,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(69,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(70,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(71,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(72,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(73,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(74,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(75,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(76,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(77,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(78,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(79,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(80,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(81,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(82,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(83,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(84,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(85,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(86,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(87,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
++	MPP_MODE(88,
++	   MPP_FUNCTION(0x0, "gpio", NULL)),
+ };
+ 
+ static struct mvebu_pinctrl_soc_info armada_370_pinctrl_info;
+@@ -373,13 +419,13 @@
+ };
+ 
+ static struct mvebu_mpp_ctrl mv88f6710_mpp_controls[] = {
+-	MPP_REG_CTRL(0, 65),
++	MPP_REG_CTRL(0, 88),
+ };
+ 
+ static struct pinctrl_gpio_range mv88f6710_mpp_gpio_ranges[] = {
+ 	MPP_GPIO_RANGE(0,   0,  0, 32),
+ 	MPP_GPIO_RANGE(1,  32, 32, 32),
+-	MPP_GPIO_RANGE(2,  64, 64,  2),
++	MPP_GPIO_RANGE(2,  64, 64, 25),
+ };
+ 
+ static int armada_370_pinctrl_probe(struct platform_device *pdev)
