@@ -48,10 +48,10 @@ case "$board" in
 	ucidef_add_switch_vlan "switch0" "2" "0 4t"
 	;;
 "hgg420n")
-	ucidef_set_interfaces_lan_wan "eth0.1" "eth1.2"
+	ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
 	ucidef_add_switch "switch0" "1" "1"
 	ucidef_add_switch_vlan "switch0" "1" "1 2 3 4t"
-	ucidef_add_switch_vlan "switch0" "2" "0 5t"
+	ucidef_add_switch_vlan "switch0" "2" "0 4t"
 	;;
 *)
 	ucidef_set_interface_lan "eth0"

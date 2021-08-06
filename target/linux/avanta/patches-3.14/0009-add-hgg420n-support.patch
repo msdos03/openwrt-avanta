@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm/boot/dts/avanta-hgg420n.dts
-@@ -0,0 +1,163 @@
+@@ -0,0 +1,153 @@
 +/*
 + * Device Tree file for hqw hgg420n
 + *   (c) 2021 winnt5 <jiconglu58@gmail.com>
@@ -146,16 +146,6 @@
 +};
 +
 +&eth0 {
-+	status = "okay";
-+	phy-mode = "gmii";
-+
-+	fixed-link {
-+		speed = <1000>;
-+		full-duplex;
-+	};
-+};
-+
-+&eth1 {
 +	status = "okay";
 +	phy-mode = "gmii";
 +
