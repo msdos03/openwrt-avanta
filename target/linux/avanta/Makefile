@@ -18,4 +18,6 @@ include $(INCLUDE_DIR)/target.mk
 
 KERNELNAME:=zImage dtbs
 
+DEFAULT_PACKAGES += uboot-envtools
+
 $(eval $(call BuildTarget))
