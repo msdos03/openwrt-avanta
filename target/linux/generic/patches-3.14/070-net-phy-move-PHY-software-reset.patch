@@ -31,7 +31,7 @@ Date:   Mon Feb 17 13:34:02 2014 -0800
  	if (ret < 0)
  		return ret;
  
-@@ -1029,6 +1025,27 @@ static int gen10g_read_status(struct phy
+@@ -1030,6 +1026,27 @@ static int gen10g_read_status(struct phy
  	return 0;
  }
  

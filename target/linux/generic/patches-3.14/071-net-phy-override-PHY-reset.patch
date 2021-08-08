@@ -36,7 +36,7 @@ Date:   Mon Feb 17 13:34:03 2014 -0800
  	if (ret < 0)
  		return ret;
  
-@@ -1092,6 +1096,12 @@ static int genphy_config_init(struct phy
+@@ -1093,6 +1097,12 @@ static int genphy_config_init(struct phy
  	return 0;
  }
  
@@ -49,7 +49,7 @@ Date:   Mon Feb 17 13:34:03 2014 -0800
  static int gen10g_config_init(struct phy_device *phydev)
  {
  	/* Temporarily just say we support everything */
-@@ -1266,6 +1276,7 @@ static struct phy_driver genphy_driver[]
+@@ -1267,6 +1277,7 @@ static struct phy_driver genphy_driver[]
  	.phy_id		= 0xffffffff,
  	.phy_id_mask	= 0xffffffff,
  	.name		= "Generic PHY",
@@ -57,7 +57,7 @@ Date:   Mon Feb 17 13:34:03 2014 -0800
  	.config_init	= genphy_config_init,
  	.features	= 0,
  	.config_aneg	= genphy_config_aneg,
-@@ -1277,6 +1288,7 @@ static struct phy_driver genphy_driver[]
+@@ -1278,6 +1289,7 @@ static struct phy_driver genphy_driver[]
  	.phy_id         = 0xffffffff,
  	.phy_id_mask    = 0xffffffff,
  	.name           = "Generic 10G PHY",

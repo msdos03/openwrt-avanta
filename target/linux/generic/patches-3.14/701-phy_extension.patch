@@ -1,6 +1,6 @@
 --- a/drivers/net/phy/phy.c
 +++ b/drivers/net/phy/phy.c
-@@ -293,6 +293,50 @@ int phy_ethtool_gset(struct phy_device *
+@@ -312,6 +312,50 @@ int phy_ethtool_gset(struct phy_device *
  }
  EXPORT_SYMBOL(phy_ethtool_gset);
  

@@ -15,7 +15,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
 
 --- a/drivers/net/phy/phy.c
 +++ b/drivers/net/phy/phy.c
-@@ -744,6 +744,17 @@ void phy_state_machine(struct work_struc
+@@ -763,6 +763,17 @@ void phy_state_machine(struct work_struc
  			break;
  
  		if (phydev->link) {

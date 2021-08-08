@@ -64,7 +64,7 @@
  	default 0xfee08300 if DEBUG_DAVINCI_TNETV107X_UART1
 --- a/arch/arm/Makefile
 +++ b/arch/arm/Makefile
-@@ -147,6 +147,7 @@ textofs-$(CONFIG_ARCH_MSM8960) := 0x0020
+@@ -155,6 +155,7 @@ textofs-$(CONFIG_ARCH_MSM8960) := 0x0020
  # Machine directory name.  This list is sorted alphanumerically
  # by CONFIG_* macro name.
  machine-$(CONFIG_ARCH_AT91)		+= at91

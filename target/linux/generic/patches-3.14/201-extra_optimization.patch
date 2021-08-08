@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -580,9 +580,9 @@ endif # $(dot-config)
+@@ -582,9 +582,9 @@ endif # $(dot-config)
  all: vmlinux
  
  ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE

@@ -151,7 +151,7 @@
  /*
   * This function, given a master MTD object and a partition table, creates
   * and registers slave MTD objects which are bound to the master according to
-@@ -643,6 +686,7 @@ int add_mtd_partitions(struct mtd_info *
+@@ -645,6 +688,7 @@ int add_mtd_partitions(struct mtd_info *
  		mutex_unlock(&mtd_partitions_mutex);
  
  		add_mtd_device(&slave->mtd);

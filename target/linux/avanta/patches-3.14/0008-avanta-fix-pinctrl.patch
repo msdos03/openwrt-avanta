@@ -1,6 +1,6 @@
 --- a/drivers/pinctrl/mvebu/pinctrl-armada-370.c
 +++ b/drivers/pinctrl/mvebu/pinctrl-armada-370.c
-@@ -363,6 +363,52 @@
+@@ -363,6 +363,52 @@ static struct mvebu_mpp_mode mv88f6710_m
  	   MPP_FUNCTION(0x0, "gpio", NULL),
  	   MPP_FUNCTION(0x1, "spi0", "mosi"),
  	   MPP_FUNCTION(0x2, "spi0", "cs2")),
@@ -53,7 +53,7 @@
  };
  
  static struct mvebu_pinctrl_soc_info armada_370_pinctrl_info;
-@@ -373,13 +419,13 @@
+@@ -373,13 +419,13 @@ static struct of_device_id armada_370_pi
  };
  
  static struct mvebu_mpp_ctrl mv88f6710_mpp_controls[] = {
