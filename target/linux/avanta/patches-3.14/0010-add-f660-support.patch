@@ -110,43 +110,43 @@
 +	gpio-leds {
 +		compatible = "gpio-leds";
 +
-+		warn-red {
-+			label = "warn:red";
++		red-warn {
++			label = "f660:red:warn";
 +			gpios = <&gpio0 17 GPIO_ACTIVE_LOW>;
 +		};
 +
-+		voice1-green {
-+			label = "voice1:green";
++		green-voice1 {
++			label = "f660:green:voice1";
 +			gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
 +		};
 +
-+		ponnetwork-green {
-+			label = "ponnetwork:green";
++		green-ponnetwork {
++			label = "f660:green:ponnetwork";
 +			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
 +		};
 +
-+		ponport-red {
-+			label = "ponport:red";
++		red-ponport {
++			label = "f660:red:ponport";
 +			gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
 +		};
 +
-+		voice2-green {
-+			label = "voice2:green";
++		green-voice2 {
++			label = "f660:green:voice2";
 +			gpios = <&gpio1 20 GPIO_ACTIVE_LOW>;
 +		};
 +
-+		wps-red {
-+			label = "wps:red";
++		red-wps {
++			label = "f660:red:wps";
 +			gpios = <&gpio2 11 GPIO_ACTIVE_LOW>;
 +		};
 +
-+		wps-green {
-+			label = "wps:green";
++		green-wps {
++			label = "f660:green:wps";
 +			gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
 +		};
 +
-+		usb-green {
-+			label = "usb:green";
++		green-usb {
++			label = "f660:green:usb";
 +			gpios = <&gpio2 13 GPIO_ACTIVE_LOW>;
 +		};
 +	};

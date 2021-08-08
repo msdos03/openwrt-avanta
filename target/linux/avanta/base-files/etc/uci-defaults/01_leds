@@ -10,14 +10,14 @@ board=$(kirkwood_board_name)
 
 case "$board" in
 "f660")
-	ucidef_set_led_default "warn" "warn:red" "1"
-	ucidef_set_led_default "voice1" "voice1:green" "1"
-	ucidef_set_led_default "ponnetwork" "ponnetwork:green" "1"
-	ucidef_set_led_default "ponport" "ponport:red" "1"
-	ucidef_set_led_default "voice2" "voice2:green" "1"
-	ucidef_set_led_default "wpsr" "wps:red" "1"
-	ucidef_set_led_default "wpsg" "wps:green" "1"
-	ucidef_set_led_default "usb" "usb:green" "1"
+	ucidef_set_led_default "warn" "warn" "f660:red:warn" "1"
+	ucidef_set_led_default "voice1" "voice1" "f660:green:voice1" "1"
+	ucidef_set_led_default "ponnetwork" "ponnetwork" "f660:green:ponnetwork" "1"
+	ucidef_set_led_default "ponport" "ponport" "f660:red:ponport" "1"
+	ucidef_set_led_default "voice2" "voice2" "f660:green:voice2" "1"
+	ucidef_set_led_default "wpsred" "wpsred" "f660:red:wps" "1"
+	ucidef_set_led_default "wpsgreen" "wpsgreen" "f660:green:wps" "1"
+	ucidef_set_led_default "usb" "usb" "f660:green:usb" "1"
 	;;
 *)
 	;;
