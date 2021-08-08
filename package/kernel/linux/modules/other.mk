@@ -260,7 +260,9 @@ define KernelPackage/iio-ad799x
   KCONFIG:= \
 	CONFIG_AD799X_RING_BUFFER=y \
 	CONFIG_AD799X
-  FILES:=$(LINUX_DIR)/drivers/iio/adc/ad799x.ko
+  FILES:= \
+	$(LINUX_DIR)/drivers/staging/iio/adc/ad799x.ko@lt3.16 \
+	$(LINUX_DIR)/drivers/iio/adc/ad799x.ko@ge3.16
   AUTOLOAD:=$(call AutoLoad,56,ad799x)
 endef
 
