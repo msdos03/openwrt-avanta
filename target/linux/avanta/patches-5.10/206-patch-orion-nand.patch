@@ -1,0 +1,39 @@
+--- a/drivers/mtd/nand/raw/orion_nand.c
++++ b/drivers/mtd/nand/raw/orion_nand.c
+@@ -52,35 +52,11 @@ static void orion_nand_cmd_ctrl(struct n
+ static void orion_nand_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
+ {
+ 	void __iomem *io_base = chip->legacy.IO_ADDR_R;
+-#if defined(__LINUX_ARM_ARCH__) && __LINUX_ARM_ARCH__ >= 5
+-	uint64_t *buf64;
+-#endif
+-	int i = 0;
+ 
+-	while (len && (unsigned long)buf & 7) {
++	while (len) {
+ 		*buf++ = readb(io_base);
+ 		len--;
+ 	}
+-#if defined(__LINUX_ARM_ARCH__) && __LINUX_ARM_ARCH__ >= 5
+-	buf64 = (uint64_t *)buf;
+-	while (i < len/8) {
+-		/*
+-		 * Since GCC has no proper constraint (PR 43518)
+-		 * force x variable to r2/r3 registers as ldrd instruction
+-		 * requires first register to be even.
+-		 */
+-		register uint64_t x asm ("r2");
+-
+-		asm volatile ("ldrd\t%0, [%1]" : "=&r" (x) : "r" (io_base));
+-		buf64[i++] = x;
+-	}
+-	i *= 8;
+-#else
+-	readsl(io_base, buf, len/4);
+-	i = len / 4 * 4;
+-#endif
+-	while (i < len)
+-		buf[i++] = readb(io_base);
+ }
+ 
+ static int orion_nand_attach_chip(struct nand_chip *chip)
