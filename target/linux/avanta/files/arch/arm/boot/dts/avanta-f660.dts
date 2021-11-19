@@ -103,7 +103,7 @@
 
 		button@8 {
 			label = "wireless";
-			linux,code = <KEY_WIMAX>;
+			linux,code = <KEY_WLAN>;
 			gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
 		};
 
