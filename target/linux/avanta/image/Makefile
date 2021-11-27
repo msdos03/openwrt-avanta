@@ -36,7 +36,7 @@ define Device/zte_f660
   DEVICE_VENDOR := ZTE
   DEVICE_MODEL := F660
   DEVICE_DTS := avanta-f660
-  DEVICE_PACKAGES := kmod-fs-ext4 kmod-usb2 kmod-usb-storage \
+  DEVICE_PACKAGES := kmod-fs-ext4 kmod-usb-storage \
   	kmod-leds-gpio kmod-ledtrig-activity kmod-ledtrig-audio \
   	kmod-ledtrig-gpio kmod-ledtrig-oneshot kmod-ledtrig-transient \
 	kmod-gpio-button-hotplug kmod-rtl8192ce swconfig wpad
@@ -56,7 +56,7 @@ define Device/hqw_hgg420n
   DEVICE_VENDOR := HQW
   DEVICE_MODEL := HGG420N
   DEVICE_DTS := avanta-hgg420n
-  DEVICE_PACKAGES := kmod-fs-ext4 kmod-usb2 kmod-usb-storage \
+  DEVICE_PACKAGES := kmod-fs-ext4 kmod-usb-storage \
   	kmod-leds-gpio kmod-ledtrig-activity kmod-ledtrig-audio \
   	kmod-ledtrig-gpio kmod-ledtrig-oneshot kmod-ledtrig-transient \
 	kmod-gpio-button-hotplug kmod-rtl8192ce swconfig wpad
