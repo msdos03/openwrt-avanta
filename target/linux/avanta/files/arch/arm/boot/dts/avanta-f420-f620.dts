@@ -1,5 +1,5 @@
 /*
- * Device Tree file for zte f660
+ * Device Tree file for zte f420 and f620
  * 
  *   (c) 2021 winnt5 <jiconglu58@gmail.com>
  *
@@ -26,8 +26,8 @@
 #include "avanta-6560.dtsi"
 
 / {
-	model = "ZTE F660";
-	compatible = "zte,f660", "marvell,kirkwood-88f6282", "marvell,kirkwood";
+	model = "ZTE F420 F620";
+	compatible = "zte,f420-f620", "marvell,kirkwood-88f6282", "marvell,kirkwood";
 
 	memory {
 		device_type = "memory";
@@ -52,43 +52,28 @@
 		compatible = "gpio-leds";
 
 		red-warn {
-			label = "f660:red:warn";
+			label = "f420-f620:red:warn";
 			gpios = <&gpio0 17 GPIO_ACTIVE_LOW>;
 		};
 
 		green-voice1 {
-			label = "f660:green:voice1";
+			label = "f420-f620:green:voice1";
 			gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
 		};
 
 		green-ponnetwork {
-			label = "f660:green:ponnetwork";
+			label = "f420-f620:green:ponnetwork";
 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
 		};
 
 		red-ponport {
-			label = "f660:red:ponport";
+			label = "f420-f620:red:ponport";
 			gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
 		};
 
 		green-voice2 {
-			label = "f660:green:voice2";
+			label = "f420-f620:green:voice2";
 			gpios = <&gpio1 20 GPIO_ACTIVE_LOW>;
-		};
-
-		red-wps {
-			label = "f660:red:wps";
-			gpios = <&gpio2 11 GPIO_ACTIVE_LOW>;
-		};
-
-		green-wps {
-			label = "f660:green:wps";
-			gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
-		};
-
-		green-usb {
-			label = "f660:green:usb";
-			gpios = <&gpio2 13 GPIO_ACTIVE_LOW>;
 		};
 	};
 
@@ -99,18 +84,6 @@
 			label = "reset";
 			linux,code = <KEY_RESTART>;
 			gpios = <&gpio1 13 GPIO_ACTIVE_LOW>;
-		};
-
-		button@8 {
-			label = "wireless";
-			linux,code = <KEY_WLAN>;
-			gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
-		};
-
-		button@9 {
-			label = "wps";
-			linux,code = <KEY_WPS_BUTTON>;
-			gpios = <&gpio2 9 GPIO_ACTIVE_LOW>;
 		};
 	};
 
@@ -143,14 +116,6 @@
 		label = "ubi";
 		reg = <0x400000 0x1c00000>;
 	};
-};
-
-&pciec {
-	status = "okay";
-};
-
-&pcie1 {
-	status = "okay";
 };
 
 &mdio {
@@ -198,6 +163,11 @@
 		};
 	};
 */
+};
+
+/* usb for f420-f620 devices will cause system halt */
+&usb0 {
+	status = "disabled";
 };
 
 /* eth0	 is connected to a Marvell 88F6560 internal switch, without a PHY. So set

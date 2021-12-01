@@ -10,7 +10,11 @@ board_config_update
 board=$(board_name)
 
 case "$board" in
-zte,f660)
+zte,f460-f660)
+	ucidef_add_switch "switch0" \
+		"0:wan" "1:lan" "2:lan" "3:lan" "4@eth0"
+	;;
+zte,f420-f620)
 	ucidef_add_switch "switch0" \
 		"0:wan" "1:lan" "2:lan" "3:lan" "4@eth0"
 	;;
