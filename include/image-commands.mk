@@ -196,6 +196,10 @@ define Build/check-size
 	}
 endef
 
+define Build/copy-file
+	cat "$(1)" > "$@"
+endef
+
 define Build/elecom-product-header
 	$(eval product=$(word 1,$(1)))
 	$(eval fw=$(if $(word 2,$(1)),$(word 2,$(1)),$@))
@@ -524,12 +528,14 @@ define Build/xor-image
 endef
 
 define Build/zip
+	rm -rf $@.tmp
 	mkdir $@.tmp
-	mv $@ $@.tmp/$(1)
+	mv $@ $@.tmp/$(word 1,$(1))
 
-	zip -j -X \
+	$(STAGING_DIR_HOST)/bin/zip -j -X \
 		$(if $(SOURCE_DATE_EPOCH),--mtime="$(SOURCE_DATE_EPOCH)") \
-		$@ $@.tmp/$(if $(1),$(1),$@)
+		$(wordlist 2,$(words $(1)),$(1)) \
+		$@ $@.tmp/$(if $(word 1,$(1)),$(word 1,$(1)),$$(basename $@))
 	rm -rf $@.tmp
 endef
 
