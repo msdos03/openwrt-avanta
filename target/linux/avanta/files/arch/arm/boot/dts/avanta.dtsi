@@ -47,9 +47,10 @@
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
 		gpio2 = &gpio2;
+		i2c0 = &i2c0;
 	};
 
-	mbus {
+	mbus@f1000000 {
 		compatible = "marvell,kirkwood-mbus", "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <1>;
@@ -59,10 +60,10 @@
 			  MBUS_ID(0x03, 0x01) 0 0xf5000000 0x10000	/* crypto sram */
 			  >;
 		controller = <&mbusc>;
-		pcie-mem-aperture = <0xf3000000 0x1000000>; /* 16 MiB memory space */
+		pcie-mem-aperture = <0xe0000000 0x10000000>; /* 256 MiB memory space */
 		pcie-io-aperture  = <0xf2000000 0x100000>;   /*   1 MiB    I/O space */
 
-		nand: nand@012f {
+		nand: nand@12f {
 			#address-cells = <1>;
 			#size-cells = <1>;
 			cle = <0>;
@@ -116,7 +117,7 @@
 			ngpios = <32>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			interrupts = <36>, <37>, <38>, <39>;
+			interrupts = <35>, <36>, <37>, <38>;
 			clocks = <&gate_clk 7>;
 		};
 

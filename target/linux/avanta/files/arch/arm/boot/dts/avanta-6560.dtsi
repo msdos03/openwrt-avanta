@@ -20,7 +20,7 @@
  */
 
 / {
-	mbus {
+	mbus@f1000000 {
 		pciec: pcie@82000000 {
 			compatible = "marvell,kirkwood-pcie";
 			status = "disabled";
@@ -49,6 +49,7 @@
 				#interrupt-cells = <1>;
 				ranges = <0x82000000 0 0 0x82000000 0x1 0 1 0
 					  0x81000000 0 0 0x81000000 0x1 0 1 0>;
+				bus-range = <0x00 0xff>;
 				interrupt-map-mask = <0 0 0 0>;
 				interrupt-map = <0 0 0 0 &intc 25>;
 				marvell,pcie-port = <0>;
@@ -66,6 +67,7 @@
 				#interrupt-cells = <1>;
 				ranges = <0x82000000 0 0 0x82000000 0x2 0 1 0
 					  0x81000000 0 0 0x81000000 0x2 0 1 0>;
+				bus-range = <0x00 0xff>;
 				interrupt-map-mask = <0 0 0 0>;
 				interrupt-map = <0 0 0 0 &intc 24>;
 				marvell,pcie-port = <1>;
@@ -81,20 +83,20 @@
 			reg = <0x18000 0x59>;
 		};
 
-		thermal@184d8 {
+		thermal: thermal@184d8 {
 			compatible = "marvell,kirkwood-thermal";
 			reg = <0x184d8 0x4>;
 			status = "okay";
 		};
 
-		rtc@10300 {
+		rtc: rtc@10300 {
 			compatible = "marvell,kirkwood-rtc", "marvell,orion-rtc";
 			reg = <0x10300 0x20>;
 			interrupts = <32>;
 			clocks = <&gate_clk 7>;
 		};
 
-		i2c@11100 {
+		i2c1: i2c@11100 {
 			compatible = "marvell,mv64xxx-i2c";
 			reg = <0x11100 0x20>;
 			#address-cells = <1>;
@@ -105,7 +107,7 @@
 			status = "disabled";
 		};
 
-		sata@80000 {
+		sata: sata@80000 {
 			compatible = "marvell,orion-sata";
 			reg = <0x80000 0x5000>;
 			interrupts = <22>;
@@ -116,7 +118,7 @@
 			status = "disabled";
 		};
 
-		mvsdio@90000 {
+		sdio: mvsdio@90000 {
 			compatible = "marvell,orion-sdio";
 			reg = <0x90000 0x200>;
 			interrupts = <18>;

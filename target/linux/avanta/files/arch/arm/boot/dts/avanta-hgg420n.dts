@@ -1,5 +1,5 @@
 /*
- * Device Tree file for zte f660
+ * Device Tree file for hqw hgg420n
  * 
  *   (c) 2021 winnt5 <jiconglu58@gmail.com>
  *
@@ -34,20 +34,29 @@
 		reg = <0x00000000 0x8000000>;
 	};
 
+	aliases {
+		serial0 = &uart0;
+	};
+
 	chosen {
-		bootargs = "console=ttyS0,115200n8 earlyprintk";
+		stdout-path = "serial0:115200n8";
 	};
 
-	ocp@f1000000 {
-		rtc@10300 {
-			status = "disabled";
+	gpio_keys {
+		compatible = "gpio-keys";
+
+		button@8 {
+			label = "wps";
+			linux,code = <KEY_WPS_BUTTON>;
+			gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
 		};
 
-		serial@12000 {
-			status = "okay";
+		button@9 {
+			label = "wireless";
+			linux,code = <KEY_WLAN>;
+			gpios = <&gpio2 9 GPIO_ACTIVE_LOW>;
 		};
 	};
-
 
 	gpio-leds {
 		compatible = "gpio-leds";
@@ -103,22 +112,6 @@
 		};
 	};
 
-	gpio_keys {
-		compatible = "gpio-keys";
-
-		button@8 {
-			label = "wps";
-			linux,code = <KEY_WPS_BUTTON>;
-			gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
-		};
-
-		button@9 {
-			label = "wireless";
-			linux,code = <KEY_WLAN>;
-			gpios = <&gpio2 9 GPIO_ACTIVE_LOW>;
-		};
-	};
-
 	mvsw6171 {
 		compatible = "marvell,88e6171";
 		status = "okay";
@@ -134,23 +127,33 @@
 &nand {
 	status = "okay";
 
-	partition@0 {
-		label = "u-boot";
-		reg = <0 0x100000>;
-	};
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
 
-	partition@100000 {
-		label = "kernel";
-		reg = <0x100000 0x300000>;
-	};
+		partition@0 {
+			label = "u-boot";
+			reg = <0 0x100000>;
+		};
 
-	partition@400000 {
-		label = "ubi";
-		reg = <0x400000 0x3c00000>;
+		partition@100000 {
+			label = "kernel";
+			reg = <0x100000 0x300000>;
+		};
+
+		partition@400000 {
+			label = "ubi";
+			reg = <0x400000 0x3c00000>;
+		};
 	};
 };
 
 &pciec {
+	status = "okay";
+};
+
+&pcie0 {
 	status = "okay";
 };
 
@@ -160,7 +163,8 @@
 
 &mdio {
 	status = "okay";
-/*
+/* This node is used by DSA switch driver, but DSA driver don't support 88f6560 internal switch.
+ * Maybe I will fix it later, so leave this node here for later usage.
 	switch@8 {
 		compatible = "marvell,mv88e6085";
 		#address-cells = <1>;
@@ -205,7 +209,11 @@
 */
 };
 
-/* eth0	 is connected to a Marvell 88F6560 internal switch, without a PHY. So set
+&uart0 {
+	status = "okay";
+};
+
+/* eth0 is connected to a Marvell 88F6560 internal switch, without a PHY. So set
  * fixed speed and duplex.
  */
 &eth0 {
@@ -215,4 +223,15 @@
 		speed = <1000>;
 		full-duplex;
 	};
+};
+
+&eth1 {
+	status = "disabled";
+};
+
+/* There is no battery on the board, so the RTC does not keep
+ * time when there is no power, making it useless.
+ */
+&rtc {
+	status = "disabled";
 };
