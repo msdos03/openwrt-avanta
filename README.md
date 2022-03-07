@@ -11,11 +11,13 @@ full customization, to use the device in ways never envisioned.
 
 Sunshine!
 
+
 ## Development
 
 To build your own firmware you need a GNU/Linux, BSD or MacOSX system (case
 sensitive filesystem required). Cygwin is unsupported because of the lack of a
 case sensitive file system.
+
 
 ### Requirements
 
@@ -28,6 +30,7 @@ documentation.
 binutils bzip2 diff find flex gawk gcc-6+ getopt grep install libc-dev libz-dev
 make4.1+ perl python3.6+ rsync subversion unzip which
 ```
+
 
 ### Quickstart
 
@@ -43,6 +46,7 @@ make4.1+ perl python3.6+ rsync subversion unzip which
 4. Run `make` to build your firmware. This will download all sources, build the
    cross-compile toolchain and then cross-compile the GNU/Linux kernel & all chosen
    applications for your target system.
+
 
 ### Related Repositories
 
@@ -63,9 +67,11 @@ packages to OpenWrt, please find the fitting repository below.
 * [OpenWrt Video](https://github.com/openwrt/video): Packages specifically
   focused on display servers and clients (Xorg and Wayland).
 
+
 ## Support Information
 
 For a list of supported devices see the [OpenWrt Hardware Database](https://openwrt.org/supported_devices)
+
 
 ### Documentation
 
@@ -74,16 +80,19 @@ For a list of supported devices see the [OpenWrt Hardware Database](https://open
 * [Developer Documentation](https://openwrt.org/docs/guide-developer/start)
 * [Technical Reference](https://openwrt.org/docs/techref/start)
 
+
 ### Support Community
 
 * [Forum](https://forum.openwrt.org): For usage, projects, discussions and hardware advise.
 * [Support Chat](https://webchat.oftc.net/#openwrt): Channel `#openwrt` on **oftc.net**.
+
 
 ### Developer Community
 
 * [Bug Reports](https://bugs.openwrt.org): Report bugs in OpenWrt
 * [Dev Mailing List](https://lists.openwrt.org/mailman/listinfo/openwrt-devel): Send patches
 * [Dev Chat](https://webchat.oftc.net/#openwrt-devel): Channel `#openwrt-devel` on **oftc.net**.
+
 
 ## License
 
