@@ -335,6 +335,7 @@ hostapd_common_add_bss_config() {
 	config_add_int sae_pwe
 
 	config_add_string 'owe_transition_bssid:macaddr' 'owe_transition_ssid:string'
+	config_add_string owe_transition_ifname
 
 	config_add_boolean iw_enabled iw_internet iw_asra iw_esr iw_uesa
 	config_add_int iw_access_network_type iw_venue_group iw_venue_type
@@ -635,10 +636,11 @@ hostapd_set_bss_options() {
 
 	case "$auth_type" in
 		none|owe)
-			json_get_vars owe_transition_bssid owe_transition_ssid
+			json_get_vars owe_transition_bssid owe_transition_ssid owe_transition_ifname
 
 			[ -n "$owe_transition_ssid" ] && append bss_conf "owe_transition_ssid=\"$owe_transition_ssid\"" "$N"
 			[ -n "$owe_transition_bssid" ] && append bss_conf "owe_transition_bssid=$owe_transition_bssid" "$N"
+			[ -n "$owe_transition_ifname" ] && append bss_conf "owe_transition_ifname=$owe_transition_ifname" "$N"
 
 			wps_possible=1
 			# Here we make the assumption that if we're in open mode
@@ -739,6 +741,25 @@ hostapd_set_bss_options() {
 			hostapd_append_wep_key bss_conf
 			append bss_conf "wep_default_key=$wep_keyidx" "$N"
 			[ -n "$wep_rekey" ] && append bss_conf "wep_rekey_period=$wep_rekey" "$N"
+		;;
+	esac
+
+	case "$auth_type" in
+		none|owe|psk|sae|psk-sae|wep)
+			json_get_vars \
+			auth_server auth_port auth_secret \
+			ownip radius_client_addr
+
+			[ -n "$auth_server" ] &&  {
+				set_default auth_port 1812
+
+				append bss_conf "auth_server_addr=$auth_server" "$N"
+				append bss_conf "auth_server_port=$auth_port" "$N"
+				[ -n "$auth_secret" ] && append bss_conf "auth_server_shared_secret=$auth_secret" "$N"
+				[ -n "$ownip" ] && append bss_conf "own_ip_addr=$ownip" "$N"
+				[ -n "$radius_client_addr" ] && append bss_conf "radius_client_addr=$radius_client_addr" "$N"
+				append bss_conf "macaddr_acl=2" "$N"
+			}
 		;;
 	esac
 
