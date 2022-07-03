@@ -45,10 +45,10 @@
 	gpio_keys {
 		compatible = "gpio-keys";
 
-		button@8 {
+		button@4 {
 			label = "wps";
 			linux,code = <KEY_WPS_BUTTON>;
-			gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio2 4 GPIO_ACTIVE_LOW>;
 		};
 
 		button@9 {
