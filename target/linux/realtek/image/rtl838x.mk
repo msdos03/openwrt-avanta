@@ -27,6 +27,15 @@ define Device/d-link_dgs-1210
 	dlink-version | dlink-headers
 endef
 
+define Device/d-link_dgs-1210-10mp-f
+  $(Device/d-link_dgs-1210)
+  SOC := rtl8380
+  DEVICE_MODEL := DGS-1210-10MP
+  DEVICE_VARIANT := F
+  DEVICE_PACKAGES += realtek-poe
+endef
+TARGET_DEVICES += d-link_dgs-1210-10mp-f
+
 define Device/d-link_dgs-1210-10p
   $(Device/d-link_dgs-1210)
   DEVICE_MODEL := DGS-1210-10P
@@ -138,6 +147,26 @@ define Device/netgear_gs310tp-v1
 endef
 TARGET_DEVICES += netgear_gs310tp-v1
 
+define Device/panasonic_m16eg-pn28160k
+  SOC := rtl8382
+  IMAGE_SIZE := 16384k
+  DEVICE_VENDOR := Panasonic
+  DEVICE_MODEL := Switch-M16eG
+  DEVICE_VARIANT := PN28160K
+  DEVICE_PACKAGES := kmod-i2c-mux-pca954x
+endef
+TARGET_DEVICES += panasonic_m16eg-pn28160k
+
+define Device/panasonic_m24eg-pn28240k
+  SOC := rtl8382
+  IMAGE_SIZE := 16384k
+  DEVICE_VENDOR := Panasonic
+  DEVICE_MODEL := Switch-M24eG
+  DEVICE_VARIANT := PN28240K
+  DEVICE_PACKAGES := kmod-i2c-mux-pca954x
+endef
+TARGET_DEVICES += panasonic_m24eg-pn28240k
+
 define Device/panasonic_m8eg-pn28080k
   SOC := rtl8380
   IMAGE_SIZE := 16384k
@@ -147,6 +176,17 @@ define Device/panasonic_m8eg-pn28080k
   DEVICE_PACKAGES := kmod-i2c-mux-pca954x
 endef
 TARGET_DEVICES += panasonic_m8eg-pn28080k
+
+define Device/tplink_sg2008p-v1
+  SOC := rtl8380
+  KERNEL_SIZE := 6m
+  IMAGE_SIZE := 26m
+  DEVICE_VENDOR := TP-Link
+  DEVICE_MODEL := SG2008P
+  DEVICE_VARIANT := v1
+  DEVICE_PACKAGES := kmod-hwmon-tps23861
+endef
+TARGET_DEVICES += tplink_sg2008p-v1
 
 define Device/zyxel_gs1900
   SOC := rtl8380

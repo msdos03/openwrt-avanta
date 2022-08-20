@@ -56,6 +56,7 @@ platform_do_upgrade() {
 	asus,rt-ax53u|\
 	beeline,smartbox-flash|\
 	beeline,smartbox-giga|\
+	beeline,smartbox-turbo|\
 	dlink,dir-1960-a1|\
 	dlink,dir-2640-a1|\
 	dlink,dir-2660-a1|\
@@ -119,6 +120,7 @@ platform_do_upgrade() {
 	ubnt,edgerouter-x-sfp)
 		platform_upgrade_ubnt_erx "$1"
 		;;
+	zyxel,lte3301-plus|\
 	zyxel,nr7101)
 		fw_setenv CheckBypass 0
 		fw_setenv Image1Stable 0

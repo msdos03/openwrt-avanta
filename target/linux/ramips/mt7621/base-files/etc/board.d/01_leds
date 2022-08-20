@@ -24,7 +24,8 @@ asus,rt-n56u-b1)
 	ucidef_set_led_netdev "wan" "WAN link" "blue:wan" "wan"
 	;;
 beeline,smartbox-flash|\
-beeline,smartbox-giga)
+beeline,smartbox-giga|\
+beeline,smartbox-turbo)
 	ucidef_set_led_netdev "wan" "wan" "blue:wan" "wan"
 	;;
 cudy,wr2100)
@@ -167,6 +168,9 @@ zbtlink,zbt-wg1608-16m)
 	ucidef_set_led_netdev "lan3" "LAN3" "green:lan-3" "lan3"
 	ucidef_set_led_netdev "lan4" "LAN4" "green:lan-4" "lan4"
 	ucidef_set_led_netdev "wan" "WAN" "green:wan" "wan"
+	;;
+zyxel,lte3301-plus)
+	ucidef_set_led_netdev "internet" "internet" "white:internet" "wwan0"
 	;;
 esac
 

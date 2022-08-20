@@ -3,8 +3,10 @@ name: Build Kernel
 on:
   pull_request:
     paths:
+      - '.github/workflows/kernel.yml'
       - 'include/kernel-*'
       - 'package/kernel/**'
+      - 'target/linux/generic/**'
 jobs:
   determine_targets:
     name: Set targets
@@ -55,6 +57,30 @@ jobs:
         with:
           path: openwrt
 
+      - name: Checkout packages feed
+        uses: actions/checkout@v2
+        with:
+          repository: openwrt/packages
+          path: openwrt/feeds/packages
+
+      - name: Checkout luci feed
+        uses: actions/checkout@v2
+        with:
+          repository: openwrt/luci
+          path: openwrt/feeds/luci
+
+      - name: Checkout routing feed
+        uses: actions/checkout@v2
+        with:
+          repository: openwrt/routing
+          path: openwrt/feeds/routing
+
+      - name: Checkout telephony feed
+        uses: actions/checkout@v2
+        with:
+          repository: openwrt/telephony
+          path: openwrt/feeds/telephony
+
       - name: Fix permission
         run: |
           chown -R buildbot:buildbot openwrt
@@ -76,7 +102,7 @@ jobs:
       - name: Parse toolchain file
         working-directory: openwrt
         run: |
-          TOOLCHAIN_FILE=$(curl "https://downloads.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/sha256sums" \
+          TOOLCHAIN_FILE=$(curl "https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/sha256sums" \
             | sed -n -e 's/.*\(openwrt-toolchain.*\).tar.xz/\1/p')
 
           echo "TOOLCHAIN_FILE=$TOOLCHAIN_FILE" >> "$GITHUB_ENV"
@@ -85,18 +111,26 @@ jobs:
         shell: su buildbot -c "sh -e {0}"
         working-directory: openwrt
         run: |
-          wget -O - https://downloads.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${TOOLCHAIN_FILE}.tar.xz \
+          wget -O - https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${TOOLCHAIN_FILE}.tar.xz \
             | tar --xz -xf -
 
       - name: Configure external toolchain
         shell: su buildbot -c "sh -e {0}"
         working-directory: openwrt
         run: |
+          echo CONFIG_ALL_KMODS=y >> .config
+
           ./scripts/ext-toolchain.sh \
             --toolchain ${{ env.TOOLCHAIN_FILE }}/toolchain-* \
+            --overwrite-config \
             --config ${{ env.TARGET }}/${{ env.SUBTARGET }}
 
           make defconfig
+
+      - name: Show configuration
+        shell: su buildbot -c "sh -e {0}"
+        working-directory: openwrt
+        run: ./scripts/diffconfig.sh
 
       - name: Build tools
         shell: su buildbot -c "sh -e {0}"
