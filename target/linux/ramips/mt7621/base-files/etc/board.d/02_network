@@ -22,6 +22,7 @@ ramips_setup_interfaces()
 	tplink,re650-v1|\
 	tplink,re650-v2|\
 	ubnt,unifi-6-lite|\
+	ubnt,unifi-flexhd|\
 	ubnt,unifi-nanohd|\
 	zyxel,nwa50ax|\
 	zyxel,nwa55axe)
@@ -146,9 +147,9 @@ ramips_setup_macs()
 		lan_mac=$label_mac
 		;;
 	buffalo,wsr-1166dhp)
-		local index="$(find_mtd_index "board_data")"
-		wan_mac="$(grep -m1 mac= "/dev/mtd${index}" | cut -d= -f2)"
+		wan_mac=$(mtd_get_mac_ascii board_data "mac")
 		lan_mac=$wan_mac
+		label_mac=$wan_mac
 		;;
 	dlink,dir-860l-b1)
 		lan_mac=$(mtd_get_mac_ascii factory lanmac)
@@ -203,6 +204,12 @@ ramips_setup_macs()
 	linksys,ea8100-v2)
 		lan_mac=$(mtd_get_mac_ascii devinfo hw_mac_addr)
 		wan_mac=$lan_mac
+		label_mac=$lan_mac
+		;;
+	belkin,rt1800|\
+	linksys,e7350)
+		lan_mac=$(mtd_get_mac_ascii Config lan_hwaddr)
+		wan_mac=$(mtd_get_mac_ascii Config wan_hwaddr)
 		label_mac=$lan_mac
 		;;
 	mikrotik,routerboard-750gr3|\
