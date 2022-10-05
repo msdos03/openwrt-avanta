@@ -1270,6 +1270,7 @@ TARGET_DEVICES += linksys_ea8100-v2
 
 define Device/linksys_re6500
   $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
   IMAGE_SIZE := 7872k
   DEVICE_VENDOR := Linksys
   DEVICE_MODEL := RE6500
@@ -1721,6 +1722,17 @@ define Device/sercomm_na502s
   		kmod-usb-serial-xr_usb_serial_common
 endef
 TARGET_DEVICES += sercomm_na502s
+
+define Device/snr_snr-cpe-me2-lite
+  $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := SNR
+  DEVICE_MODEL := SNR-CPE-ME2-Lite
+  UIMAGE_NAME := $$(DEVICE_MODEL)
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap
+endef
+TARGET_DEVICES += snr_snr-cpe-me2-lite
 
 define Device/storylink_sap-g3200u3
   $(Device/dsa-migration)
