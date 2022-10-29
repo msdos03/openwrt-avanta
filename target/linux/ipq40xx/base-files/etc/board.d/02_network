@@ -13,6 +13,7 @@ ipq40xx_setup_interfaces()
 	case "$board" in
 	8dev,habanero-dvk|\
 	avm,fritzbox-4040|\
+	asus,rt-ac42u|\
 	asus,rt-ac58u|\
 	linksys,ea6350v3|\
 	linksys,ea8300|\
@@ -31,6 +32,7 @@ ipq40xx_setup_interfaces()
 	cilab,meshpoint-one|\
 	edgecore,ecw5211|\
 	glinet,gl-b2200|\
+	google,wifi|\
 	luma,wrtq-329acn|\
 	mikrotik,cap-ac|\
 	netgear,wac510|\
@@ -52,11 +54,21 @@ ipq40xx_setup_interfaces()
 	cellc,rtl30vw)
 		ucidef_set_interface_lan "lan1 lan2"
 		;;
-	glinet,gl-b1300)
-		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
-		;;
 	compex,wpj428)
 		ucidef_set_interface_lan "lan1 lan2"
+		;;
+	glinet,gl-b1300|\
+	mobipromo,cm520-79f)
+		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
+		;;
+	mikrotik,wap-ac)
+		ucidef_set_interface_lan "sw-eth1 sw-eth2"
+		;;
+	netgear,rbr50|\
+	netgear,rbs50|\
+	netgear,srr60|\
+	netgear,srs60)
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
 		;;
 	zte,mf286d)
 		ucidef_set_interfaces_lan_wan "lan2 lan3 lan4" "wan"
@@ -77,6 +89,9 @@ ipq40xx_setup_macs()
 	case "$board" in
 	8dev,habanero-dvk)
 		label_mac=$(mtd_get_mac_binary "ART" 0x1006)
+		;;
+	asus,rt-ac42u)
+		label_mac=$(mtd_get_mac_binary_ubi Factory 0x1006)
 		;;
 	asus,rt-ac58u)
 		wan_mac=$(mtd_get_mac_binary_ubi Factory 0x1006)
@@ -111,6 +126,10 @@ ipq40xx_setup_macs()
 	ezviz,cs-w3-wd1200g-eup)
 		label_mac=$(mtd_get_mac_binary "ART" 0x6)
 		;;
+	google,wifi)
+		wan_mac=$(get_mac_label)
+		lan_mac=$(macaddr_add "$wan_mac" 1)
+		;;
 	linksys,ea6350v3|\
 	linksys,ea8300  |\
 	linksys,mr8300)
@@ -129,6 +148,10 @@ ipq40xx_setup_macs()
 		lan_mac=$(cat /sys/firmware/mikrotik/hard_config/mac_base)
 		label_mac="$lan_mac"
 		;;
+	netgear,rbr50|\
+	netgear,rbs50|\
+	netgear,srr60|\
+	netgear,srs60|\
 	pakedge,wr-1)
 		wan_mac=$(macaddr_add $(get_mac_label) 1)
 		;;
