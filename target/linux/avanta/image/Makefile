@@ -53,7 +53,7 @@ define Device/zte_f460-f660
   DEVICE_VENDOR := ZTE
   DEVICE_MODEL := F460-F660
   DEVICE_DTS := avanta-f460-f660
-  DEVICE_PACKAGES := kmod-usb2 kmod-usb-storage kmod-leds-gpio \
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-storage kmod-leds-gpio kmod-usb-ledtrig-usbport \
 	kmod-gpio-button-hotplug kmod-rtl8192ce swconfig
   PAGESIZE := 512
   SUBPAGESIZE := 256
@@ -71,7 +71,7 @@ define Device/hqw_hgg420n
   DEVICE_VENDOR := HQW
   DEVICE_MODEL := HGG420N
   DEVICE_DTS := avanta-hgg420n
-  DEVICE_PACKAGES := kmod-usb2 kmod-usb-storage kmod-leds-gpio \
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-storage kmod-leds-gpio kmod-usb-ledtrig-usbport \
 	kmod-gpio-button-hotplug kmod-rtl8192ce swconfig
   PAGESIZE := 512
   SUBPAGESIZE := 256
