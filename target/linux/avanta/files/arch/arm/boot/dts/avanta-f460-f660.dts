@@ -53,7 +53,7 @@
 
 		button@8 {
 			label = "wireless";
-			linux,code = <KEY_WLAN>;
+			linux,code = <KEY_RFKILL>;
 			gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
 		};
 
