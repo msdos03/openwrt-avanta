@@ -13,8 +13,7 @@ avanta_setup_interfaces()
 	zte,f460-f660|\
 	zte,f420-f620|\
 	hqw,hgg420n)
-		ucidef_add_switch "switch0" \
-			"0:wan" "1:lan" "2:lan" "3:lan" "4@eth0"
+		ucidef_set_interfaces_lan_wan "ethernet1 ethernet2 ethernet3" "internet"
 		;;
 	*)
 		ucidef_set_interface_lan "eth0"

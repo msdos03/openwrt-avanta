@@ -1,14 +1,8 @@
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -3841,6 +3841,7 @@ static void mvneta_validate(struct phyli
- 	} else if (state->interface != PHY_INTERFACE_MODE_NA &&
- 		   state->interface != PHY_INTERFACE_MODE_QSGMII &&
- 		   state->interface != PHY_INTERFACE_MODE_SGMII &&
-+		   state->interface != PHY_INTERFACE_MODE_GMII &&
- 		   !phy_interface_mode_is_rgmii(state->interface)) {
- 		bitmap_zero(supported, __ETHTOOL_LINK_MODE_MASK_NBITS);
- 		return;
-@@ -3948,8 +3949,12 @@ static void mvneta_mac_config(struct phy
+Index: linux-5.15.74/drivers/net/ethernet/marvell/mvneta.c
+===================================================================
+--- linux-5.15.74.orig/drivers/net/ethernet/marvell/mvneta.c
++++ linux-5.15.74/drivers/net/ethernet/marvell/mvneta.c
+@@ -3904,8 +3904,12 @@ static void mvneta_mac_config(struct phy
  
  	/* Even though it might look weird, when we're configured in
  	 * SGMII or QSGMII mode, the RGMII bit needs to be set.
@@ -22,7 +16,7 @@
  
  	if (state->interface == PHY_INTERFACE_MODE_QSGMII ||
  	    state->interface == PHY_INTERFACE_MODE_SGMII ||
-@@ -5131,6 +5136,7 @@ static int mvneta_port_power_up(struct m
+@@ -5087,6 +5091,7 @@ static int mvneta_port_power_up(struct m
  
  	if (phy_mode != PHY_INTERFACE_MODE_QSGMII &&
  	    phy_mode != PHY_INTERFACE_MODE_SGMII &&
@@ -30,7 +24,16 @@
  	    !phy_interface_mode_is_8023z(phy_mode) &&
  	    !phy_interface_mode_is_rgmii(phy_mode))
  		return -EINVAL;
-@@ -5264,7 +5270,8 @@ static int mvneta_probe(struct platform_
+@@ -5142,6 +5147,8 @@ static int mvneta_probe(struct platform_
+ 	pp->phylink_config.mac_capabilities = MAC_SYM_PAUSE | MAC_10 |
+ 		MAC_100 | MAC_1000FD | MAC_2500FD;
+ 
++	__set_bit(PHY_INTERFACE_MODE_GMII,
++		  pp->phylink_config.supported_interfaces);
+ 	phy_interface_set_rgmii(pp->phylink_config.supported_interfaces);
+ 	__set_bit(PHY_INTERFACE_MODE_QSGMII,
+ 		  pp->phylink_config.supported_interfaces);
+@@ -5249,7 +5256,8 @@ static int mvneta_probe(struct platform_
  				 "Wrong TX csum limit in DT, set to %dB\n",
  				 MVNETA_TX_CSUM_DEF_SIZE);
  		}
@@ -40,7 +43,7 @@
  		tx_csum_limit = MVNETA_TX_CSUM_DEF_SIZE;
  	} else {
  		tx_csum_limit = MVNETA_TX_CSUM_MAX_SIZE;
-@@ -5276,8 +5283,9 @@ static int mvneta_probe(struct platform_
+@@ -5261,8 +5269,9 @@ static int mvneta_probe(struct platform_
  	/* Armada3700 requires setting default configuration of Mbus
  	 * windows, however without using filled mbus_dram_target_info
  	 * structure.
@@ -51,7 +54,7 @@
  		mvneta_conf_mbus_windows(pp, pp->dram_target_info);
  
  	pp->tx_ring_size = MVNETA_MAX_TXD;
-@@ -5466,7 +5474,7 @@ static int mvneta_resume(struct device *
+@@ -5451,7 +5460,7 @@ static int mvneta_resume(struct device *
  	clk_prepare_enable(pp->clk);
  	if (!IS_ERR(pp->clk_bus))
  		clk_prepare_enable(pp->clk_bus);
