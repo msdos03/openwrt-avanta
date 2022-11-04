@@ -7,7 +7,7 @@ Index: linux-5.15.74/drivers/net/dsa/mv88e6xxx/chip.c
  		.num_macs = 8192,
  		.num_ports = 7,
 -		.num_internal_phys = 5,
-+		.num_internal_phys = 4,
++		.num_internal_phys = 0,
  		.max_vid = 4095,
  		.port_base_addr = 0x10,
  		.phy_base_addr = 0x0,
