@@ -86,11 +86,6 @@
 			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
 		};
 
-		green-wan {
-			label = "hgg420n:green:wan";
-			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
-		};
-
 		green-usb {
 			label = "hgg420n:green:usb";
 			gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;

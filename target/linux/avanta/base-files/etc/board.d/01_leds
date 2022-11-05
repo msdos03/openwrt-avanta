@@ -32,7 +32,6 @@ hqw,hgg420n)
 	ucidef_set_led_default "voice1" "voice1" "hgg420n:green:voice1" "0"
 	ucidef_set_led_default "voice2" "voice2" "hgg420n:green:voice2" "0"
 	ucidef_set_led_default "network" "network" "hgg420n:green:network" "0"
-	ucidef_set_led_default "wan" "wan" "hgg420n:green:wan" "0"
 	ucidef_set_led_default "usb" "usb" "hgg420n:green:usb" "0"
 	ucidef_set_led_default "power" "power" "hgg420n:green:power" "1"
 	ucidef_set_led_default "wpsred" "wpsred" "hgg420n:red:wps" "0"
