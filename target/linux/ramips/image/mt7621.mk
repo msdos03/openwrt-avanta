@@ -2064,6 +2064,7 @@ define Device/ubnt_unifi-flexhd
   DEVICE_VENDOR := Ubiquiti
   DEVICE_MODEL := UniFi FlexHD
   DEVICE_DTS_CONFIG := config@2
+  DEVICE_DTS_LOADADDR := 0x87000000
   KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
   DEVICE_PACKAGES += kmod-mt7603 kmod-mt7615e kmod-mt7615-firmware kmod-leds-ubnt-ledbar
   IMAGE_SIZE := 15552k
@@ -2084,6 +2085,7 @@ define Device/ubnt_usw-flex
   DEVICE_VENDOR := Ubiquiti
   DEVICE_MODEL := UniFi Switch Flex
   DEVICE_DTS_CONFIG := config@1
+  DEVICE_DTS_LOADADDR := 0x87000000
   KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
   IMAGE_SIZE := 7360k
 endef
@@ -2142,6 +2144,23 @@ define Device/wavlink_wl-wn533a8
   IMAGE_SIZE := 15040k
 endef
 TARGET_DEVICES += wavlink_wl-wn533a8
+
+define Device/wavlink_ws-wn572hp3-4g
+  $(Device/dsa-migration)
+  BLOCKSIZE := 64k
+  DEVICE_VENDOR := Wavlink
+  DEVICE_MODEL := WS-WN572HP3
+  DEVICE_VARIANT := 4G
+  IMAGE_SIZE := 15040k
+  KERNEL_LOADADDR := 0x82000000
+  KERNEL := kernel-bin | relocate-kernel 0x80001000 | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+  IMAGE/sysupgrade.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | \
+	append-rootfs | pad-rootfs | check-size | append-metadata
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap \
+	kmod-usb3 kmod-usb-net-rndis comgt-ncm
+endef
+TARGET_DEVICES += wavlink_ws-wn572hp3-4g
 
 define Device/wevo_11acnas
   $(Device/dsa-migration)
