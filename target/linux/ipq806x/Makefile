@@ -5,10 +5,10 @@ include $(TOPDIR)/rules.mk
 ARCH:=arm
 BOARD:=ipq806x
 BOARDNAME:=Qualcomm Atheros IPQ806X
-FEATURES:=squashfs nand fpu ramdisk
+FEATURES:=squashfs fpu ramdisk
 CPU_TYPE:=cortex-a15
 CPU_SUBTYPE:=neon-vfpv4
-SUBTARGETS:=generic
+SUBTARGETS:=generic chromium
 
 KERNEL_PATCHVER:=5.15
 
@@ -20,7 +20,7 @@ DEFAULT_PACKAGES += \
 	kmod-ata-ahci kmod-ata-ahci-platform \
 	kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport \
 	kmod-phy-qcom-ipq806x-usb kmod-usb3 kmod-usb-dwc3-qcom \
-	kmod-ath10k-ct wpad-basic-wolfssl \
+	kmod-ath10k-ct wpad-basic-mbedtls \
 	uboot-envtools
 
 $(eval $(call BuildTarget))

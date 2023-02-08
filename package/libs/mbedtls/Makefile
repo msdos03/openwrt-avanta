@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mbedtls
 PKG_VERSION:=2.28.2
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_USE_MIPS16:=0
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
@@ -129,13 +129,6 @@ CMAKE_OPTIONS += \
 	-DUSE_SHARED_MBEDTLS_LIBRARY:Bool=ON \
 	-DENABLE_TESTING:Bool=OFF \
 	-DENABLE_PROGRAMS:Bool=ON
-
-define Build/Configure
-	$(call Build/Configure/Default)
-
-	sed -i '/fuzz/d' $(PKG_BUILD_DIR)/programs/CMakeLists.txt
-	sed -i '/test/d' $(PKG_BUILD_DIR)/programs/CMakeLists.txt
-endef
 
 define Build/Prepare
        $(call Build/Prepare/Default)
