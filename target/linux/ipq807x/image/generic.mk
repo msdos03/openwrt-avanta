@@ -19,13 +19,14 @@ endef
 
 define Device/buffalo_wxr-5950ax12
 	$(call Device/FitImage)
-	$(call Device/UbiFit)
 	DEVICE_VENDOR := Buffalo
 	DEVICE_MODEL := WXR-5950AX12
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	DEVICE_DTS_CONFIG := config@hk01
 	SOC := ipq8074
+	IMAGES := sysupgrade.bin
+	IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 	DEVICE_PACKAGES := ipq-wifi-buffalo_wxr-5950ax12
 endef
 TARGET_DEVICES += buffalo_wxr-5950ax12
@@ -141,6 +142,7 @@ define Device/zyxel_nbg7815
 	IMAGES += factory.bin sysupgrade.bin
 	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to 64k
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-to 64k | sysupgrade-tar rootfs=$$$$@ | append-metadata
-	DEVICE_PACKAGES := ipq-wifi-zyxel_nbg7815 kmod-ath11k-pci e2fsprogs kmod-fs-ext4 losetup kmod-hwmon-tmp103
+	DEVICE_PACKAGES := ipq-wifi-zyxel_nbg7815 kmod-ath11k-pci e2fsprogs kmod-fs-ext4 losetup \
+	kmod-hwmon-tmp103 kmod-bluetooth
 endef
 TARGET_DEVICES += zyxel_nbg7815
