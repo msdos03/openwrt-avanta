@@ -9,8 +9,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openssl
 PKG_VERSION:=3.0.8
-PKG_RELEASE:=2
-PKG_USE_MIPS16:=0
+PKG_RELEASE:=4
+PKG_BUILD_FLAGS:=no-mips16 gc-sections
 
 PKG_BUILD_PARALLEL:=1
 
@@ -128,8 +128,8 @@ endef
 
 define Package/libopenssl-conf/conffiles
 /etc/ssl/openssl.cnf
-$(if CONFIG_OPENSSL_ENGINE_BUILTIN_DEVCRYPTO,/etc/ssl/engines.cnf.d/devcrypto.cnf)
-$(if CONFIG_OPENSSL_ENGINE_BUILTIN_PADLOCK,/etc/ssl/engines.cnf.d/padlock.cnf)
+$(if $(CONFIG_OPENSSL_ENGINE_BUILTIN_DEVCRYPTO),/etc/ssl/engines.cnf.d/devcrypto.cnf)
+$(if $(CONFIG_OPENSSL_ENGINE_BUILTIN_PADLOCK),/etc/ssl/engines.cnf.d/padlock.cnf)
 endef
 
 define Package/libopenssl-conf/description
@@ -339,8 +339,7 @@ define Build/Configure
 	)
 endef
 
-TARGET_CFLAGS += $(FPIC) -ffunction-sections -fdata-sections
-TARGET_LDFLAGS += -Wl,--gc-sections
+TARGET_CFLAGS += $(FPIC)
 
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \

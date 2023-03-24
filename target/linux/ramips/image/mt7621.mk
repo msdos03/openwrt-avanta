@@ -140,6 +140,7 @@ TARGET_DEVICES += adslr_g7
 
 define Device/afoundry_ew1200
   $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
   IMAGE_SIZE := 16064k
   DEVICE_VENDOR := AFOUNDRY
   DEVICE_MODEL := EW1200
@@ -379,7 +380,7 @@ define Device/beeline_smartbox-flash
   IMAGES += factory.trx
   IMAGE/factory.trx := append-kernel | append-ubi | check-size
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-  DEVICE_PACKAGES := kmod-usb3 kmod-mt7615-firmware uencrypt
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7615-firmware uencrypt-mbedtls
 endef
 TARGET_DEVICES += beeline_smartbox-flash
 
@@ -1495,6 +1496,19 @@ define Device/mediatek_mt7621-eval-board
 endef
 TARGET_DEVICES += mediatek_mt7621-eval-board
 
+define Device/mercusys_mr70x-v1
+  $(Device/dsa-migration)
+  $(Device/tplink-safeloader)
+  DEVICE_VENDOR := Mercusys
+  DEVICE_MODEL := MR70X
+  DEVICE_VARIANT := v1
+  DEVICE_PACKAGES := kmod-mt7915-firmware -uboot-envtools
+  TPLINK_BOARD_ID := MR70X
+  KERNEL := $(KERNEL_DTB) | uImage lzma
+  IMAGE_SIZE := 15744k
+endef
+TARGET_DEVICES += mercusys_mr70x-v1
+
 define Device/MikroTik
   $(Device/dsa-migration)
   DEVICE_VENDOR := MikroTik
@@ -1587,7 +1601,7 @@ define Device/mts_wg430223
   IMAGES += factory.trx
   IMAGE/factory.trx := append-kernel | append-ubi | check-size
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-  DEVICE_PACKAGES := kmod-mt7615-firmware uencrypt
+  DEVICE_PACKAGES := kmod-mt7615-firmware uencrypt-mbedtls
 endef
 TARGET_DEVICES += mts_wg430223
 
@@ -1963,6 +1977,18 @@ define Device/snr_snr-cpe-me2-lite
 endef
 TARGET_DEVICES += snr_snr-cpe-me2-lite
 
+define Device/snr_snr-cpe-me2-sfp
+  $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := SNR
+  DEVICE_MODEL := SNR-CPE-ME2-SFP
+  UIMAGE_NAME := $$(DEVICE_MODEL)
+  DEVICE_PACKAGES := kmod-mt7615-firmware kmod-usb3 \
+	    kmod-sfp kmod-usb-ledtrig-usbport uboot-envtools
+endef
+TARGET_DEVICES += snr_snr-cpe-me2-sfp
+
 define Device/storylink_sap-g3200u3
   $(Device/dsa-migration)
   IMAGE_SIZE := 7872k
@@ -2025,6 +2051,18 @@ define Device/totolink_x5000r
   DEVICE_PACKAGES := kmod-mt7915-firmware -uboot-envtools
 endef
 TARGET_DEVICES += totolink_x5000r
+
+define Device/tplink_archer-ax23-v1
+  $(Device/dsa-migration)
+  $(Device/tplink-safeloader)
+  DEVICE_MODEL := Archer AX23
+  DEVICE_VARIANT := v1
+  DEVICE_PACKAGES := kmod-mt7915-firmware -uboot-envtools
+  TPLINK_BOARD_ID := ARCHER-AX23-V1
+  KERNEL := $(KERNEL_DTB) | uImage lzma
+  IMAGE_SIZE := 15744k
+endef
+TARGET_DEVICES += tplink_archer-ax23-v1
 
 define Device/tplink_archer-a6-v3
   $(Device/dsa-migration)
