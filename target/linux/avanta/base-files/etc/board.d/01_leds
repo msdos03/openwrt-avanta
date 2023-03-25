@@ -9,33 +9,8 @@ board_config_update
 board=$(board_name)
 
 case "$board" in
-zte,f420-f620)
-	ucidef_set_led_default "warn" "warn" "f420-f620:red:warn" "0"
-	ucidef_set_led_default "voice1" "voice1" "f420-f620:green:voice1" "0"
-	ucidef_set_led_default "ponnetwork" "ponnetwork" "f420-f620:green:ponnetwork" "0"
-	ucidef_set_led_default "ponport" "ponport" "f420-f620:red:ponport" "0"
-	ucidef_set_led_default "voice2" "voice2" "f420-f620:green:voice2" "0"
-	;;
-zte,f460-f660)
-	ucidef_set_led_default "warn" "warn" "f460-f660:red:warn" "0"
-	ucidef_set_led_default "voice1" "voice1" "f460-f660:green:voice1" "0"
-	ucidef_set_led_default "ponnetwork" "ponnetwork" "f460-f660:green:ponnetwork" "0"
-	ucidef_set_led_default "ponport" "ponport" "f460-f660:red:ponport" "0"
-	ucidef_set_led_default "voice2" "voice2" "f460-f660:green:voice2" "0"
-	ucidef_set_led_default "wpsred" "wpsred" "f460-f660:red:wps" "0"
-	ucidef_set_led_default "wpsgreen" "wpsgreen" "f460-f660:green:wps" "0"
-	ucidef_set_led_default "usb" "usb" "f460-f660:green:usb" "0"
-	;;
 hqw,hgg420n)
-	ucidef_set_led_default "ponnetwork" "ponnetwork" "hgg420n:red:ponnetwork" "0"
-	ucidef_set_led_default "ponport" "ponport" "hgg420n:green:ponport" "0"
-	ucidef_set_led_default "voice1" "voice1" "hgg420n:green:voice1" "0"
-	ucidef_set_led_default "voice2" "voice2" "hgg420n:green:voice2" "0"
-	ucidef_set_led_default "network" "network" "hgg420n:green:network" "0"
-	ucidef_set_led_default "usb" "usb" "hgg420n:green:usb" "0"
 	ucidef_set_led_default "power" "power" "hgg420n:green:power" "1"
-	ucidef_set_led_default "wpsred" "wpsred" "hgg420n:red:wps" "0"
-	ucidef_set_led_default "wpsgreen" "wpsgreen" "hgg420n:green:wps" "0"
 	;;
 esac
 
