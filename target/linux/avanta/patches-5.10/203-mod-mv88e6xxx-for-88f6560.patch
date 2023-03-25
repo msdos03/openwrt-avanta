@@ -1,7 +1,5 @@
-Index: linux-5.10.149/drivers/net/dsa/mv88e6xxx/chip.c
-===================================================================
---- linux-5.10.149.orig/drivers/net/dsa/mv88e6xxx/chip.c
-+++ linux-5.10.149/drivers/net/dsa/mv88e6xxx/chip.c
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
 @@ -5135,7 +5135,7 @@ static const struct mv88e6xxx_info mv88e
  		.num_databases = 4096,
  		.num_macs = 8192,
@@ -11,10 +9,8 @@ Index: linux-5.10.149/drivers/net/dsa/mv88e6xxx/chip.c
  		.max_vid = 4095,
  		.port_base_addr = 0x10,
  		.phy_base_addr = 0x0,
-Index: linux-5.10.149/drivers/net/dsa/mv88e6xxx/port.h
-===================================================================
---- linux-5.10.149.orig/drivers/net/dsa/mv88e6xxx/port.h
-+++ linux-5.10.149/drivers/net/dsa/mv88e6xxx/port.h
+--- a/drivers/net/dsa/mv88e6xxx/port.h
++++ b/drivers/net/dsa/mv88e6xxx/port.h
 @@ -127,7 +127,7 @@
  #define MV88E6XXX_PORT_SWITCH_ID_PROD_6341	0x3410
  #define MV88E6XXX_PORT_SWITCH_ID_PROD_6352	0x3520

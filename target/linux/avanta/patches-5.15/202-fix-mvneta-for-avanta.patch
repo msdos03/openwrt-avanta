@@ -1,7 +1,5 @@
-Index: linux-5.15.74/drivers/net/ethernet/marvell/mvneta.c
-===================================================================
---- linux-5.15.74.orig/drivers/net/ethernet/marvell/mvneta.c
-+++ linux-5.15.74/drivers/net/ethernet/marvell/mvneta.c
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
 @@ -3904,8 +3904,12 @@ static void mvneta_mac_config(struct phy
  
  	/* Even though it might look weird, when we're configured in
