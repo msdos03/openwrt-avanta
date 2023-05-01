@@ -16,7 +16,7 @@
 
 	keys {
 		compatible = "gpio-keys-polled";
-		poll-interval = <20>;
+		poll-interval = <100>;
 
 		wps {
 			label = "wps";
@@ -254,6 +254,7 @@
 			label = "wan";
 
 			phy-handle = <&phy12>;
+			phy-mode = "gmii";
 		};
 
 		switch0port4: port@4 {
