@@ -33,8 +33,12 @@ ifeq ($(PKG_VERSION),11.3.0)
   PKG_HASH:=b47cf2818691f5b1e21df2bb38c795fac2cfbd640ede2d0a5e1c89e338a3ac39
 endif
 
-ifeq ($(PKG_VERSION),12.2.0)
-  PKG_HASH:=e549cf9cf3594a00e27b6589d4322d70e0720cdd213f39beb4181e06926230ff
+ifeq ($(PKG_VERSION),12.3.0)
+  PKG_HASH:=949a5d4f99e786421a93b532b22ffab5578de7321369975b91aec97adfda8c3b
+endif
+
+ifeq ($(PKG_VERSION),13.1.0)
+  PKG_HASH:=61d684f0aa5e76ac6585ad8898a2427aade8979ed5e7f85492286c4dfc13ee86
 endif
 
 PATCH_DIR=../patches-$(GCC_MAJOR_VERSION).x
@@ -187,10 +191,10 @@ define Host/SetToolchainInfo
 endef
 
 
-ifeq ($(GCC_MAJOR_VERSION),12)
-	GCC_VERSION_FILE:=gcc/genversion.cc
-else
+ifeq ($(GCC_MAJOR_VERSION),11)
 	GCC_VERSION_FILE:=gcc/version.c
+else
+	GCC_VERSION_FILE:=gcc/genversion.cc
 endif
 
 ifneq ($(GCC_PREPARE),)
