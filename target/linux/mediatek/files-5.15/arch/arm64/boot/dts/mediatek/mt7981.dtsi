@@ -164,6 +164,13 @@
 		#size-cells = <2>;
 		ranges;
 
+		/* 64 KiB reserved for ramoops/pstore */
+		ramoops@42ff0000 {
+			compatible = "ramoops";
+			reg = <0 0x42ff0000 0 0x10000>;
+			record-size = <0x1000>;
+		};
+
 		/* 192 KiB reserved for ARM Trusted Firmware (BL31) */
 		secmon_reserved: secmon@43000000 {
 			reg = <0 0x43000000 0 0x30000>;
@@ -317,8 +324,10 @@
 		interrupts = <GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>;
 		clock-div = <1>;
 		clocks = <&infracfg CLK_INFRA_I2C0_CK>,
-			 <&infracfg CLK_INFRA_AP_DMA_CK>;
-		clock-names = "main", "dma";
+			 <&infracfg CLK_INFRA_AP_DMA_CK>,
+			 <&infracfg CLK_INFRA_I2C_MCK_CK>,
+			 <&infracfg CLK_INFRA_I2C_PCK_CK>;
+		clock-names = "main", "dma", "mck", "pck";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		status = "disabled";
@@ -555,14 +564,15 @@
 					"mediatek,mt7981-mmc";
 		reg = <0 0x11230000 0 0x1000>, <0 0x11c20000 0 0x1000>;
 		interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&topckgen CLK_TOP_EMMC_208M>,
-				<&topckgen CLK_TOP_EMMC_400M>,
-				<&infracfg CLK_INFRA_MSDC_CK>;
+		clocks = <&infracfg CLK_INFRA_MSDC_CK>,
+			 <&infracfg CLK_INFRA_MSDC_HCK_CK>,
+			 <&infracfg CLK_INFRA_MSDC_66M_CK>,
+			 <&infracfg CLK_INFRA_MSDC_133M_CK>;
 		assigned-clocks = <&topckgen CLK_TOP_EMMC_208M_SEL>,
 				  <&topckgen CLK_TOP_EMMC_400M_SEL>;
 		assigned-clock-parents = <&topckgen CLK_TOP_CB_M_D2>,
 					 <&topckgen CLK_TOP_CB_NET2_D2>;
-		clock-names = "source", "hclk", "source_cg";
+		clock-names = "source", "hclk", "axi_cg", "ahb_cg";
 		status = "disabled";
 	};
 
@@ -640,7 +650,6 @@
 		phys = <&u2port0 PHY_TYPE_USB2>,
 		       <&u3port0 PHY_TYPE_USB3>;
 		vusb33-supply = <&reg_3p3v>;
-		mediatek,u3p-dis-msk = <0x01>;
 		status = "disabled";
 	};
 
