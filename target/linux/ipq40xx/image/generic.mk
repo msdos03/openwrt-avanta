@@ -305,8 +305,7 @@ define Device/buffalo_wtr-m2133hp
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 endef
-# Missing DSA Setup
-#TARGET_DEVICES += buffalo_wtr-m2133hp
+TARGET_DEVICES += buffalo_wtr-m2133hp
 
 define Device/cellc_rtl30vw
 	KERNEL_SUFFIX := -zImage.itb
@@ -1028,13 +1027,10 @@ define Device/qxwlan_e2600ac-c1
 	DEVICE_VARIANT := C1
 	BOARD_NAME := e2600ac-c1
 	SOC := qcom-ipq4019
-	KERNEL_SIZE := 4096k
 	IMAGE_SIZE := 31232k
 	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata
-	DEFAULT := n
 endef
-# Missing DSA Setup
-#TARGET_DEVICES += qxwlan_e2600ac-c1
+TARGET_DEVICES += qxwlan_e2600ac-c1
 
 define Device/qxwlan_e2600ac-c2
 	$(call Device/FitImage)
@@ -1047,8 +1043,7 @@ define Device/qxwlan_e2600ac-c2
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 endef
-# Missing DSA Setup
-#TARGET_DEVICES += qxwlan_e2600ac-c2
+TARGET_DEVICES += qxwlan_e2600ac-c2
 
 define Device/sony_ncp-hg100-cellular
 	$(call Device/FitImage)

@@ -1275,7 +1275,8 @@ define KernelPackage/rxrpc
   FILES:= \
 	$(LINUX_DIR)/net/rxrpc/rxrpc.ko
   AUTOLOAD:=$(call AutoLoad,30,rxrpc.ko)
-  DEPENDS:= +kmod-crypto-manager +kmod-crypto-pcbc +kmod-crypto-fcrypt
+  DEPENDS:= +kmod-crypto-manager +kmod-crypto-pcbc +kmod-crypto-fcrypt \
+    +kmod-udptunnel4 +kmod-udptunnel6
 endef
 
 define KernelPackage/rxrpc/description
@@ -1361,6 +1362,21 @@ define KernelPackage/mdio/description
 endef
 
 $(eval $(call KernelPackage,mdio))
+
+define KernelPackage/mdio-bus-mux
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=MDIO bus multiplexers
+  KCONFIG:=CONFIG_MDIO_BUS_MUX
+  HIDDEN:=1
+  FILES:=$(LINUX_DIR)/drivers/net/mdio/mdio-mux.ko
+  AUTOLOAD:=$(call AutoLoad,32,mdio-mux)
+endef
+
+define KernelPackage/mdio/description
+ Kernel framework for MDIO bus multiplexers.
+endef
+
+$(eval $(call KernelPackage,mdio-bus-mux))
 
 define KernelPackage/macsec
   SUBMENU:=$(NETWORK_SUPPORT_MENU)

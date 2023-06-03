@@ -54,6 +54,14 @@ on:
         type: boolean
       upload_external_toolchain:
         type: boolean
+      use_ccache_cache:
+        type: boolean
+        default: true
+      ccache_type:
+        type: string
+        default: kernel
+      upload_ccache_cache:
+        type: boolean
 
 permissions:
   contents: read
@@ -64,7 +72,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       owner_lc: ${{ steps.lower_owner.outputs.owner_lc }}
-      ccache_hash: ${{ steps.ccache_hash.outputs.ccache_hash }}
       container_tag: ${{ steps.determine_tools_container.outputs.container_tag }}
       container_name: ${{ steps.determine_tools_container.outputs.container_name }}
 
@@ -83,13 +90,6 @@ jobs:
           fi
 
           echo "owner_lc=$OWNER_LC" >> $GITHUB_OUTPUT
-
-      - name: Generate ccache hash
-        id: ccache_hash
-        run: |
-          CCACHE_HASH=$(md5sum include/kernel-* | awk '{ print $1 }' \
-           | md5sum | awk '{ print $1 }')
-          echo "ccache_hash=$CCACHE_HASH" >> $GITHUB_OUTPUT
 
       # Per branch tools container tag
       # By default stick to latest
@@ -144,6 +144,7 @@ jobs:
     permissions:
       contents: read
       packages: read
+      actions: write
 
     steps:
       - name: Checkout master directory
@@ -233,6 +234,20 @@ jobs:
           echo "TOOLCHAIN_FILE=$TOOLCHAIN_FILE" >> "$GITHUB_ENV"
           echo "TOOLCHAIN_PATH=$TOOLCHAIN_PATH" >> "$GITHUB_ENV"
 
+      - name: Download and extract ccache cache from s3
+        id: restore-ccache-cache-s3
+        if: inputs.use_ccache_cache == true
+        working-directory: openwrt
+        run: |
+          ENDPOINT=https://storage.googleapis.com
+          BUCKET=openwrt-ci-cache
+          CCACHE_TAR=ccache-${{ inputs.ccache_type }}-${{ inputs.target }}-${{ inputs.subtarget }}.tar
+
+          if curl -o /dev/null -s --head --fail $ENDPOINT/$BUCKET/$CCACHE_TAR; then
+            wget -O - $ENDPOINT/$BUCKET/$CCACHE_TAR | tar -xf -
+            echo "cache-hit=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Fix permission
         run: |
           chown -R buildbot:buildbot openwrt
@@ -255,21 +270,33 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Cache ccache
-        uses: actions/cache@v3
+      - name: Restore ccache cache
+        id: restore-ccache-cache
+        if: inputs.use_ccache_cache == true && steps.restore-ccache-cache-s3.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@v3
         with:
           path: openwrt/.ccache
-          key: ccache-kernel-${{ inputs.target }}/${{ inputs.subtarget }}-${{ needs.setup_build.outputs.ccache_hash }}
+          key: ccache-${{ inputs.ccache_type }}-${{ inputs.target }}/${{ inputs.subtarget }}-${{ hashFiles('openwrt/include/kernel-**') }}
           restore-keys: |
-            ccache-kernel-${{ inputs.target }}/${{ inputs.subtarget }}-
+            ccache-${{ inputs.ccache_type }}-${{ inputs.target }}/${{ inputs.subtarget }}-
+
+      - name: Import GPG keys
+        shell: su buildbot -c "sh -e {0}"
+        if: inputs.build_toolchain == false && steps.parse-toolchain.outputs.toolchain-type != 'internal' && steps.parse-toolchain.outputs.toolchain-type != 'external_container'
+        run: gpg --receive-keys 0xCD84BCED626471F1 0x1D53D1877742E911 0xCD54E82DADB3684D
 
       - name: Download external toolchain/sdk
         if: inputs.build_toolchain == false && steps.parse-toolchain.outputs.toolchain-type != 'internal' && steps.parse-toolchain.outputs.toolchain-type != 'external_container'
         shell: su buildbot -c "sh -e {0}"
         working-directory: openwrt
         run: |
-          wget -O - https://downloads.cdn.openwrt.org/${{ env.TOOLCHAIN_PATH }}/targets/${{ inputs.target }}/${{ inputs.subtarget }}/${{ env.TOOLCHAIN_FILE }}.tar.xz \
-            | tar --xz -xf -
+          wget https://downloads.cdn.openwrt.org/${{ env.TOOLCHAIN_PATH }}/targets/${{ inputs.target }}/${{ inputs.subtarget }}/${{ env.TOOLCHAIN_FILE }}.tar.xz
+          wget https://downloads.cdn.openwrt.org/${{ env.TOOLCHAIN_PATH }}/targets/${{ inputs.target }}/${{ inputs.subtarget }}/sha256sums.asc
+          wget https://downloads.cdn.openwrt.org/${{ env.TOOLCHAIN_PATH }}/targets/${{ inputs.target }}/${{ inputs.subtarget }}/sha256sums
+          gpg --with-fingerprint --verify sha256sums.asc
+          sha256sum --check --ignore-missing sha256sums
+          tar --xz -xf ${{ env.TOOLCHAIN_FILE }}.tar.xz
+          rm ${{ env.TOOLCHAIN_FILE }}.tar.xz sha256sums
 
       - name: Configure testing kernel
         if: inputs.testing == true
@@ -301,6 +328,24 @@ jobs:
           echo CONFIG_TARGET_PER_DEVICE_ROOTFS=y >> .config
           echo CONFIG_TARGET_ALL_PROFILES=y >> .config
 
+        # ccache for some reason have problem detecting compiler type
+        # with external toolchain. This cause the complete malfunction
+        # of ccache with the result of tons of unsupported compiler
+        # option error.
+        # To fix this force compiler type to gcc.
+      - name: Configure ccache and apply fixes
+        if: inputs.use_ccache_cache == true
+        shell: su buildbot -c "sh -e {0}"
+        working-directory: openwrt
+        env:
+          SYSTEM_CCACHE_CONF: staging_dir/host/etc/ccache.conf
+        run: |
+          touch $SYSTEM_CCACHE_CONF
+
+          echo compiler_type=gcc >> $SYSTEM_CCACHE_CONF
+
+          echo CONFIG_CCACHE=y >> .config
+
       - name: Configure external toolchain in container
         if: inputs.build_toolchain == false && steps.parse-toolchain.outputs.toolchain-type == 'external_container'
         shell: su buildbot -c "sh -e {0}"
@@ -308,7 +353,6 @@ jobs:
         run: |
           echo CONFIG_DEVEL=y >> .config
           echo CONFIG_AUTOREMOVE=y >> .config
-          echo CONFIG_CCACHE=y >> .config
 
           ./scripts/ext-toolchain.sh \
             --toolchain /external-toolchain/$(ls /external-toolchain/ | grep openwrt-toolchain)/toolchain-* \
@@ -322,7 +366,6 @@ jobs:
         run: |
           echo CONFIG_DEVEL=y >> .config
           echo CONFIG_AUTOREMOVE=y >> .config
-          echo CONFIG_CCACHE=y >> .config
 
           ./scripts/ext-toolchain.sh \
             --toolchain ${{ env.TOOLCHAIN_FILE }}/toolchain-* \
@@ -364,7 +407,6 @@ jobs:
         run: |
           echo CONFIG_DEVEL=y >> .config
           echo CONFIG_AUTOREMOVE=y >> .config
-          echo CONFIG_CCACHE=y >> .config
 
           ./scripts/ext-toolchain.sh \
             --toolchain ${{ env.TOOLCHAIN_FILE }}/staging_dir/toolchain-* \
@@ -378,7 +420,6 @@ jobs:
         run: |
           echo CONFIG_DEVEL=y >> .config
           echo CONFIG_AUTOREMOVE=y >> .config
-          echo CONFIG_CCACHE=y >> .config
 
           echo "CONFIG_TARGET_${{ inputs.target }}=y" >> .config
           echo "CONFIG_TARGET_${{ inputs.target }}_${{ inputs.subtarget }}=y" >> .config
@@ -481,6 +522,41 @@ jobs:
         with:
           name: ${{ inputs.target }}-${{ inputs.subtarget }}-logs
           path: "openwrt/logs"
+
+      - name: Delete already present ccache cache
+        if: steps.restore-ccache-cache.outputs.cache-hit == 'true' && inputs.use_ccache_cache == true  &&
+          github.event_name == 'push' && steps.restore-ccache-cache-s3.outputs.cache-hit != 'true'
+        uses: octokit/request-action@v2.x
+        with:
+          route: DELETE /repos/{repository}/actions/caches?key={key}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_REPOSITORY: ${{ github.repository }}
+          INPUT_KEY: ${{ steps.restore-ccache-cache.outputs.cache-primary-key }}
+
+      - name: Save ccache cache
+        if: inputs.use_ccache_cache == true && github.event_name == 'push' &&
+          steps.restore-ccache-cache-s3.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: openwrt/.ccache
+          key: ${{ steps.restore-ccache-cache.outputs.cache-primary-key }}
+
+      - name: Archive ccache
+        if: inputs.use_ccache_cache == true  && github.event_name == 'push' &&
+          inputs.upload_ccache_cache == true
+        shell: su buildbot -c "sh -e {0}"
+        working-directory: openwrt
+        run: tar -cf ccache-${{ inputs.ccache_type }}-${{ inputs.target }}-${{ inputs.subtarget }}.tar .ccache
+
+      - name: Upload ccache cache
+        if: inputs.use_ccache_cache == true && github.event_name == 'push' &&
+          inputs.upload_ccache_cache == true
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.target }}-${{ inputs.subtarget }}-ccache-cache
+          path: openwrt/ccache-${{ inputs.ccache_type }}-${{ inputs.target }}-${{ inputs.subtarget }}.tar
+          retention-days: 1
 
       - name: Find external toolchain name
         id: get-toolchain-name
