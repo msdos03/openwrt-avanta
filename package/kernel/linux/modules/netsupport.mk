@@ -1372,7 +1372,7 @@ define KernelPackage/mdio-bus-mux
   AUTOLOAD:=$(call AutoLoad,32,mdio-mux)
 endef
 
-define KernelPackage/mdio/description
+define KernelPackage/mdio-bus-mux/description
  Kernel framework for MDIO bus multiplexers.
 endef
 
@@ -1511,7 +1511,7 @@ $(eval $(call KernelPackage,qrtr-tun))
 define KernelPackage/qrtr-smd
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=SMD IPC Router channels
-  DEPENDS:=+kmod-qrtr @TARGET_ipq807x
+  DEPENDS:=+kmod-qrtr @TARGET_qualcommax
   KCONFIG:=CONFIG_QRTR_SMD
   FILES:= $(LINUX_DIR)/net/qrtr/qrtr-smd.ko
   AUTOLOAD:=$(call AutoProbe,qrtr-smd)

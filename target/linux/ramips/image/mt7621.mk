@@ -237,6 +237,7 @@ TARGET_DEVICES += arcadyan_we420223-99
 
 define Device/asiarf_ap7621-001
   $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
   IMAGE_SIZE := 16000k
   DEVICE_VENDOR := AsiaRF
   DEVICE_MODEL := AP7621-001
@@ -247,6 +248,7 @@ TARGET_DEVICES += asiarf_ap7621-001
 
 define Device/asiarf_ap7621-nv1
   $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
   IMAGE_SIZE := 16000k
   DEVICE_VENDOR := AsiaRF
   DEVICE_MODEL := AP7621-NV1
@@ -407,6 +409,18 @@ define Device/beeline_smartbox-turbo
   DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615-firmware kmod-usb3
 endef
 TARGET_DEVICES += beeline_smartbox-turbo
+
+define Device/beeline_smartbox-turbo-plus
+  $(Device/sercomm_cxx)
+  IMAGE_SIZE := 32768k
+  SERCOMM_HWID := CQR
+  SERCOMM_HWVER := 10000
+  SERCOMM_SWVER := 2010
+  DEVICE_VENDOR := Beeline
+  DEVICE_MODEL := SmartBox TURBO+
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615-firmware kmod-usb3
+endef
+TARGET_DEVICES += beeline_smartbox-turbo-plus
 
 define Device/belkin_rt1800
   $(Device/nand)
@@ -2158,6 +2172,9 @@ define Device/tplink_mr600-v2-eu
   TPLINK_FLASHLAYOUT := 16Mltq
   DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap \
 		kmod-usb-net-qmi-wwan uqmi kmod-usb3 -uboot-envtools
+  IMAGE/factory.bin := tplink-v2-image -e -a 0x10000
+  IMAGE/sysupgrade.bin := tplink-v2-image -s -e -a 0x10000 | check-size | \
+	append-metadata
   KERNEL := $(KERNEL_DTB) | uImage lzma
   KERNEL_INITRAMFS := $$(KERNEL) | tplink-v2-header
   TPLINK_BOARD_ID := MR600-V2-EU
@@ -2688,6 +2705,18 @@ define Device/zbtlink_zbt-wg1608-16m
 	-uboot-envtools
 endef
 TARGET_DEVICES += zbtlink_zbt-wg1608-16m
+
+define Device/zbtlink_zbt-wg1608-32m
+  $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
+  IMAGE_SIZE := 32448k
+  DEVICE_VENDOR := Zbtlink
+  DEVICE_MODEL := ZBT-WG1608
+  DEVICE_VARIANT := 32M
+  DEVICE_PACKAGES := kmod-sdhci-mt7620 kmod-mt7603 kmod-mt7615e \
+	kmod-mt7663-firmware-ap kmod-usb3 kmod-usb-ledtrig-usbport
+endef
+TARGET_DEVICES += zbtlink_zbt-wg1608-32m
 
 define Device/zbtlink_zbt-wg2626
   $(Device/dsa-migration)
