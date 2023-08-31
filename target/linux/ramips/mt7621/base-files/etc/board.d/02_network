@@ -16,6 +16,7 @@ ramips_setup_interfaces()
 	asus,rp-ac87|\
 	dlink,dap-1620-b1|\
 	dlink,dap-x1860-a1|\
+	dlink,dra-1360-a1|\
 	edimax,re23s|\
 	linksys,re7000|\
 	mikrotik,ltap-2hnd|\
@@ -67,6 +68,7 @@ ramips_setup_interfaces()
 	beeline,smartbox-flash|\
 	beeline,smartbox-giga|\
 	glinet,gl-mt1300|\
+	iodata,wn-deax1800gr|\
 	iptime,a3002mesh|\
 	jcg,q20|\
 	lenovo,newifi-d1|\

@@ -756,28 +756,26 @@ define Device/luma_wrtq-329acn
 endef
 TARGET_DEVICES += luma_wrtq-329acn
 
-define Device/meraki_mr33
+define Device/meraki_common
 	$(call Device/FitImage)
 	DEVICE_VENDOR := Cisco Meraki
-	DEVICE_MODEL := MR33
 	SOC := qcom-ipq4029
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
-	DEVICE_PACKAGES := -swconfig ath10k-firmware-qca9887-ct
-	DEFAULT := n
+	DEVICE_DTS_LOADADDR := 0x89000000
+	DEVICE_PACKAGES := ath10k-firmware-qca9887-ct
+endef
+
+define Device/meraki_mr33
+	$(call Device/meraki_common)
+	DEVICE_MODEL := MR33
 endef
 TARGET_DEVICES += meraki_mr33
 
 define Device/meraki_mr74
-	$(call Device/FitImage)
-	DEVICE_VENDOR := Cisco Meraki
+	$(call Device/meraki_common)
 	DEVICE_MODEL := MR74
-	SOC := qcom-ipq4029
-	BLOCKSIZE := 128k
-	PAGESIZE := 2048
-	DEVICE_PACKAGES := -swconfig ath10k-firmware-qca9887-ct
 	DEVICE_DTS_CONFIG := config@3
-	DEFAULT := n
 endef
 TARGET_DEVICES += meraki_mr74
 
@@ -989,39 +987,6 @@ define Device/plasmacloud_pa2200
 endef
 TARGET_DEVICES += plasmacloud_pa2200
 
-define Device/qcom_ap-dk01.1-c1
-	DEVICE_VENDOR := Qualcomm Atheros
-	DEVICE_MODEL := AP-DK01.1
-	DEVICE_VARIANT := C1
-	BOARD_NAME := ap-dk01.1-c1
-	SOC := qcom-ipq4019
-	DEVICE_DTS := qcom-ipq4019-ap.dk01.1-c1
-	KERNEL_INSTALL := 1
-	KERNEL_SIZE := 4096k
-	IMAGE_SIZE := 26624k
-	$(call Device/FitImage)
-	IMAGE/sysupgrade.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-rootfs | pad-rootfs | append-metadata
-	DEFAULT := n
-endef
-TARGET_DEVICES += qcom_ap-dk01.1-c1
-
-define Device/qcom_ap-dk04.1-c1
-	$(call Device/FitImage)
-	$(call Device/UbiFit)
-	DEVICE_VENDOR := Qualcomm Atheros
-	DEVICE_MODEL := AP-DK04.1
-	DEVICE_VARIANT := C1
-	SOC := qcom-ipq4019
-	DEVICE_DTS := qcom-ipq4019-ap.dk04.1-c1
-	KERNEL_INSTALL := 1
-	KERNEL_SIZE := 4048k
-	BLOCKSIZE := 128k
-	PAGESIZE := 2048
-	BOARD_NAME := ap-dk04.1-c1
-	DEFAULT := n
-endef
-TARGET_DEVICES += qcom_ap-dk04.1-c1
-
 define Device/qxwlan_e2600ac-c1
 	$(call Device/FitImage)
 	DEVICE_VENDOR := Qxwlan
@@ -1164,12 +1129,8 @@ define Device/zte_mf286d
 endef
 TARGET_DEVICES += zte_mf286d
 
-define Device/zte_mf287plus
+define Device/zte_mf287_common
 	$(call Device/zte_mf28x_common)
-	DEVICE_DTS_CONFIG := config@ap.dk01.1-c2
-	DEVICE_MODEL := MF287Plus
-	DEVICE_ALT0_VENDOR := ZTE
-	DEVICE_ALT0_MODEL := MF287
 	DEVICE_PACKAGES += ipq-wifi-zte_mf287plus
 	SOC := qcom-ipq4018
 #	The recovery image is used to return back to stock (an initramfs-based image
@@ -1180,7 +1141,22 @@ define Device/zte_mf287plus
 	IMAGE/factory.bin  := append-ubi
 	IMAGE/recovery.bin := append-squashfs4-fakeroot | sysupgrade-tar kernel=$$$$(BIN_DIR)/openwrt-$$(BOARD)$$(if $$(SUBTARGET),-$$(SUBTARGET))-$$(DEVICE_NAME)-initramfs-zImage.itb rootfs=$$$$@ | append-metadata
 endef
+
+define Device/zte_mf287plus
+	$(call Device/zte_mf287_common)
+	DEVICE_DTS_CONFIG := config@ap.dk01.1-c2
+	DEVICE_MODEL := MF287Plus
+	DEVICE_ALT0_VENDOR := ZTE
+	DEVICE_ALT0_MODEL := MF287
+endef
 TARGET_DEVICES += zte_mf287plus
+
+define Device/zte_mf287pro
+	$(call Device/zte_mf287_common)
+	DEVICE_DTS_CONFIG := config@ap.dk04.1-c1
+	DEVICE_MODEL := MF287Pro
+endef
+TARGET_DEVICES += zte_mf287pro
 
 define Device/zte_mf289f
 	$(call Device/zte_mf28x_common)

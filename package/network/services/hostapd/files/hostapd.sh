@@ -50,14 +50,14 @@ hostapd_append_wpa_key_mgmt() {
 			append wpa_key_mgmt "WPA-EAP-SUITE-B-192"
 			[ "${ieee80211r:-0}" -gt 0 ] && append wpa_key_mgmt "FT-EAP-SHA384"
 		;;
-		eap-eap192)
-			append wpa_key_mgmt "WPA-EAP-SUITE-B-192"
+		eap-eap2)
 			append wpa_key_mgmt "WPA-EAP"
-			[ "${ieee80211r:-0}" -gt 0 ] && {
-				append wpa_key_mgmt "FT-EAP-SHA384"
-				append wpa_key_mgmt "FT-EAP"
-			}
-			[ "${ieee80211w:-0}" -gt 0 ] && append wpa_key_mgmt "WPA-EAP-SHA256"
+			append wpa_key_mgmt "WPA-EAP-SHA256"
+			[ "${ieee80211r:-0}" -gt 0 ] && append wpa_key_mgmt "FT-EAP"
+		;;
+		eap2)
+			[ "${ieee80211r:-0}" -gt 0 ] && append wpa_key_mgmt "FT-EAP"
+			append wpa_key_mgmt "WPA-EAP-SHA256"
 		;;
 		sae)
 			append wpa_key_mgmt "SAE"
@@ -77,6 +77,10 @@ hostapd_append_wpa_key_mgmt() {
 
 	[ "$fils" -gt 0 ] && {
 		case "$auth_type" in
+			eap-192)
+				append wpa_key_mgmt FILS-SHA384
+				[ "${ieee80211r:-0}" -gt 0 ] && append wpa_key_mgmt FT-FILS-SHA384
+			;;
 			eap*)
 				append wpa_key_mgmt FILS-SHA256
 				[ "${ieee80211r:-0}" -gt 0 ] && append wpa_key_mgmt FT-FILS-SHA256
@@ -639,12 +643,12 @@ hostapd_set_bss_options() {
 	[ -n "$ocv" ] && append bss_conf "ocv=$ocv" "$N"
 
 	case "$auth_type" in
-		sae|owe|eap192|eap-eap192)
+		sae|owe|eap2|eap192)
 			set_default ieee80211w 2
 			set_default sae_require_mfp 1
 			set_default sae_pwe 2
 		;;
-		psk-sae)
+		psk-sae|eap-eap2)
 			set_default ieee80211w 1
 			set_default sae_require_mfp 1
 			set_default sae_pwe 2
@@ -695,7 +699,7 @@ hostapd_set_bss_options() {
 			vlan_possible=1
 			wps_possible=1
 		;;
-		eap|eap192|eap-eap192)
+		eap|eap2|eap-eap2|eap192)
 			json_get_vars \
 				auth_server auth_secret auth_port \
 				dae_client dae_secret dae_port \
@@ -867,8 +871,9 @@ hostapd_set_bss_options() {
 	[ "$bss_transition" -eq "1" ] && append bss_conf "bss_transition=1" "$N"
 	[ "$mbo" -eq 1 ] && append bss_conf "mbo=1" "$N"
 
-	json_get_vars ieee80211k rrm_neighbor_report rrm_beacon_report
+	json_get_vars ieee80211k rrm_neighbor_report rrm_beacon_report rnr
 	set_default ieee80211k 0
+	set_default rnr 0
 	if [ "$ieee80211k" -eq "1" ]; then
 		set_default rrm_neighbor_report 1
 		set_default rrm_beacon_report 1
@@ -879,6 +884,7 @@ hostapd_set_bss_options() {
 
 	[ "$rrm_neighbor_report" -eq "1" ] && append bss_conf "rrm_neighbor_report=1" "$N"
 	[ "$rrm_beacon_report" -eq "1" ] && append bss_conf "rrm_beacon_report=1" "$N"
+	[ "$rnr" -eq "1" ] && append bss_conf "rnr=1" "$N"
 
 	json_get_vars ftm_responder stationary_ap lci civic
 	set_default ftm_responder 0
@@ -1159,9 +1165,6 @@ hostapd_set_bss_options() {
 		append bss_conf "$val" "$N"
 	done
 
-	bss_md5sum="$(echo $bss_conf | md5sum | cut -d" " -f1)"
-	append bss_conf "config_id=$bss_md5sum" "$N"
-
 	append "$var" "$bss_conf" "$N"
 	return 0
 }
@@ -1303,7 +1306,7 @@ wpa_supplicant_add_network() {
 		default_disabled
 
 	case "$auth_type" in
-		sae|owe|eap192|eap-eap192)
+		sae|owe|eap2|eap192)
 			set_default ieee80211w 2
 		;;
 		psk-sae)
@@ -1386,7 +1389,7 @@ wpa_supplicant_add_network() {
 			fi
 			append network_data "$passphrase" "$N$T"
 		;;
-		eap|eap192|eap-eap192)
+		eap|eap2|eap192)
 			hostapd_append_wpa_key_mgmt
 			key_mgmt="$wpa_key_mgmt"
 
