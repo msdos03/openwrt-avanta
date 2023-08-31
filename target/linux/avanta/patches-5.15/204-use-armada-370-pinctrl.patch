@@ -1,6 +1,6 @@
 --- a/arch/arm/mach-mvebu/Kconfig
 +++ b/arch/arm/mach-mvebu/Kconfig
-@@ -125,7 +125,7 @@ config MACH_KIRKWOOD
+@@ -124,7 +124,7 @@ config MACH_KIRKWOOD
  	select ORION_TIMER
  	select FORCE_PCI
  	select PCI_QUIRKS
