@@ -233,7 +233,7 @@
 			compatible = "marvell,kirkwood-crypto";
 			reg = <0x30000 0x10000>;
 			reg-names = "regs";
-			interrupts = <22>;
+			interrupts = <21>;
 			clocks = <&gate_clk 17>;
 			marvell,crypto-srams = <&crypto_sram>;
 			marvell,crypto-sram-size = <0x800>;
