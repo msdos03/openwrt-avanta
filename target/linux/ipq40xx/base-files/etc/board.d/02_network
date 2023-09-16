@@ -69,6 +69,9 @@ ipq40xx_setup_interfaces()
 	compex,wpj428)
 		ucidef_set_interface_lan "lan1 lan2"
 		;;
+	devolo,magic-2-wifi-next)
+		ucidef_set_interface_lan "lan1 lan2 ghn"
+		;;
 	linksys,whw01)
 		ucidef_set_interface_lan "eth1 eth2"
 		;;
@@ -85,6 +88,8 @@ ipq40xx_setup_interfaces()
 	aruba,ap-303h|\
 	buffalo,wtr-m2133hp|\
 	ezviz,cs-w3-wd1200g-eup|\
+	netgear,rbr40|\
+	netgear,rbs40|\
 	netgear,rbr50|\
 	netgear,rbs50|\
 	netgear,srr60|\
