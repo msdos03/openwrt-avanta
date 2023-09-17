@@ -117,7 +117,7 @@
 			ngpios = <32>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			interrupts = <35>, <36>, <37>, <38>;
+			interrupts = <36>, <37>, <38>, <39>;
 			clocks = <&gate_clk 7>;
 		};
 
@@ -129,7 +129,7 @@
 			ngpios = <32>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			interrupts = <39>, <40>, <41>, <42>;
+			interrupts = <40>, <41>, <42>, <43>;
 			clocks = <&gate_clk 7>;
 		};
 
@@ -141,7 +141,7 @@
 			ngpios = <25>;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			interrupts = <43>, <44>, <45>, <46>;
+			interrupts = <44>, <45>, <46>, <47>;
 			clocks = <&gate_clk 7>;
 		};
 
@@ -230,7 +230,7 @@
 		};
 
 		cesa: crypto@30000 {
-			compatible = "marvell,kirkwood-crypto";
+			compatible = "marvell,armada-370-crypto";
 			reg = <0x30000 0x10000>;
 			reg-names = "regs";
 			interrupts = <21>;
