@@ -26,7 +26,6 @@ function iface_remove(cfg)
 	if (!cfg || !cfg.bss || !cfg.bss[0] || !cfg.bss[0].ifname)
 		return;
 
-	hostapd.remove_iface(cfg.bss[0].ifname);
 	for (let bss in cfg.bss)
 		wdev_remove(bss.ifname);
 }
@@ -95,14 +94,14 @@ function iface_add(phy, config, phy_status)
 	let config_inline = iface_gen_config(phy, config, !!phy_status);
 
 	let bss = config.bss[0];
-	let ret = hostapd.add_iface(`bss_config=${bss.ifname}:${config_inline}`);
+	let ret = hostapd.add_iface(`bss_config=${phy}:${config_inline}`);
 	if (ret < 0)
 		return false;
 
 	if (!phy_status)
 		return true;
 
-	let iface = hostapd.interfaces[bss.ifname];
+	let iface = hostapd.interfaces[phy];
 	if (!iface)
 		return false;
 
@@ -123,10 +122,19 @@ function iface_config_macaddr_list(config)
 	return macaddr_list;
 }
 
+function iface_update_supplicant_macaddr(phy, config)
+{
+	let macaddr_list = [];
+	for (let i = 0; i < length(config.bss); i++)
+		push(macaddr_list, config.bss[i].bssid);
+	ubus.call("wpa_supplicant", "phy_set_macaddr_list", { phy: phy, macaddr: macaddr_list });
+}
+
 function iface_restart(phydev, config, old_config)
 {
 	let phy = phydev.name;
 
+	hostapd.remove_iface(phy);
 	iface_remove(old_config);
 	iface_remove(config);
 
@@ -141,6 +149,8 @@ function iface_restart(phydev, config, old_config)
 		if (bss.default_macaddr)
 			bss.bssid = phydev.macaddr_next();
 	}
+
+	iface_update_supplicant_macaddr(phy, config);
 
 	let bss = config.bss[0];
 	let err = wdev_create(phy, bss.ifname, { mode: "ap" });
@@ -267,13 +277,13 @@ function iface_reload_config(phydev, config, old_config)
 	if (!old_config.bss || !old_config.bss[0])
 		return false;
 
-	let iface_name = old_config.bss[0].ifname;
-	let iface = hostapd.interfaces[iface_name];
+	let iface = hostapd.interfaces[phy];
 	if (!iface) {
 		hostapd.printf(`Could not find previous interface ${iface_name}`);
 		return false;
 	}
 
+	let iface_name = old_config.bss[0].ifname;
 	let first_bss = hostapd.bss[iface_name];
 	if (!first_bss) {
 		hostapd.printf(`Could not find bss of previous interface ${iface_name}`);
@@ -498,22 +508,16 @@ function iface_reload_config(phydev, config, old_config)
 	return true;
 }
 
-function iface_update_supplicant_macaddr(phy, config)
-{
-	let macaddr_list = [];
-	for (let i = 0; i < length(config.bss); i++)
-		push(macaddr_list, config.bss[i].bssid);
-	ubus.call("wpa_supplicant", "phy_set_macaddr_list", { phy: phy, macaddr: macaddr_list });
-}
-
 function iface_set_config(phy, config)
 {
 	let old_config = hostapd.data.config[phy];
 
 	hostapd.data.config[phy] = config;
 
-	if (!config)
+	if (!config) {
+		hostapd.remove_iface(phy);
 		return iface_remove(old_config);
+	}
 
 	let phydev = phy_open(phy);
 	if (!phydev) {
@@ -534,7 +538,6 @@ function iface_set_config(phy, config)
 
 	hostapd.printf(`Restart interface for phy ${phy}`);
 	let ret = iface_restart(phydev, config, old_config);
-	iface_update_supplicant_macaddr(phy, config);
 
 	return ret;
 }
@@ -667,7 +670,7 @@ let main_obj = {
 			if (!config || !config.bss || !config.bss[0] || !config.bss[0].ifname)
 				return 0;
 
-			let iface = hostapd.interfaces[config.bss[0].ifname];
+			let iface = hostapd.interfaces[phy];
 			if (!iface)
 				return 0;
 
