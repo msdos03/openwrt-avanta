@@ -1,6 +1,6 @@
 --- a/drivers/net/dsa/mv88e6xxx/chip.c
 +++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -5634,7 +5634,7 @@ static const struct mv88e6xxx_info mv88e
+@@ -5636,7 +5636,7 @@ static const struct mv88e6xxx_info mv88e
  		.num_databases = 4096,
  		.num_macs = 8192,
  		.num_ports = 7,
