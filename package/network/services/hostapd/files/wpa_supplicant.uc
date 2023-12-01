@@ -246,6 +246,7 @@ let main_obj = {
 
 wpas.data.ubus = ubus;
 wpas.data.obj = ubus.publish("wpa_supplicant", main_obj);
+wpas.udebug_set("wpa_supplicant", wpas.data.ubus);
 
 function iface_event(type, name, data) {
 	let ubus = wpas.data.ubus;

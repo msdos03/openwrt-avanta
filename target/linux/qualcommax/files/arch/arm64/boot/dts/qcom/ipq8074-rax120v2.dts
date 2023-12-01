@@ -195,13 +195,10 @@
 &switch {
 	status = "okay";
 
-	switch_lan_bmp = <(ESS_PORT1 | ESS_PORT2 | ESS_PORT3 | ESS_PORT4 | ESS_PORT5)>; /* lan port bitmap */
-	switch_wan_bmp = <ESS_PORT6>; /* wan port bitmap */
-	switch_mac_mode = <0x0>; /* mac mode for uniphy instance0*/
-	switch_mac_mode1 = <0xff>; /* mac mode for uniphy instance1*/
-	switch_mac_mode2 = <0xd>; /* mac mode for uniphy instance2*/
-	bm_tick_mode = <0>; /* bm tick mode */
-	tm_tick_mode = <0>; /* tm tick mode */
+	switch_lan_bmp = <(ESS_PORT1 | ESS_PORT2 | ESS_PORT3 | ESS_PORT4 | ESS_PORT6)>; /* lan port bitmap */
+	switch_wan_bmp = <ESS_PORT5>; /* wan port bitmap */
+	switch_mac_mode = <MAC_MODE_PSGMII>; /* mac mode for uniphy instance0*/
+	switch_mac_mode2 = <MAC_MODE_USXGMII>; /* mac mode for uniphy instance2*/
 
 	qcom,port_phyinfo {
 		port@1 {
@@ -444,34 +441,35 @@
 				reg = <0x1180000 0x0100000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_dp1: macaddr@0 {
-					reg = <0x0 0x6>;
+					macaddr_dp1: macaddr@0 {
+						reg = <0x0 0x6>;
+					};
+
+					macaddr_dp2: macaddr@1 {
+						reg = <0x6 0x6>;
+					};
+
+					macaddr_dp3: macaddr@2 {
+						reg = <0xc 0x6>;
+					};
+
+					macaddr_dp4: macaddr@3 {
+						reg = <0x12 0x6>;
+					};
+
+					macaddr_dp5: macaddr@4 {
+						reg = <0x18 0x6>;
+					};
+
+					macaddr_dp6_syn: macaddr@5 {
+						reg = <0x1e 0x6>;
+					};
 				};
-
-				macaddr_dp2: macaddr@1 {
-					reg = <0x6 0x6>;
-				};
-
-				macaddr_dp3: macaddr@2 {
-					reg = <0xc 0x6>;
-				};
-
-				macaddr_dp4: macaddr@3 {
-					reg = <0x12 0x6>;
-				};
-
-				macaddr_dp5: macaddr@4 {
-					reg = <0x18 0x6>;
-				};
-
-				macaddr_dp6_syn: macaddr@5 {
-					reg = <0x1e 0x6>;
-				};
-
 			};
 
 			partition@1280000 {

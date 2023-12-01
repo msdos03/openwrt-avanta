@@ -20,6 +20,8 @@ include $(INCLUDE_DIR)/rootfs.mk
 override MAKE:=$(_SINGLE)$(SUBMAKE)
 override NO_TRACE_MAKE:=$(_SINGLE)$(NO_TRACE_MAKE)
 
+exp_units = $(subst k, * 1024,$(subst m, * 1024k,$(subst g, * 1024m,$(1))))
+
 target_params = $(subst +,$(space),$*)
 param_get = $(patsubst $(1)=%,%,$(filter $(1)=%,$(2)))
 param_get_default = $(firstword $(call param_get,$(1),$(2)) $(3))
@@ -40,8 +42,10 @@ IMG_PREFIX_VERCODE:=$(if $(CONFIG_VERSION_CODE_FILENAMES),$(call sanitize,$(VERS
 IMG_PREFIX:=$(VERSION_DIST_SANITIZED)-$(IMG_PREFIX_VERNUM)$(IMG_PREFIX_VERCODE)$(IMG_PREFIX_EXTRA)$(BOARD)$(if $(SUBTARGET),-$(SUBTARGET))
 IMG_ROOTFS:=$(IMG_PREFIX)-rootfs
 IMG_COMBINED:=$(IMG_PREFIX)-combined
+ifeq ($(DUMP),)
 IMG_PART_SIGNATURE:=$(shell echo $(SOURCE_DATE_EPOCH)$(LINUX_VERMAGIC) | $(MKHASH) md5 | cut -b1-8)
 IMG_PART_DISKGUID:=$(shell echo $(SOURCE_DATE_EPOCH)$(LINUX_VERMAGIC) | $(MKHASH) md5 | sed -E 's/(.{8})(.{4})(.{4})(.{4})(.{10})../\1-\2-\3-\4-\500/')
+endif
 
 MKFS_DEVTABLE_OPT := -D $(INCLUDE_DIR)/device_table.txt
 
@@ -167,7 +171,9 @@ define Image/pad-to
 	mv $(1).new $(1)
 endef
 
+ifeq ($(DUMP),)
 ROOTFS_PARTSIZE=$(shell echo $$(($(CONFIG_TARGET_ROOTFS_PARTSIZE)*1024*1024)))
+endif
 
 define Image/pad-root-squashfs
 	$(call Image/pad-to,$(KDIR)/root.squashfs,$(if $(1),$(1),$(ROOTFS_PARTSIZE)))
@@ -391,6 +397,7 @@ define Device/Init
   DEVICE_IMG_NAME = $$(DEVICE_IMG_PREFIX)-$$(1)-$$(2)
   FACTORY_IMG_NAME :=
   IMAGE_SIZE :=
+  NAND_SIZE :=
   KERNEL_PREFIX = $$(DEVICE_IMG_PREFIX)
   KERNEL_SUFFIX := -kernel.bin
   KERNEL_INITRAMFS_SUFFIX = $$(KERNEL_SUFFIX)
@@ -451,7 +458,7 @@ DEFAULT_DEVICE_VARS := \
   DEVICE_DTS_DIR DEVICE_DTS_OVERLAY DEVICE_DTS_LOADADDR \
   DEVICE_FDT_NUM DEVICE_IMG_PREFIX SOC BOARD_NAME UIMAGE_MAGIC UIMAGE_NAME \
   UIMAGE_TIME SUPPORTED_DEVICES IMAGE_METADATA KERNEL_ENTRY KERNEL_LOADADDR \
-  UBOOT_PATH IMAGE_SIZE \
+  UBOOT_PATH IMAGE_SIZE NAND_SIZE \
   FACTORY_IMG_NAME FACTORY_SIZE \
   DEVICE_PACKAGES DEVICE_COMPAT_VERSION DEVICE_COMPAT_MESSAGE \
   DEVICE_VENDOR DEVICE_MODEL DEVICE_VARIANT \
