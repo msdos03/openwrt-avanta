@@ -105,6 +105,23 @@ define Build/cetron-header
 	rm $@.tmp
 endef
 
+define Device/acelink_ew-7886cax
+  DEVICE_VENDOR := Acelink
+  DEVICE_MODEL := EW-7886CAX
+  DEVICE_DTS := mt7986a-acelink-ew-7886cax
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7986-firmware mt7986-wo-firmware
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 65536k
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += acelink_ew-7886cax
+
 define Device/acer_predator-w6
   DEVICE_VENDOR := Acer
   DEVICE_MODEL := Predator W6
@@ -119,6 +136,44 @@ define Device/acer_predator-w6
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += acer_predator-w6
+
+define Device/adtran_smartrg
+  DEVICE_VENDOR := Adtran
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := e2fsprogs f2fsck mkf2fs kmod-hwmon-pwmfan \
+		     kmod-mt7986-firmware mt7986-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+
+define Device/smartrg_sdg-8612
+$(call Device/adtran_smartrg)
+  DEVICE_MODEL := SDG-8612
+  DEVICE_DTS := mt7986a-smartrg-SDG-8612
+endef
+TARGET_DEVICES += smartrg_sdg-8612
+
+define Device/smartrg_sdg-8614
+$(call Device/adtran_smartrg)
+  DEVICE_MODEL := SDG-8614
+  DEVICE_DTS := mt7986a-smartrg-SDG-8614
+endef
+TARGET_DEVICES += smartrg_sdg-8614
+
+define Device/smartrg_sdg-8622
+$(call Device/adtran_smartrg)
+  DEVICE_MODEL := SDG-8622
+  DEVICE_DTS := mt7986a-smartrg-SDG-8622
+  DEVICE_PACKAGES += kmod-mt7915-firmware
+endef
+TARGET_DEVICES += smartrg_sdg-8622
+
+define Device/smartrg_sdg-8632
+$(call Device/adtran_smartrg)
+  DEVICE_MODEL := SDG-8632
+  DEVICE_DTS := mt7986a-smartrg-SDG-8632
+  DEVICE_PACKAGES += kmod-mt7915-firmware
+endef
+TARGET_DEVICES += smartrg_sdg-8632
 
 define Device/asus_tuf-ax4200
   DEVICE_VENDOR := ASUS
@@ -157,7 +212,9 @@ define Device/bananapi_bpi-r3
   DEVICE_MODEL := BPi-R3
   DEVICE_DTS := mt7986a-bananapi-bpi-r3
   DEVICE_DTS_CONFIG := config-mt7986a-bananapi-bpi-r3
-  DEVICE_DTS_OVERLAY:= mt7986a-bananapi-bpi-r3-emmc mt7986a-bananapi-bpi-r3-nand mt7986a-bananapi-bpi-r3-nor mt7986a-bananapi-bpi-r3-sd
+  DEVICE_DTS_OVERLAY:= mt7986a-bananapi-bpi-r3-emmc mt7986a-bananapi-bpi-r3-nand \
+		       mt7986a-bananapi-bpi-r3-nor mt7986a-bananapi-bpi-r3-sd \
+		       mt7986a-bananapi-bpi-r3-respeaker-2mics
   DEVICE_DTS_DIR := $(DTS_DIR)/
   DEVICE_DTS_LOADADDR := 0x43f00000
   DEVICE_PACKAGES := kmod-hwmon-pwmfan kmod-i2c-gpio kmod-mt7986-firmware kmod-sfp kmod-usb3 e2fsprogs f2fsck mkf2fs mt7986-wo-firmware
@@ -296,14 +353,10 @@ define Device/glinet_gl-mt2500
   DEVICE_DTS := mt7981b-glinet-gl-mt2500
   DEVICE_DTS_DIR := ../dts
   DEVICE_DTS_LOADADDR := 0x47000000
-  DEVICE_PACKAGES := kmod-usb3
+  DEVICE_PACKAGES := -kmod-mt7915e -wpad-basic-mbedtls e2fsprogs f2fsck mkf2fs kmod-usb3
   SUPPORTED_DEVICES += glinet,mt2500-emmc
   IMAGES := sysupgrade.bin
-  KERNEL := kernel-bin | lzma | \
-	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
-  KERNEL_INITRAMFS := kernel-bin | lzma | \
-	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-gl-metadata
 endef
 TARGET_DEVICES += glinet_gl-mt2500
 
