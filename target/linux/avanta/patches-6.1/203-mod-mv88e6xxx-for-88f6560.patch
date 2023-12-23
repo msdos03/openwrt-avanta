@@ -1,14 +1,3 @@
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -6198,7 +6198,7 @@ static const struct mv88e6xxx_info mv88e
- 		.num_databases = 4096,
- 		.num_macs = 8192,
- 		.num_ports = 7,
--		.num_internal_phys = 5,
-+		.num_internal_phys = 0,
- 		.max_vid = 4095,
- 		.max_sid = 63,
- 		.port_base_addr = 0x10,
 --- a/drivers/net/dsa/mv88e6xxx/port.h
 +++ b/drivers/net/dsa/mv88e6xxx/port.h
 @@ -140,7 +140,7 @@

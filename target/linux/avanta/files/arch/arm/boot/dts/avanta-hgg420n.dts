@@ -186,6 +186,7 @@
 
 			port@4 {
 				reg = <4>;
+				phy-mode = "gmii";
 				ethernet = <&eth0>;
 				fixed-link {
 					speed = <1000>;
