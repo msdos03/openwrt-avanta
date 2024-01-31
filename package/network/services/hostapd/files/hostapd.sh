@@ -43,7 +43,7 @@ hostapd_append_wpa_key_mgmt() {
 	case "$auth_type" in
 		psk|eap)
 			append wpa_key_mgmt "WPA-$auth_type_l"
-			[ "${ieee80211r:-0}" -gt 0 ] && append wpa_key_mgmt "FT-${auth_type_l}"
+			[ "${wpa:-2}" -ge 2 ] && [ "${ieee80211r:-0}" -gt 0 ] && append wpa_key_mgmt "FT-${auth_type_l}"
 			[ "${ieee80211w:-0}" -gt 0 ] && append wpa_key_mgmt "WPA-${auth_type_l}-SHA256"
 		;;
 		eap192)
@@ -398,7 +398,6 @@ hostapd_set_vlan() {
 
 	rm -f /var/run/hostapd-${ifname}.vlan
 	for_each_vlan hostapd_set_vlan_file ${ifname}
-	touch /var/run/hostapd-${ifname}.vlan
 }
 
 hostapd_set_psk_file() {
@@ -417,7 +416,6 @@ hostapd_set_psk() {
 
 	rm -f /var/run/hostapd-${ifname}.psk
 	for_each_station hostapd_set_psk_file ${ifname}
-	touch /var/run/hostapd-${ifname}.psk
 }
 
 append_iw_roaming_consortium() {
@@ -690,7 +688,10 @@ hostapd_set_bss_options() {
 				return 1
 			fi
 			[ -z "$wpa_psk_file" ] && set_default wpa_psk_file /var/run/hostapd-$ifname.psk
-			[ -n "$wpa_psk_file" ] && append bss_conf "wpa_psk_file=$wpa_psk_file" "$N"
+			[ -n "$wpa_psk_file" ] && {
+				[ -e "$wpa_psk_file" ] || touch "$wpa_psk_file"
+				append bss_conf "wpa_psk_file=$wpa_psk_file" "$N"
+			}
 			[ "$eapol_version" -ge "1" -a "$eapol_version" -le "2" ] && append bss_conf "eapol_version=$eapol_version" "$N"
 
 			set_default dynamic_vlan 0
@@ -896,10 +897,21 @@ hostapd_set_bss_options() {
 		}
 	fi
 
+	json_get_vars ieee80211r
+	set_default ieee80211r 0
 	if [ "$wpa" -ge "1" ]; then
-		json_get_vars ieee80211r
-		set_default ieee80211r 0
+		if [ "$fils" -gt 0 ]; then
+			json_get_vars fils_realm
+			set_default fils_realm "$(echo "$ssid" | md5sum | head -c 8)"
+		fi
 
+		append bss_conf "wpa_disable_eapol_key_retries=$wpa_disable_eapol_key_retries" "$N"
+
+		hostapd_append_wpa_key_mgmt
+		[ -n "$wpa_key_mgmt" ] && append bss_conf "wpa_key_mgmt=$wpa_key_mgmt" "$N"
+	fi
+
+	if [ "$wpa" -ge "2" ]; then
 		if [ "$ieee80211r" -gt "0" ]; then
 			json_get_vars mobility_domain ft_psk_generate_local ft_over_ds reassociation_deadline
 
@@ -908,7 +920,7 @@ hostapd_set_bss_options() {
 			set_default reassociation_deadline 1000
 
 			case "$auth_type" in
-				psk|sae|psk-sae)
+				psk)
 					set_default ft_psk_generate_local 1
 				;;
 				*)
@@ -931,6 +943,10 @@ hostapd_set_bss_options() {
 				set_default pmk_r1_push 0
 
 				[ -n "$r0kh" -a -n "$r1kh" ] || {
+					if [ -z "$auth_secret" -a -z "$key" ]; then
+						wireless_setup_vif_failed FT_KEY_CANT_BE_DERIVED
+						return 1
+					fi
 					ft_key=`echo -n "$mobility_domain/${auth_secret:-${key}}" | md5sum | awk '{print $1}'`
 
 					set_default r0kh "ff:ff:ff:ff:ff:ff,*,$ft_key"
@@ -949,18 +965,7 @@ hostapd_set_bss_options() {
 				done
 			fi
 		fi
-		if [ "$fils" -gt 0 ]; then
-			json_get_vars fils_realm
-			set_default fils_realm "$(echo "$ssid" | md5sum | head -c 8)"
-		fi
 
-		append bss_conf "wpa_disable_eapol_key_retries=$wpa_disable_eapol_key_retries" "$N"
-
-		hostapd_append_wpa_key_mgmt
-		[ -n "$wpa_key_mgmt" ] && append bss_conf "wpa_key_mgmt=$wpa_key_mgmt" "$N"
-	fi
-
-	if [ "$wpa" -ge "2" ]; then
 		if [ -n "$network_bridge" -a "$rsn_preauth" = 1 ]; then
 			set_default auth_cache 1
 			append bss_conf "rsn_preauth=1" "$N"
@@ -1590,8 +1595,4 @@ network={
 EOF
 	fi
 	return 0
-}
-
-hostapd_common_cleanup() {
-	killall meshd-nl80211
 }
