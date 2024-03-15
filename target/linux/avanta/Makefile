@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 ARCH:=arm
 BOARD:=avanta
 BOARDNAME:=Marvell Avanta
-FEATURES:=usb nand squashfs ramdisk
+FEATURES:=rtc usb nand squashfs ramdisk
 CPU_TYPE:=xscale
 SUBTARGETS:=generic
 
