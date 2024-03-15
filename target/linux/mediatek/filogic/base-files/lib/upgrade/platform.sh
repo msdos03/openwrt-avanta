@@ -60,21 +60,6 @@ xiaomi_initial_setup()
 	esac
 }
 
-platform_get_bootdev() {
-	local rootdisk="$(cat /sys/firmware/devicetree/base/chosen/rootdisk)"
-	local handle bootdev
-	for handle in /sys/class/block/*/of_node/phandle /sys/class/block/*/device/of_node/phandle; do
-		[ ! -e "$handle" ] && continue
-		if [ "$rootdisk" = "$(cat $handle)" ]; then
-			bootdev="${handle%/of_node/phandle}"
-			bootdev="${bootdev%/device}"
-			bootdev="${bootdev#/sys/class/block/}"
-			echo "$bootdev"
-			break
-		fi
-	done
-}
-
 platform_do_upgrade() {
 	local board=$(board_name)
 
@@ -97,10 +82,11 @@ platform_do_upgrade() {
 		;;
 	bananapi,bpi-r3|\
 	bananapi,bpi-r3-mini|\
-	bananapi,bpi-r4)
+	bananapi,bpi-r4|\
+	xiaomi,redmi-router-ax6000-ubootmod)
 		[ -e /dev/fit0 ] && fitblk /dev/fit0
 		[ -e /dev/fitrw ] && fitblk /dev/fitrw
-		bootdev="$(platform_get_bootdev)"
+		bootdev="$(fitblk_get_bootdev)"
 		case "$bootdev" in
 		mmcblk*)
 			EMMC_KERN_DEV="/dev/$bootdev"
@@ -128,12 +114,15 @@ platform_do_upgrade() {
 			;;
 		esac
 		;;
+	cudy,re3000-v1|\
 	cudy,wr3000-v1|\
 	yuncore,ax835)
 		default_do_upgrade "$1"
 		;;
 	glinet,gl-mt2500|\
-	glinet,gl-mt6000)
+	glinet,gl-mt6000|\
+	glinet,gl-x3000|\
+	glinet,gl-xe3000)
 		CI_KERNPART="kernel"
 		CI_ROOTPART="rootfs"
 		emmc_do_upgrade "$1"
@@ -146,8 +135,7 @@ platform_do_upgrade() {
 	tplink,tl-xdr6086|\
 	tplink,tl-xdr6088|\
 	xiaomi,mi-router-ax3000t-ubootmod|\
-	xiaomi,mi-router-wr30u-ubootmod|\
-	xiaomi,redmi-router-ax6000-ubootmod)
+	xiaomi,mi-router-wr30u-ubootmod)
 		CI_KERNPART="fit"
 		nand_do_upgrade "$1"
 		;;
@@ -221,7 +209,7 @@ platform_copy_config() {
 	bananapi,bpi-r3|\
 	bananapi,bpi-r3-mini|\
 	bananapi,bpi-r4)
-		case "$(platform_get_bootdev)" in
+		case "$(fitblk_get_bootdev)" in
 		mmcblk*)
 			emmc_copy_config
 			;;
@@ -230,6 +218,8 @@ platform_copy_config() {
 	acer,predator-w6|\
 	glinet,gl-mt2500|\
 	glinet,gl-mt6000|\
+	glinet,gl-x3000|\
+	glinet,gl-xe3000|\
 	jdcloud,re-cp-03|\
 	ubnt,unifi-6-plus)
 		emmc_copy_config

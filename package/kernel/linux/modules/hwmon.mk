@@ -34,7 +34,7 @@ define KernelPackage/hwmon-ad7418
   KCONFIG:=CONFIG_SENSORS_AD7418
   FILES:=$(LINUX_DIR)/drivers/hwmon/ad7418.ko
   AUTOLOAD:=$(call AutoLoad,60,ad7418 ad7418)
-  $(call AddDepends/hwmon,+kmod-i2c-core)
+  $(call AddDepends/hwmon,+kmod-i2c-core +LINUX_6_6:kmod-regmap-core)
 endef
 
 define KernelPackage/hwmon-ad7418/description
@@ -52,7 +52,7 @@ define KernelPackage/hwmon-adt7410
 	$(LINUX_DIR)/drivers/hwmon/adt7x10.ko \
 	$(LINUX_DIR)/drivers/hwmon/adt7410.ko
   AUTOLOAD:=$(call AutoLoad,60,adt7x10 adt7410)
-  $(call AddDepends/hwmon,+kmod-i2c-core +LINUX_6_1:kmod-regmap-core)
+  $(call AddDepends/hwmon,+kmod-i2c-core +!LINUX_5_15:kmod-regmap-core)
 endef
 
 define KernelPackage/hwmon-adt7410/description
@@ -82,7 +82,7 @@ define KernelPackage/hwmon-coretemp
   KCONFIG:=CONFIG_SENSORS_CORETEMP
   FILES:=$(LINUX_DIR)/drivers/hwmon/coretemp.ko
   AUTOLOAD:=$(call AutoProbe,coretemp)
-  $(call AddDepends/hwmon,)
+  $(call AddDepends/hwmon,@TARGET_x86)
 endef
 
 define KernelPackage/hwmon-coretemp/description

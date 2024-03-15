@@ -17,6 +17,7 @@ case "$board" in
 	adtran,bsap1840)
 		macaddr_add "$(mtd_get_mac_binary 'Board data' 2)" $(($PHYNBR * 8 + 1)) > /sys${DEVPATH}/macaddress
 		;;
+	dlink,covr-c1200-a1|\
 	dlink,covr-p2500-a1)
 		[ "$PHYNBR" -eq 0 ] && \
 			mtd_get_mac_ascii art "protest_ath1_mac" > /sys${DEVPATH}/macaddress
@@ -40,6 +41,16 @@ case "$board" in
 			mtd_get_mac_ascii bdcfg "wlanmac_a" > /sys${DEVPATH}/macaddress
 		[ "$PHYNBR" -eq 1 ] && \
 			mtd_get_mac_ascii bdcfg "wlanmac" > /sys${DEVPATH}/macaddress
+		;;
+	elecom,wab-i1750-ps|\
+	elecom,wab-s1167-ps|\
+	elecom,wab-s600-ps)
+		# set the 5G MAC address (= ethaddr + 1)
+		[ "$PHYNBR" -eq 0 ] && \
+			macaddr_add "$(mtd_get_mac_ascii u-boot-env ethaddr)" 1 > /sys${DEVPATH}/macaddress
+		# set the 2.4G MAC address (= ethaddr)
+		[ "$PHYNBR" -eq 1 ] && \
+			mtd_get_mac_ascii u-boot-env "ethaddr" > /sys${DEVPATH}/macaddress
 		;;
 	engenius,ecb1200|\
 	engenius,ecb1750)
