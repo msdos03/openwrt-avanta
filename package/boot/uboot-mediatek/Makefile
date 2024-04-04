@@ -171,6 +171,14 @@ define U-Boot/mt7622_ubnt_unifi-6-lr-v3
   FIP_COMPRESS:=1
 endef
 
+define U-Boot/mt7622_xiaomi_redmi-router-ax6s-ubi-loader
+  NAME:=Xiaomi Redmi Router AX6S (as UBI loader)
+  UBOOT_CONFIG:=mt7622_xiaomi_redmi-router-ax6s-ubi-loader
+  BUILD_DEVICES:=xiaomi_redmi-router-ax6s
+  BUILD_SUBTARGET:=mt7622
+  UBOOT_IMAGE:=u-boot.bin
+endef
+
 define U-Boot/mt7623a_unielec_u7623
   NAME:=UniElec U7623 (mt7623)
   BUILD_DEVICES:=unielec_u7623-02
@@ -464,6 +472,18 @@ define U-Boot/mt7986_jdcloud_re-cp-03
   DEPENDS:=+trusted-firmware-a-mt7986-emmc-ddr4
 endef
 
+define U-Boot/mt7986_netcore_n60
+  NAME:=Netcore N60
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=netcore_n60
+  UBOOT_CONFIG:=mt7986_netcore_n60
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr3
+endef
+
 define U-Boot/mt7986_tplink_tl-xdr4288
   NAME:=TP-LINK TL-XDR4288
   BUILD_SUBTARGET:=filogic
@@ -635,6 +655,7 @@ UBOOT_TARGETS := \
 	mt7622_ubnt_unifi-6-lr-v1 \
 	mt7622_ubnt_unifi-6-lr-v2 \
 	mt7622_ubnt_unifi-6-lr-v3 \
+  mt7622_xiaomi_redmi-router-ax6s-ubi-loader \
 	mt7623n_bpir2 \
 	mt7623a_unielec_u7623 \
 	mt7628_rfb \
@@ -660,6 +681,7 @@ UBOOT_TARGETS := \
 	mt7986_bananapi_bpi-r3-mini-snand \
 	mt7986_glinet_gl-mt6000 \
 	mt7986_jdcloud_re-cp-03 \
+	mt7986_netcore_n60 \
 	mt7986_tplink_tl-xdr4288 \
 	mt7986_tplink_tl-xdr6086 \
 	mt7986_tplink_tl-xdr6088 \
