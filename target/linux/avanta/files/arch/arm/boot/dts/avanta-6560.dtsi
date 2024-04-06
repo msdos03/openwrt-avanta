@@ -116,17 +116,6 @@
 			clocks = <&gate_clk 7>;
 		};
 
-		i2c1: i2c@11100 {
-			compatible = "marvell,mv64xxx-i2c";
-			reg = <0x11100 0x20>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			interrupts = <25>;
-			clock-frequency = <100000>;
-			clocks = <&gate_clk 7>;
-			status = "disabled";
-		};
-
 		sata: sata@80000 {
 			compatible = "marvell,orion-sata";
 			reg = <0x80000 0x5000>;
