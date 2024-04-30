@@ -1,0 +1,63 @@
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -4072,8 +4072,12 @@ static void mvneta_mac_config(struct phy
+ 
+ 	/* Even though it might look weird, when we're configured in
+ 	 * SGMII or QSGMII mode, the RGMII bit needs to be set.
++	 * But, I must add Avanta 88f6560 support so I need GMII mode.
+ 	 */
+-	new_ctrl2 |= MVNETA_GMAC2_PORT_RGMII;
++	if (state->interface == PHY_INTERFACE_MODE_GMII)
++	    new_ctrl2 &= ~MVNETA_GMAC2_PORT_RGMII;
++	else
++	    new_ctrl2 |= MVNETA_GMAC2_PORT_RGMII;
+ 
+ 	if (state->interface == PHY_INTERFACE_MODE_QSGMII ||
+ 	    state->interface == PHY_INTERFACE_MODE_SGMII ||
+@@ -5381,6 +5385,7 @@ static int mvneta_port_power_up(struct m
+ 
+ 	if (phy_mode != PHY_INTERFACE_MODE_QSGMII &&
+ 	    phy_mode != PHY_INTERFACE_MODE_SGMII &&
++	    phy_mode != PHY_INTERFACE_MODE_GMII &&
+ 	    !phy_interface_mode_is_8023z(phy_mode) &&
+ 	    !phy_interface_mode_is_rgmii(phy_mode))
+ 		return -EINVAL;
+@@ -5475,6 +5480,8 @@ static int mvneta_probe(struct platform_
+ 	pp->phylink_config.mac_capabilities = MAC_SYM_PAUSE | MAC_10 |
+ 		MAC_100 | MAC_1000FD | MAC_2500FD;
+ 
++	__set_bit(PHY_INTERFACE_MODE_GMII,
++		  pp->phylink_config.supported_interfaces);
+ 	phy_interface_set_rgmii(pp->phylink_config.supported_interfaces);
+ 	__set_bit(PHY_INTERFACE_MODE_QSGMII,
+ 		  pp->phylink_config.supported_interfaces);
+@@ -5546,7 +5553,8 @@ static int mvneta_probe(struct platform_
+ 				 "Wrong TX csum limit in DT, set to %dB\n",
+ 				 MVNETA_TX_CSUM_DEF_SIZE);
+ 		}
+-	} else if (of_device_is_compatible(dn, "marvell,armada-370-neta")) {
++	} else if (of_device_is_compatible(dn, "marvell,armada-370-neta") ||
++		   of_device_is_compatible(dn, "marvell,armada-3700-neta")) {
+ 		tx_csum_limit = MVNETA_TX_CSUM_DEF_SIZE;
+ 	} else {
+ 		tx_csum_limit = MVNETA_TX_CSUM_MAX_SIZE;
+@@ -5558,8 +5566,9 @@ static int mvneta_probe(struct platform_
+ 	/* Armada3700 requires setting default configuration of Mbus
+ 	 * windows, however without using filled mbus_dram_target_info
+ 	 * structure.
++	 * But I have to change this for Avanta 88f6560, based on armada3700 code
+ 	 */
+-	if (pp->dram_target_info || pp->neta_armada3700)
++	if (pp->dram_target_info)
+ 		mvneta_conf_mbus_windows(pp, pp->dram_target_info);
+ 
+ 	pp->tx_ring_size = MVNETA_MAX_TXD;
+@@ -5747,7 +5756,7 @@ static int mvneta_resume(struct device *
+ 	clk_prepare_enable(pp->clk);
+ 	if (!IS_ERR(pp->clk_bus))
+ 		clk_prepare_enable(pp->clk_bus);
+-	if (pp->dram_target_info || pp->neta_armada3700)
++	if (pp->dram_target_info)
+ 		mvneta_conf_mbus_windows(pp, pp->dram_target_info);
+ 	if (pp->bm_priv) {
+ 		err = mvneta_bm_port_init(pdev, pp);
