@@ -51,7 +51,8 @@ platform_do_upgrade() {
 	netgear,rax120v2|\
 	netgear,wax218|\
 	netgear,wax620|\
-	netgear,wax630)
+	netgear,wax630|\
+	zbtlink,zbt-z800ax)
 		nand_do_upgrade "$1"
 		;;
 	buffalo,wxr-5950ax12)
@@ -91,7 +92,8 @@ platform_do_upgrade() {
 		nand_do_upgrade "$1"
 		;;
 	prpl,haze|\
-	qnap,301w)
+	qnap,301w|\
+	spectrum,sax1v1k)
 		kernelname="0:HLOS"
 		rootfsname="rootfs"
 		mmc_do_upgrade "$1"

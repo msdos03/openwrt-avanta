@@ -2,13 +2,13 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=ipq-wifi
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/firmware/qca-wireless.git
-PKG_SOURCE_DATE:=2024-03-20
-PKG_SOURCE_VERSION:=87717baa8a7c922942f4202a0ec3de3cb5643941
-PKG_MIRROR_HASH:=5f05f922780b55c0069c4ee9725f2b1aa857f3bc841bec71a44e997ece9cea15
+PKG_SOURCE_DATE:=2024-04-26
+PKG_SOURCE_VERSION:=644ba9ea2e6685e420561ef098cb6fbaaf136cbf
+PKG_MIRROR_HASH:=3b913fd6fb0fac404b16e67c66d36c10315dba5459a8d495d870afcb1e2c33cd
 PKG_FLAGS:=nonshared
 
 include $(INCLUDE_DIR)/package.mk
@@ -46,12 +46,14 @@ ALLWIFIBOARDS:= \
 	prpl_haze \
 	qnap_301w \
 	redmi_ax6 \
+	spectrum_sax1v1k \
 	wallys_dr40x9 \
 	xiaomi_ax3600 \
 	xiaomi_ax9000 \
 	yyets_le1 \
 	yuncore_ax880 \
 	yuncore_fap650 \
+	zbtlink_zbt-z800ax \
 	zte_mf269 \
 	zte_mf287 \
 	zte_mf287plus \
@@ -164,12 +166,14 @@ $(eval $(call generate-ipq-wifi-package,netgear_wax630,Netgear WAX630))
 $(eval $(call generate-ipq-wifi-package,qnap_301w,QNAP 301w))
 $(eval $(call generate-ipq-wifi-package,prpl_haze,prpl Haze))
 $(eval $(call generate-ipq-wifi-package,redmi_ax6,Redmi AX6))
+$(eval $(call generate-ipq-wifi-package,spectrum_sax1v1k,Spectrum SAX1V1K))
 $(eval $(call generate-ipq-wifi-package,wallys_dr40x9,Wallys DR40X9))
 $(eval $(call generate-ipq-wifi-package,xiaomi_ax3600,Xiaomi AX3600))
 $(eval $(call generate-ipq-wifi-package,xiaomi_ax9000,Xiaomi AX9000))
 $(eval $(call generate-ipq-wifi-package,yyets_le1,YYeTs LE1))
 $(eval $(call generate-ipq-wifi-package,yuncore_ax880,Yuncore AX880))
 $(eval $(call generate-ipq-wifi-package,yuncore_fap650,Yuncore FAP650))
+$(eval $(call generate-ipq-wifi-package,zbtlink_zbt-z800ax,Zbtlink ZBT-Z800AX))
 $(eval $(call generate-ipq-wifi-package,zte_mf269,ZTE MF269))
 $(eval $(call generate-ipq-wifi-package,zte_mf287,ZTE MF287))
 $(eval $(call generate-ipq-wifi-package,zte_mf287plus,ZTE MF287Plus))

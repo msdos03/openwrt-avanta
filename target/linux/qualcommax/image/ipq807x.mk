@@ -247,6 +247,18 @@ define Device/redmi_ax6
 endef
 TARGET_DEVICES += redmi_ax6
 
+define Device/spectrum_sax1v1k
+	$(call Device/FitImage)
+	$(call Device/EmmcImage)
+	DEVICE_VENDOR := Spectrum
+	DEVICE_MODEL := SAX1V1K
+	DEVICE_DTS_CONFIG := config@rt5010w-d187-rev6
+	SOC := ipq8072
+	IMAGES := sysupgrade.bin
+	DEVICE_PACKAGES := ipq-wifi-spectrum_sax1v1k
+endef
+TARGET_DEVICES += spectrum_sax1v1k
+
 define Device/xiaomi_ax3600
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
@@ -298,6 +310,21 @@ define Device/yuncore_ax880
 	IMAGE/factory.bin := append-ubi | qsdk-ipq-factory-nand
 endef
 TARGET_DEVICES += yuncore_ax880
+
+define Device/zbtlink_zbt-z800ax
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := Zbtlink
+	DEVICE_MODEL := ZBT-Z800AX
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_DTS_CONFIG := config@hk09
+	SOC := ipq8072
+	DEVICE_PACKAGES := ipq-wifi-zbtlink_zbt-z800ax
+	IMAGES += factory.bin
+	IMAGE/factory.bin := append-ubi | qsdk-ipq-factory-nand
+endef
+TARGET_DEVICES += zbtlink_zbt-z800ax
 
 define Device/zte_mf269
 	$(call Device/FitImage)

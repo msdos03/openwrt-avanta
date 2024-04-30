@@ -14,9 +14,11 @@
 / {
 	model = "Bananapi BPI-R4";
 	compatible = "bananapi,bpi-r4",
-		     "mediatek,mt7988";
+		     "mediatek,mt7988a";
 
 	aliases {
+		ethernet0 = &gmac0;
+		ethernet1 = &gmac1;
 		serial0 = &uart0;
 		led-boot = &led_green;
 		led-failsafe = &led_green;
