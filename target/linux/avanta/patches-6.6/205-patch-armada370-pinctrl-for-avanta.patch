@@ -13,7 +13,7 @@
   */
  
  #include <linux/err.h>
-@@ -20,344 +26,183 @@
+@@ -19,344 +25,183 @@
  
  static struct mvebu_mpp_mode mv88f6710_mpp_modes[] = {
  	MPP_MODE(0,
@@ -470,7 +470,7 @@
  };
  
  static struct mvebu_pinctrl_soc_info armada_370_pinctrl_info;
-@@ -368,13 +213,13 @@ static const struct of_device_id armada_
+@@ -367,13 +212,13 @@ static const struct of_device_id armada_
  };
  
  static const struct mvebu_mpp_ctrl mv88f6710_mpp_controls[] = {
