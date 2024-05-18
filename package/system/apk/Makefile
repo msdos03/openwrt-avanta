@@ -17,8 +17,7 @@ PKG_LICENSE_FILES:=LICENSE
 PKG_INSTALL:=1
 
 HOST_BUILD_PREFIX:=$(STAGING_DIR_HOST)
-HOST_BUILD_DEPENDS:=lua/host
-PKG_BUILD_DEPENDS:=$(HOST_BUILD_DEPENDS)
+PKG_BUILD_DEPENDS:=lua/host
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
@@ -30,6 +29,7 @@ define Package/apk/default
   TITLE:=apk package manager
   DEPENDS:=+zlib
   URL:=$(PKG_SOURCE_URL)
+  PROVIDES:=apk
 endef
 
 define Package/apk-mbedtls
@@ -52,7 +52,7 @@ MESON_HOST_VARS+=VERSION=$(PKG_VERSION)
 MESON_VARS+=VERSION=$(PKG_VERSION)
 
 MESON_HOST_ARGS += \
-	-Dlua_version=5.1 \
+	-Dhelp=disabled \
 	-Dcompressed-help=false \
 	-Ddocs=disabled \
 	-Dcrypto_backend=openssl \
