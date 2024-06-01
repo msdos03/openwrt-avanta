@@ -59,7 +59,8 @@ mediatek_setup_interfaces()
 	glinet,gl-mt3000|\
 	glinet,gl-x3000|\
 	glinet,gl-xe3000|\
-	openembed,som7981)
+	openembed,som7981|\
+	openwrt,one)
 		ucidef_set_interfaces_lan_wan eth1 eth0
 		;;
 	dlink,aquila-pro-ai-m30-a1)
@@ -136,9 +137,6 @@ mediatek_setup_macs()
 		;;
 		esac
 		;;
-	cudy,m3000-v1)
-		wan_mac=$(macaddr_add $(cat /sys/class/net/eth1/address) 1)
-		;;
 	h3c,magic-nx30-pro)
 		wan_mac=$(mtd_get_mac_ascii pdt_data_1 ethaddr)
 		lan_mac=$(macaddr_add "$wan_mac" 1)
@@ -165,7 +163,9 @@ mediatek_setup_macs()
 	smartrg,sdg-8612|\
 	smartrg,sdg-8614|\
 	smartrg,sdg-8622|\
-	smartrg,sdg-8632)
+	smartrg,sdg-8632|\
+	smartrg,sdg-8733|\
+	smartrg,sdg-8734)
 		label_mac=$(mmc_get_mac_ascii mfginfo MFG_MAC)
 		wan_mac=$label_mac
 		lan_mac=$(macaddr_add "$label_mac" 1)
