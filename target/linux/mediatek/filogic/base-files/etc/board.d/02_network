@@ -11,6 +11,13 @@ mediatek_setup_interfaces()
 	acelink,ew-7886cax)
 		ucidef_set_interface_lan "eth0" "dhcp"
 		;;
+	abt,asr3000|\
+	cmcc,rax3000m|\
+	h3c,magic-nx30-pro|\
+	nokia,ea0326gmp|\
+	zbtlink,zbt-z8103ax)
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" eth1
+		;;
 	acer,predator-w6)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 game" eth1
 		;;
@@ -45,12 +52,6 @@ mediatek_setup_interfaces()
 	bananapi,bpi-r4|\
 	bananapi,bpi-r4-poe)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 eth1" "wan eth2"
-		;;
-	cmcc,rax3000m|\
-	h3c,magic-nx30-pro|\
-	nokia,ea0326gmp|\
-	zbtlink,zbt-z8103ax)
-		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" eth1
 		;;
 	comfast,cf-e393ax)
 		ucidef_set_interfaces_lan_wan "lan1" eth1
@@ -100,6 +101,9 @@ mediatek_setup_interfaces()
 	wavlink,wl-wn586x3)
 		ucidef_set_interfaces_lan_wan "lan1 lan2" eth1
 		;;
+	tplink,re6000xd)
+		ucidef_set_interface_lan "lan1 lan2 eth1"
+		;;
 	xiaomi,mi-router-ax3000t|\
 	xiaomi,mi-router-ax3000t-ubootmod|\
 	xiaomi,mi-router-wr30u-stock|\
@@ -131,21 +135,13 @@ mediatek_setup_macs()
 	bananapi,bpi-r4)
 		wan_mac=$(macaddr_add $(cat /sys/class/net/eth0/address) 1)
 		;;
-	cmcc,rax3000m)
-		case "$(cmdline_get_var root)" in
-		/dev/mmc*)
-			wan_mac=$(mmc_get_mac_binary factory 0x2a)
-			lan_mac=$(mmc_get_mac_binary factory 0x24)
-			label_mac=$wan_mac
-		;;
-		esac
-		;;
 	h3c,magic-nx30-pro)
 		wan_mac=$(mtd_get_mac_ascii pdt_data_1 ethaddr)
 		lan_mac=$(macaddr_add "$wan_mac" 1)
 		label_mac=$wan_mac
 		;;
-	mercusys,mr90x-v1)
+	mercusys,mr90x-v1|\
+	tplink,re6000xd)
 		label_mac=$(get_mac_binary "/tmp/tp_data/default-mac" 0)
 		lan_mac=$label_mac
 		;;
