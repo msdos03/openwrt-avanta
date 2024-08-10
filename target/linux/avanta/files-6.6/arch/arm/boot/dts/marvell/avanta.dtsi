@@ -272,15 +272,15 @@
 			clocks = <&gate_clk 8>;
 
 			xor00 {
-			      interrupts = <26>;
-			      dmacap,memcpy;
-			      dmacap,xor;
+				interrupts = <26>;
+				dmacap,memcpy;
+				dmacap,xor;
 			};
 			xor01 {
-			      interrupts = <27>;
-			      dmacap,memcpy;
-			      dmacap,xor;
-			      dmacap,memset;
+				interrupts = <27>;
+				dmacap,memcpy;
+				dmacap,xor;
+				dmacap,memset;
 			};
 		};
 
