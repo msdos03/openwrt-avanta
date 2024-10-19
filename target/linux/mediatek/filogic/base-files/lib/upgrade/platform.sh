@@ -95,6 +95,7 @@ platform_do_upgrade() {
 	smartrg,sdg-8622|\
 	smartrg,sdg-8632|\
 	smartrg,sdg-8733|\
+	smartrg,sdg-8733a|\
 	smartrg,sdg-8734)
 		CI_KERNPART="kernel"
 		CI_ROOTPART="rootfs"
@@ -130,13 +131,6 @@ platform_do_upgrade() {
 		EMMC_ROOT_DEV="$(cmdline_get_var root)"
 		emmc_do_upgrade "$1"
 		;;
-	xiaomi,mi-router-ax3000t|\
-	xiaomi,mi-router-wr30u-stock|\
-	xiaomi,redmi-router-ax6000-stock)
-		CI_KERN_UBIPART=ubi_kernel
-		CI_ROOT_UBIPART=ubi
-		nand_do_upgrade "$1"
-		;;
 	unielec,u7981-01*)
 		local rootdev="$(cmdline_get_var root)"
 		rootdev="${rootdev##*/}"
@@ -153,6 +147,13 @@ platform_do_upgrade() {
 			nand_do_upgrade "$1"
 			;;
 		esac
+		;;
+	xiaomi,mi-router-ax3000t|\
+	xiaomi,mi-router-wr30u-stock|\
+	xiaomi,redmi-router-ax6000-stock)
+		CI_KERN_UBIPART=ubi_kernel
+		CI_ROOT_UBIPART=ubi
+		nand_do_upgrade "$1"
 		;;
 	*)
 		nand_do_upgrade "$1"
@@ -211,6 +212,7 @@ platform_copy_config() {
 	smartrg,sdg-8622|\
 	smartrg,sdg-8632|\
 	smartrg,sdg-8733|\
+	smartrg,sdg-8733a|\
 	smartrg,sdg-8734|\
 	ubnt,unifi-6-plus)
 		emmc_copy_config
