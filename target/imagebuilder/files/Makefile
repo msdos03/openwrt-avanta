@@ -99,6 +99,7 @@ OPKG:=$(call opkg,$(TARGET_DIR)) \
 export APK_KEYS:=$(TOPDIR)/keys
 APK:=$(call apk,$(TARGET_DIR)) \
 	--repositories-file $(TOPDIR)/repositories \
+	--repository $(PACKAGE_DIR)/packages.adb \
 	$(if $(CONFIG_SIGNATURE_CHECK),,--allow-untrusted) \
 	--cache-dir $(DL_DIR)
 
@@ -227,7 +228,10 @@ ifeq ($(CONFIG_USE_APK),)
 	$(OPKG) install $(wildcard $(PACKAGE_DIR)/kernel_*.ipk)
 	$(OPKG) install $(BUILD_PACKAGES)
 else
-	$(APK) add --arch $(ARCH_PACKAGES) --no-scripts $(BUILD_PACKAGES)
+	$(APK) add --arch $(ARCH_PACKAGES) --no-scripts $(BUILD_PACKAGES) \
+        "base-files=$(BASE_FILES_VERSION)" \
+        "libc=$(LIBC_VERSION)" \
+        "kernel=$(KERNEL_VERSION)"
 endif
 
 prepare_rootfs: FORCE

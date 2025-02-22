@@ -49,7 +49,6 @@ ifneq ($(CONFIG_USE_APK),)
 	$(call FeedSourcesAppendAPK,$(PKG_BUILD_DIR)/repositories)
 	$(VERSION_SED_SCRIPT) $(PKG_BUILD_DIR)/repositories
   endif
-	echo "packages/packages.adb" >> $(PKG_BUILD_DIR)/repositories
 
 	$(INSTALL_DATA) ./files/README.apk.md $(PKG_BUILD_DIR)/packages/README.md
 else
@@ -127,6 +126,9 @@ endif
 	fi
 	$(SED) 's,^# REVISION:=.*,REVISION:=$(REVISION),g' $(PKG_BUILD_DIR)/include/version.mk
 	$(SED) 's,^# SOURCE_DATE_EPOCH:=.*,SOURCE_DATE_EPOCH:=$(SOURCE_DATE_EPOCH),g' $(PKG_BUILD_DIR)/include/version.mk
+	$(SED) 's,^# BASE_FILES_VERSION:=.*,BASE_FILES_VERSION:=$(shell cat $(TMP_DIR)/base-files.version),g' $(PKG_BUILD_DIR)/include/version.mk
+	$(SED) 's,^# LIBC_VERSION:=.*,LIBC_VERSION:=$(shell cat $(TMP_DIR)/libc.version),g' $(PKG_BUILD_DIR)/include/version.mk
+	$(SED) 's,^# KERNEL_VERSION:=.*,KERNEL_VERSION:=$(shell cat $(TMP_DIR)/kernel.version),g' $(PKG_BUILD_DIR)/include/version.mk
 	$(SED) '/LINUX_VERMAGIC:=/ { s,unknown,$(LINUX_VERMAGIC),g }' $(PKG_BUILD_DIR)/include/kernel.mk
 	find $(PKG_BUILD_DIR) -name CVS -o -name .git -o -name .svn \
 	  | $(XARGS) rm -rf

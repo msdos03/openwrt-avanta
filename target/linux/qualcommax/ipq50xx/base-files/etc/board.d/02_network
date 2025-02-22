@@ -1,0 +1,23 @@
+#!/bin/sh
+
+. /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
+
+ipq50xx_setup_interfaces()
+{
+	local board="$1"
+	case $board in
+	linksys,mx2000|\
+	linksys,mx5500|\
+	linksys,spnmx56)
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
+		;;
+	esac
+}
+
+board_config_update
+board=$(board_name)
+ipq50xx_setup_interfaces $board
+board_config_flush
+
+exit 0
