@@ -1,0 +1,51 @@
+#
+# Copyright (C) 2012-2015 OpenWrt.org
+#
+
+. /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
+
+avanta_setup_interfaces()
+{
+	local board="$1"
+
+	case "$board" in
+	zte,f460-f660|\
+	zte,f420-f620|\
+	hqw,hgg420n)
+		ucidef_set_interfaces_lan_wan "ethernet1 ethernet2 ethernet3" "internet"
+		;;
+	*)
+		ucidef_set_interface_lan "eth0"
+		;;
+	esac
+}
+
+avanta_setup_macs()
+{
+	local board="$1"
+	local lan_mac=""
+	local wan_mac=""
+	local label_mac=""
+
+	case "$board" in
+	zte,f460-f660|\
+	zte,f420-f620|\
+	hqw,hgg420n)
+		wan_mac=$(mtd_get_mac_ascii uboot_env ethaddr)
+		lan_mac=$(mtd_get_mac_ascii uboot_env eth1addr)
+		;;
+	esac
+
+	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
+	[ -n "$wan_mac" ] && ucidef_set_interface_macaddr "wan" $wan_mac
+	[ -n "$label_mac" ] && ucidef_set_label_macaddr $label_mac
+}
+
+board_config_update
+board=$(board_name)
+avanta_setup_interfaces $board
+avanta_setup_macs $board
+board_config_flush
+
+exit 0

@@ -1,0 +1,25 @@
+#
+# Copyright (C) 2012-2014 OpenWrt.org
+#
+
+[ -e /etc/config/ubootenv ] && exit 0
+
+touch /etc/config/ubootenv
+
+. /lib/uboot-envtools.sh
+. /lib/functions.sh
+
+board=$(board_name)
+
+case "$board" in
+zte,f460-f660|\
+zte,f420-f620|\
+hqw,hgg420n)
+	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x4000" "0x4000"
+	;;
+esac
+
+config_load ubootenv
+config_foreach ubootenv_add_app_config ubootenv
+
+exit 0
