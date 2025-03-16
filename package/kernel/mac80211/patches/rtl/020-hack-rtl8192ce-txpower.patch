@@ -1,0 +1,22 @@
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/phy_common.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/phy_common.c
+@@ -556,6 +556,7 @@ void rtl92c_phy_set_txpower_level(struct
+ 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+ 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
+ 	u8 cckpowerlevel[2], ofdmpowerlevel[2];
++	int i;
+ 
+ 	if (!rtlefuse->txpwr_fromeprom)
+ 		return;
+@@ -563,6 +564,11 @@ void rtl92c_phy_set_txpower_level(struct
+ 				  &cckpowerlevel[0], &ofdmpowerlevel[0]);
+ 	_rtl92c_ccxpower_index_check(hw, channel, &cckpowerlevel[0],
+ 				     &ofdmpowerlevel[0]);
++	for (i = 0; i < 2; i++) {
++		cckpowerlevel[i] += 10;
++		ofdmpowerlevel[i] += 10;
++		/* offset txpower by 10 to increase signal */
++	}
+ 	rtlpriv->cfg->ops->phy_rf6052_set_cck_txpower(hw, &cckpowerlevel[0]);
+ 	rtlpriv->cfg->ops->phy_rf6052_set_ofdm_txpower(hw, &ofdmpowerlevel[0],
+ 						       channel);
