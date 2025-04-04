@@ -1,0 +1,11 @@
+--- a/drivers/net/dsa/mv88e6xxx/global2.c
++++ b/drivers/net/dsa/mv88e6xxx/global2.c
+@@ -1149,7 +1149,7 @@ int mv88e6xxx_g2_irq_mdio_setup(struct m
+ {
+ 	int phy, irq, err, err_phy;
+ 
+-	for (phy = 0; phy < chip->info->num_internal_phys; phy++) {
++	for (phy = 1; phy < chip->info->num_internal_phys; phy++) {
+ 		irq = irq_find_mapping(chip->g2_irq.domain, phy);
+ 		if (irq < 0) {
+ 			err = irq;

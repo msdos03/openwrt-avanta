@@ -8,9 +8,9 @@
 board_config_update
 
 case "$(board_name)" in
-	linksys,e4200-v2|\
-	linksys,ea3500|\
-	linksys,ea4500)
+	zte,f420-f620|\
+	zte,f460-f660|\
+	hqw,hgg420n)
 		ucidef_set_compat_version "2.0"
 		;;
 esac
