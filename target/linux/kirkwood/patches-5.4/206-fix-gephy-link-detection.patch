@@ -1,21 +1,11 @@
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -2349,14 +2349,14 @@ static struct phy_driver marvell_drivers
- 		.phy_id = MARVELL_PHY_ID_88E1540,
- 		.phy_id_mask = MARVELL_PHY_ID_MASK,
- 		.name = "Marvell 88E1540",
--		/* PHY_GBIT_FEATURES */
-+		/* PHY_GBIT_FEATURES irq disabled */
- 		.probe = m88e1510_probe,
- 		.config_init = &marvell_config_init,
- 		.config_aneg = &m88e1510_config_aneg,
- 		.read_status = &marvell_read_status,
--		.ack_interrupt = &marvell_ack_interrupt,
--		.config_intr = &marvell_config_intr,
--		.did_interrupt = &m88e1121_did_interrupt,
-+//		.ack_interrupt = &marvell_ack_interrupt,
-+//		.config_intr = &marvell_config_intr,
-+//		.did_interrupt = &m88e1121_did_interrupt,
- 		.resume = &genphy_resume,
- 		.suspend = &genphy_suspend,
- 		.read_page = marvell_read_page,
+--- a/drivers/net/dsa/mv88e6xxx/global2.c
++++ b/drivers/net/dsa/mv88e6xxx/global2.c
+@@ -1131,7 +1131,7 @@ int mv88e6xxx_g2_irq_mdio_setup(struct m
+ {
+ 	int phy, irq, err, err_phy;
+ 
+-	for (phy = 0; phy < chip->info->num_internal_phys; phy++) {
++	for (phy = 1; phy < chip->info->num_internal_phys; phy++) {
+ 		irq = irq_find_mapping(chip->g2_irq.domain, phy);
+ 		if (irq < 0) {
+ 			err = irq;
