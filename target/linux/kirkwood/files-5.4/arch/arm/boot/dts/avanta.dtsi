@@ -230,7 +230,7 @@
 		};
 
 		cesa: crypto@30000 {
-			compatible = "marvell,armada-370-crypto";
+			compatible = "marvell,kirkwood-crypto";
 			reg = <0x30000 0x10000>;
 			reg-names = "regs";
 			interrupts = <21>;
