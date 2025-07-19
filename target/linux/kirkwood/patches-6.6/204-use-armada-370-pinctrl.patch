@@ -1,0 +1,11 @@
+--- a/arch/arm/mach-mvebu/Kconfig
++++ b/arch/arm/mach-mvebu/Kconfig
+@@ -123,7 +123,7 @@ config MACH_KIRKWOOD
+ 	select ORION_TIMER
+ 	select FORCE_PCI
+ 	select PCI_QUIRKS
+-	select PINCTRL_KIRKWOOD
++	select PINCTRL_ARMADA_370
+ 	help
+ 	  Say 'Y' here if you want your kernel to support boards based
+ 	  on the Marvell Kirkwood device tree.
