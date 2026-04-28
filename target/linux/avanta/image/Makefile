@@ -78,6 +78,26 @@ define Device/zte_f460-f660
 endef
 TARGET_DEVICES += zte_f460-f660
 
+define Device/zte_f460-f660-lp
+  $(Device/kernel-size-migration)
+  DEVICE_VENDOR := ZTE
+  DEVICE_MODEL := F460-F660
+  DEVICE_VARIANT := 128M-NAND
+  DEVICE_DTS := avanta-f460-f660-lp
+  DEVICE_PACKAGES := kmod-usb2 wpad-basic-mbedtls kmod-usb-ledtrig-usbport \
+	kmod-gpio-button-hotplug kmod-rtl8192ce kmod-rtc-mv kmod-dsa-mv88e6xxx
+  PAGESIZE := 2048
+  SUBPAGESIZE := 512
+  BLOCKSIZE := 128k
+  KERNEL_SIZE := 4096k
+  KERNEL_IN_UBI :=
+  UBINIZE_OPTS := -E 5
+  IMAGE_SIZE := 130048k
+  IMAGE/factory.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | \
+	check-size
+endef
+TARGET_DEVICES += zte_f460-f660-lp
+
 define Device/hqw_hgg420n
   $(Device/kernel-size-migration)
   DEVICE_VENDOR := HQW
