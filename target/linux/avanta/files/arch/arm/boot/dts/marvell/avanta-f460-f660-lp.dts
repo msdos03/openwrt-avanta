@@ -27,7 +27,7 @@
 
 / {
 	model = "ZTE F460 F660";
-	compatible = "zte,f460-f660", "marvell,kirkwood-88f6282", "marvell,kirkwood";
+	compatible = "zte,f460-f660-lp", "marvell,kirkwood-88f6282", "marvell,kirkwood";
 
 	memory {
 		device_type = "memory";

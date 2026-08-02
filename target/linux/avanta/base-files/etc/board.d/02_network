@@ -11,6 +11,7 @@ avanta_setup_interfaces()
 
 	case "$board" in
 	zte,f460-f660|\
+	zte,f460-f660-lp|\
 	zte,f420-f620|\
 	hqw,hgg420n)
 		ucidef_set_interfaces_lan_wan "ethernet1 ethernet2 ethernet3" "internet"
@@ -30,6 +31,7 @@ avanta_setup_macs()
 
 	case "$board" in
 	zte,f460-f660|\
+	zte,f460-f660-lp|\
 	zte,f420-f620|\
 	hqw,hgg420n)
 		wan_mac=$(mtd_get_mac_ascii uboot_env ethaddr)
